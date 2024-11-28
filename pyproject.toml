@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "numericalderivative"
+version = "0.1"
+description = "Numerical differentiation"
+readme = "README.md"
+keywords = [
+    "Numerical Differentiation",
+    "First Derivative",
+    "Finite Difference",
+    "Optimal Step Size",
+    "Numerical Analysis"
+]
+license = {text = "GNU Lesser General Public License v3 (LGPLv3)"}
+authors = [
+    {name = "Michaël Baudin", email = "michael.baudin@gmail.com"}
+]
+urls = { "Homepage" = "https://github.com/mbaudin47/numerical_derivative" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy"
+]
+
+[project.optional-dependencies]
+cli = [
+  "openturns",
+  "matplotlib",
+]
