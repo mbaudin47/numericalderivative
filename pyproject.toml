@@ -18,7 +18,7 @@ license = {text = "GNU Lesser General Public License v3 (LGPLv3)"}
 authors = [
     {name = "Michaël Baudin", email = "michael.baudin@gmail.com"}
 ]
-urls = { "Homepage" = "https://github.com/mbaudin47/numerical_derivative" }
+urls = { "Homepage" = "https://github.com/mbaudin47/numericalderivative" }
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",

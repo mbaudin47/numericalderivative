@@ -28,7 +28,6 @@ h0 = 1.0e5
 x = 1.0e0
 algorithm = nd.SteplemanWinarsky(scaled_exp, x)
 h_optimal, iterations = algorithm.compute_step(h0)
-number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 ```
 
