@@ -38,7 +38,7 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     license="LGPL",
-    url="https://github.com/mbaudin47/numerical_derivative",
+    url="https://github.com/mbaudin47/numericalderivative",
     author="Michaël Baudin",
     author_email="michael.baudin@gmail.com",
 )
