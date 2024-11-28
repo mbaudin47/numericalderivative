@@ -3,9 +3,9 @@
 """
 References
 ----------
-Dumontet, J., & Vignes, J. (1977). 
-Détermination du pas optimal dans le calcul des dérivées sur ordinateur. 
-RAIRO. Analyse numérique, 11 (1), 13-25.
+- Dumontet, J., & Vignes, J. (1977). 
+  Détermination du pas optimal dans le calcul des dérivées sur ordinateur. 
+  RAIRO. Analyse numérique, 11 (1), 13-25.
 """
 
 import numpy as np

@@ -305,9 +305,9 @@ class GillMurraySaundersWrightExponentialDerivativeBenchmark(DerivativeBenchmark
 
         References
         ----------
-        Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983).
-        Computing forward-difference intervals for numerical optimization.
-        SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983).
+          Computing forward-difference intervals for numerical optimization.
+          SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
         """
         if alpha <= 0.0:
             raise ValueError(f"alpha = {alpha} should be > 0")
