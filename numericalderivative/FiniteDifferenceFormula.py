@@ -82,13 +82,18 @@ class FiniteDifferenceFormula(NumericalDerivative):
         third_derivative : float
             The approximate f'''(x).
 
+        References
+        ----------
+        - Dumontet, J., & Vignes, J. (1977). 
+          Détermination du pas optimal dans le calcul des dérivées sur ordinateur. 
+          RAIRO. Analyse numérique, 11 (1), 13-25.
         """
         t = np.zeros(4)
         t[0] = self.function_eval(self.x + 2 * step)
         t[1] = -self.function_eval(self.x - 2 * step)  # Fixed wrt paper
         t[2] = -2.0 * self.function_eval(self.x + step)
         t[3] = 2.0 * self.function_eval(self.x - step)  # Fixed wrt paper
-        third_derivative = np.sum(t) / (2 * step**3)  # Eq. 27 et 35
+        third_derivative = np.sum(t) / (2 * step**3)  # Eq. 27 and 35 in (D&V, 1977)
         return third_derivative
 
     def compute_first_derivative_central(self, step):
@@ -134,11 +139,17 @@ class FiniteDifferenceFormula(NumericalDerivative):
         -------
         second_derivative : float
             An estimate of f''(x).
+
+        References
+        ----------
+        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). 
+          Computing forward-difference intervals for numerical optimization. 
+          SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
         """
         step = (self.x + step) - self.x  # Magic trick
         if step <= 0.0:
             raise ValueError("Zero computed step. Cannot perform finite difference.")
-        # Eq. 1, page 311 in (GMS, 1983)
+        # Eq. 1, page 311 in (GMS&W, 1983)
         x1 = self.x + step
         first_derivative = (self.function(x1) - self.function(self.x)) / step
         return first_derivative
@@ -166,11 +177,16 @@ class FiniteDifferenceFormula(NumericalDerivative):
         second_derivative : float
             An estimate of f''(x).
 
+        References
+        ----------
+        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). 
+          Computing forward-difference intervals for numerical optimization. 
+          SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
         """
         step = (self.x + step) - self.x  # Magic trick
         if step <= 0.0:
             raise ValueError("Zero computed step. Cannot perform finite difference.")
-        # Eq. 8 page 314
+        # Eq. 8 page 314 in (GMS&W, 1983)
         second_derivative = (
             self.function_eval(self.x + step)
             - 2 * self.function_eval(self.x)
