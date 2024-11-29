@@ -49,7 +49,6 @@ To install from Pip:
 
 ```bash
 pip install numericalderivative
-python setup.py install
 ```
 
 ## References
