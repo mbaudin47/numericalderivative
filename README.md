@@ -70,4 +70,12 @@ python setup.py install
   benchmark problems
 - Use a relative precision in SteplemanWinarsky and GillMurraySaundersWright.
 - Remove NumericalDerivative: move it to FiniteDifferenceFormula.
+- Add finite_differences from menum and cite (Baudin, 2023).
+Reference : https://github.com/mbaudin47/menum_code
+https://github.com/mbaudin47/menum_code/blob/cec64dea8d205da796d1f578b42948115257b3bb/Scripts-Eleves/Py3/numdiff.py#L801
+
+- Implement the method of:
+
+Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+
 
