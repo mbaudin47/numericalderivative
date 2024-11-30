@@ -6,38 +6,42 @@ The root class for all algorithms.
 
 
 class NumericalDerivative:
+    """
+    Compute an approximately optimal step for the forward finite difference first derivative.
+
+    This is the root class and can only be used from its children.
+
+    Parameters
+    ----------
+    function : function
+        The function to differentiate.
+    x : float
+        The point where the derivative is approximated.
+    args : list
+        A list of optional arguments that the function takes as inputs.
+        By default, there is no extra argument and calling sequence of
+        the function must be y = function(x).
+        If there are extra arguments, then the calling sequence of
+        the function must be y = function(x, arg1, arg2, ...) where
+        arg1, arg2, ..., are the items in the args list.
+    verbose : bool, optional
+        Set to True to print intermediate messages. The default is False.
+
+    Returns
+    -------
+    None.
+
+    See also
+    --------
+    FiniteDifferenceFormula, SteplemanWinarsky, GillMurraySaundersWright, DumontetVignes
+
+    """
     def __init__(
         self,
         function,
         x,
         args=None,
     ):
-        """
-        Compute an approximately optimal step for the forward finite difference first derivative.
-
-        This is the root class and can only be used from its children.
-
-        Parameters
-        ----------
-        function : function
-            The function to differentiate.
-        x : float
-            The point where the derivative is approximated.
-        args : list
-            A list of optional arguments that the function takes as inputs.
-            By default, there is no extra argument and calling sequence of
-            the function must be y = function(x).
-            If there are extra arguments, then the calling sequence of
-            the function must be y = function(x, arg1, arg2, ...) where
-            arg1, arg2, ..., are the items in the args list.
-        verbose : bool, optional
-            Set to True to print intermediate messages. The default is False.
-
-        Returns
-        -------
-        None.
-
-        """
         self.function = function
         self.x = x
         self.args = args

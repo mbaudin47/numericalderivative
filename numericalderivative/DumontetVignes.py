@@ -5,12 +5,47 @@ Class to define Dumontet and Vignes algorithm
 """
 
 import numpy as np
-from .NumericalDerivative import NumericalDerivative
-from .FiniteDifferenceFormula import FiniteDifferenceFormula
-from .FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
+import numericalderivative as nd
 
 
-class DumontetVignes(NumericalDerivative):
+class DumontetVignes(nd.NumericalDerivative):
+    """
+    Use Dumontet & Vignes method to compute the optimum step size.
+
+    Uses centered finite difference for f'.
+    The method is based on computing the third derivative.
+    Then the optimal step for the central formula for the first derivative is computed
+    from the third derivative.
+
+    Parameters
+    ----------
+    function : function
+        The function to differentiate.
+    x : float
+        The point where the derivative is to be evaluated.
+    relative_precision : float, > 0, optional
+        The relative precision of evaluation of f. The default is 1.0e-16.
+    number_of_digits : int
+        The maximum number of digits of the floating point system.
+    ell_1 : float
+        The minimum bound of the L ratio.
+    ell_2 : float
+        The maximum bound of the L ratio.
+    args : list
+        A list of optional arguments that the function takes as inputs.
+        By default, there is no extra argument and calling sequence of
+        the function must be y = function(x).
+        If there are extra arguments, then the calling sequence of
+        the function must be y = function(x, arg1, arg2, ...) where
+        arg1, arg2, ..., are the items in the args list.
+    verbose : bool, optional
+        Set to True to print intermediate messages. The default is False.
+
+    References
+    ----------
+    - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
+
+    """
     def __init__(
         self,
         function,
@@ -22,47 +57,6 @@ class DumontetVignes(NumericalDerivative):
         args=None,
         verbose=False,
     ):
-        """
-        Use Dumontet & Vignes method to compute the optimum step size.
-
-        Uses centered finite difference for f'.
-        The method is based on computing the third derivative.
-        Then the optimal step for the central formula for the first derivative is computed
-        from the third derivative.
-
-        Parameters
-        ----------
-        function : function
-            The function to differentiate.
-        x : float
-            The point where the derivative is to be evaluated.
-        relative_precision : float, > 0, optional
-            The relative precision of evaluation of f. The default is 1.0e-16.
-        number_of_digits : int
-            The maximum number of digits of the floating point system.
-        ell_1 : float
-            The minimum bound of the L ratio.
-        ell_2 : float
-            The maximum bound of the L ratio.
-        args : list
-            A list of optional arguments that the function takes as inputs.
-            By default, there is no extra argument and calling sequence of
-            the function must be y = function(x).
-            If there are extra arguments, then the calling sequence of
-            the function must be y = function(x, arg1, arg2, ...) where
-            arg1, arg2, ..., are the items in the args list.
-        verbose : bool, optional
-            Set to True to print intermediate messages. The default is False.
-
-        Returns
-        -------
-        None.
-
-        References
-        ----------
-        - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
-
-        """
         self.relative_precision = relative_precision
         self.number_of_digits = number_of_digits
         # Eq. 34, fixed
@@ -71,7 +65,7 @@ class DumontetVignes(NumericalDerivative):
         self.ell_3 = 1.0 / ell_2
         self.ell_4 = 1.0 / ell_1
         self.verbose = verbose
-        self.finite_difference = FiniteDifferenceFormula(function, x, args)
+        self.finite_difference = nd.FiniteDifferenceFormula(function, x, args)
         super().__init__(function, x, args)
 
     def compute_ell(self, k):
@@ -87,6 +81,10 @@ class DumontetVignes(NumericalDerivative):
         -------
         ell : float
             The ratio f'''sup(x0) / f'''inf(x0).
+        f3inf : float
+            The lower bound of the third derivative
+        f3sup
+            The upper bound of the third derivative
 
         """
         t = np.zeros(4)
@@ -327,7 +325,7 @@ class DumontetVignes(NumericalDerivative):
         # Compute the approximate optimal step for the first derivative
         function_value = self.function_eval(self.x)
         absolute_precision = self.relative_precision * abs(function_value)
-        fd_optimal_step = FiniteDifferenceOptimalStep(absolute_precision)
+        fd_optimal_step = nd.FiniteDifferenceOptimalStep(absolute_precision)
         step, _ = fd_optimal_step.compute_step_first_derivative_central(
             third_derivative_value
         )

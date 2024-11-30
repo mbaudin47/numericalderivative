@@ -11,6 +11,56 @@ from .FiniteDifferenceFormula import FiniteDifferenceFormula
 
 
 class GillMurraySaundersWright(NumericalDerivative):
+    """
+    Compute an approximately optimal step for the forward finite difference first derivative.
+
+    The method is based on three steps:
+
+    - compute an approximate optimal step for the second derivative using central finite difference formula,
+    - compute the approximate second derivative using central finite difference formula,
+    - compute the approximate optimal step for the first derivative using the forward finite difference formula.
+
+    Finally, this approximately optimal step can be use to compute the
+    first derivative using the forward finite difference formula.
+
+    This algorithm is a simplified version of the algorithm published in
+    (Gill, Murray, Saunders & Wright, 1983) section 3.2 page 316.
+    While (Gill, Murray, Saunders & Wright, 1983) simultaneously considers
+    the finite difference step of the forward, backward formula for the
+    first derivative and the central formula for the second derivative,
+    this algorithm only searches for the optimal step for the central
+    formula for the second derivative.
+
+    Parameters
+    ----------
+    function : function
+        The function to differentiate.
+    x : float
+        The point where the derivative is approximated.
+    absolute_precision : float, optional
+        The absolute error of the function f at the point x.
+    c_threshold_min : float, optional, > 0
+        The minimum value of the condition error.
+    c_threshold_max : float, optional, > c_threshold_min
+        The maximum value of the condition error.
+    args : list
+        A list of optional arguments that the function takes as inputs.
+        By default, there is no extra argument and calling sequence of
+        the function must be y = function(x).
+        If there are extra arguments, then the calling sequence of
+        the function must be y = function(x, arg1, arg2, ...) where
+        arg1, arg2, ..., are the items in the args list.
+    verbose : bool
+        Set to True to print intermediate messages
+
+    Returns
+    -------
+    None.
+
+    References
+    ----------
+    - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+    """
     def __init__(
         self,
         function,
@@ -21,56 +71,6 @@ class GillMurraySaundersWright(NumericalDerivative):
         args=None,
         verbose=False,
     ):
-        """
-        Compute an approximately optimal step for the forward finite difference first derivative.
-
-        The method is based on three steps:
-
-        - compute an approximate optimal step for the second derivative using central finite difference formula,
-        - compute the approximate second derivative using central finite difference formula,
-        - compute the approximate optimal step for the first derivative using the forward finite difference formula.
-
-        Finally, this approximately optimal step can be use to compute the
-        first derivative using the forward finite difference formula.
-
-        This algorithm is a simplified version of the algorithm published in
-        (Gill, Murray, Saunders & Wright, 1983) section 3.2 page 316.
-        While (Gill, Murray, Saunders & Wright, 1983) simultaneously considers
-        the finite difference step of the forward, backward formula for the
-        first derivative and the central formula for the second derivative,
-        this algorithm only searches for the optimal step for the central
-        formula for the second derivative.
-
-        Parameters
-        ----------
-        function : function
-            The function to differentiate.
-        x : float
-            The point where the derivative is approximated.
-        absolute_precision : float, optional
-            The absolute error of the function f at the point x.
-        c_threshold_min : float, optional, > 0
-            The minimum value of the condition error.
-        c_threshold_max : float, optional, > c_threshold_min
-            The maximum value of the condition error.
-        args : list
-            A list of optional arguments that the function takes as inputs.
-            By default, there is no extra argument and calling sequence of
-            the function must be y = function(x).
-            If there are extra arguments, then the calling sequence of
-            the function must be y = function(x, arg1, arg2, ...) where
-            arg1, arg2, ..., are the items in the args list.
-        verbose : bool
-            Set to True to print intermediate messages
-
-        Returns
-        -------
-        None.
-
-        References
-        ----------
-        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
-        """
         if c_threshold_max <= c_threshold_min:
             raise ValueError(
                 f"c_threshold_max = {c_threshold_max} must be greater than "
