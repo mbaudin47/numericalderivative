@@ -15,6 +15,7 @@ jobs:
           conda install -c conda-forge sphinx_rtd_theme setuptools matplotlib
           python setup.py install
           pytest
+          sudo apt install -y texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra
           make html -C doc
       - name: Upload
         if: ${{ github.ref == 'refs/heads/main' }}          
