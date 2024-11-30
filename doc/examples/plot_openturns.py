@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Experiment with Stepleman & Winarsky method. 
-Applies it to an OpenTURNS function.
+Applies Stepleman & Winarsky method to an OpenTURNS function
+============================================================
 """
 
 # %%

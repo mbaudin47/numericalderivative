@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Experiment with Stepleman & Winarsky method. 
+Plot Stepleman & Winarsky's method
+==================================
+
 Find a step which is near to optimal for a centered finite difference 
 formula.
 
@@ -31,7 +33,7 @@ for i in range(number_of_points):
     h = h_array[i]
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
-pl.figure(figsize=(3.0, 2.0))
+pl.figure(figsize=(4.0, 3.0))
 pl.plot(h_array, n_digits_array)
 pl.title(r"Number of digits lost by F.D.. $f(x) = \exp(x)$")
 pl.xlabel("h")
@@ -49,13 +51,14 @@ for i in range(number_of_points):
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
 # %%
-pl.figure(figsize=(3.0, 2.0))
+pl.figure(figsize=(4.0, 3.0))
 pl.plot(h_array, n_digits_array)
 pl.title(r"Number of digits lost by F.D.. $f(x) = \sin(x)$")
 pl.xlabel("h")
 pl.ylabel("$N(h)$")
 pl.xscale("log")
 
+# %%
 # For each function, at point x = 1, plot the error vs the step computed
 # by the method
 
@@ -95,7 +98,7 @@ def plot_error_vs_h_with_SW_steps(
     minimum_error = np.nanmin(error_array)
     maximum_error = np.nanmax(error_array)
 
-    pl.figure(figsize=(3.0, 2.0))
+    pl.figure(figsize=(5.0, 3.0))
     pl.plot(h_array, error_array)
     pl.plot(
         [bisection_h0_step] * 2,
@@ -116,6 +119,7 @@ def plot_error_vs_h_with_SW_steps(
     pl.xscale("log")
     pl.yscale("log")
     pl.legend(bbox_to_anchor=(1.0, 1.0))
+    pl.subplots_adjust(right=0.8)
     return
 
 

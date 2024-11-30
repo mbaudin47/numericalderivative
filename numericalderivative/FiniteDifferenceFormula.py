@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Provides various finite difference formulas.
+Various finite difference formulas.
 """
 
 import numpy as np
@@ -9,29 +9,29 @@ from .NumericalDerivative import NumericalDerivative
 
 
 class FiniteDifferenceFormula(NumericalDerivative):
+    """
+    Compute a derivative of the function using finite difference formula
+
+    Parameters
+    ----------
+    function : function
+        The function to differentiate.
+    x : float
+        The point where the derivative is to be evaluated.
+    args : list
+        A list of optional arguments that the function takes as inputs.
+        By default, there is no extra argument and calling sequence of
+        the function must be y = function(x).
+        If there are extra arguments, then the calling sequence of
+        the function must be y = function(x, arg1, arg2, ...) where
+        arg1, arg2, ..., are the items in the args list.
+
+    Returns
+    -------
+    None.
+
+    """
     def __init__(self, function, x, args=None) -> None:
-        """
-        Compute a derivative of the function using finite difference formula
-
-        Parameters
-        ----------
-        function : function
-            The function to differentiate.
-        x : float
-            The point where the derivative is to be evaluated.
-        args : list
-            A list of optional arguments that the function takes as inputs.
-            By default, there is no extra argument and calling sequence of
-            the function must be y = function(x).
-            If there are extra arguments, then the calling sequence of
-            the function must be y = function(x, arg1, arg2, ...) where
-            arg1, arg2, ..., are the items in the args list.
-
-        Returns
-        -------
-        None.
-
-        """
         super().__init__(function, x, args)
 
     def function_eval(self, x):
@@ -46,7 +46,7 @@ class FiniteDifferenceFormula(NumericalDerivative):
             The input point.
 
         Returns
-        ----------
+        -------
         y : float
             The output point.
         """
@@ -62,7 +62,7 @@ class FiniteDifferenceFormula(NumericalDerivative):
         Returns the number of function evaluations.
 
         Returns
-        ----------
+        -------
         number_of_function_evaluations : int
             The number of function evaluations.
         """

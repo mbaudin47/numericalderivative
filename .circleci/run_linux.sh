@@ -12,6 +12,7 @@ bash run-all.sh
 cd ..
 
 # Run the examples
-cd examples
+cd doc/examples
 bash run_examples.sh
-cd ..
+cd ../..
+

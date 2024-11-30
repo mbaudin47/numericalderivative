@@ -1,0 +1,4 @@
+auto_example/*
+build/*
+sg_execution_times.rst
+user_manual/_generated/*

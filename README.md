@@ -31,6 +31,10 @@ h_optimal, iterations = algorithm.compute_step(h0)
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 ```
 
+## Documentation & references
+
+- [Package documentation](https://mbaudin47.github.io/numericalderivative/main/index.html)
+
 ## Authors
 
 * Michaël Baudin, 2024
@@ -76,5 +80,3 @@ https://github.com/mbaudin47/menum_code/blob/cec64dea8d205da796d1f578b4294811525
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
-
-

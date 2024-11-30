@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-References
-----------
-Adaptive numerical differentiation
-R. S. Stepleman and N. D. Winarsky
-Journal: Math. Comp. 33 (1979), 1257-1264 
+Class to define Stepleman and Winarsky algorithm
 """
 
 import numpy as np
@@ -14,42 +10,45 @@ from .FiniteDifferenceFormula import FiniteDifferenceFormula
 
 
 class SteplemanWinarsky(NumericalDerivative):
+    """
+    Use Stepleman & Winarsky method to compute the optimum step size for the first derivative.
+
+    Uses centered finite difference to compute an approximate value of f'(x).
+    The approximate optimal step for f'(x) is computed using a monotony property.
+
+    The central F.D. is:
+
+    f'(x) ~ (f(x + h) - f(x - h)) / (2 * h)
+
+    Parameters
+    ----------
+    function : function
+        The function to differentiate.
+    x : float
+        The point where the derivative is to be evaluated.
+    relative_precision : float, > 0, optional
+        The relative precision of evaluation of f. The default is 1.0e-16.
+    args : list
+        A list of optional arguments that the function takes as inputs.
+        By default, there is no extra argument and calling sequence of
+        the function must be y = function(x).
+        If there are extra arguments, then the calling sequence of
+        the function must be y = function(x, arg1, arg2, ...) where
+        arg1, arg2, ..., are the items in the args list.
+    verbose : bool, optional
+        Set to True to print intermediate messages. The default is False.
+
+    Returns
+    -------
+    None.
+
+    References
+    ----------
+    - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
+    """
     def __init__(
         self, function, x, relative_precision=1.0e-16, args=None, verbose=False
     ):
-        """
-        Use Stepleman & Winarsky method to compute the optimum step size for the first derivative.
-
-        Uses centered finite difference to compute an approximate value of f'(x).
-        The approximate optimal step for f'(x) is computed using a monotony property.
-
-        The central F.D. is:
-
-        f'(x) ~ (f(x + h) - f(x - h)) / (2 * h)
-
-        Parameters
-        ----------
-        function : function
-            The function to differentiate.
-        x : float
-            The point where the derivative is to be evaluated.
-        relative_precision : float, > 0, optional
-            The relative precision of evaluation of f. The default is 1.0e-16.
-        args : list
-            A list of optional arguments that the function takes as inputs.
-            By default, there is no extra argument and calling sequence of
-            the function must be y = function(x).
-            If there are extra arguments, then the calling sequence of
-            the function must be y = function(x, arg1, arg2, ...) where
-            arg1, arg2, ..., are the items in the args list.
-        verbose : bool, optional
-            Set to True to print intermediate messages. The default is False.
-
-        Returns
-        -------
-        None.
-
-        """
         if relative_precision <= 0.0:
             raise ValueError(
                 f"The absolute precision must be > 0. "
@@ -334,7 +333,7 @@ class SteplemanWinarsky(NumericalDerivative):
         Returns the number of function evaluations.
 
         Returns
-        ----------
+        -------
         number_of_function_evaluations : int
             The number of function evaluations.
         """

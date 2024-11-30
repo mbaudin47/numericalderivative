@@ -8,6 +8,24 @@ import numpy as np
 
 
 class DerivativeBenchmark:
+    """
+    Create a benchmark for numerical derivatives of a function
+
+    Parameters
+    ----------
+    function : function
+        The function
+    first_derivative : function
+        The first derivative of the function
+    second_derivative : function
+        The second derivative of the function
+    third_derivative : function
+        The third derivative of the function
+    fourth_derivative : function
+        The fourth derivative of the function
+    x : float
+        The point where the derivative should be computed
+    """
     def __init__(
         self,
         name,
@@ -18,24 +36,6 @@ class DerivativeBenchmark:
         fourth_derivative,
         x,
     ):
-        """
-        Create a benchmark for numerical derivatives of a function
-
-        Parameters
-        ----------
-        function : function
-            The function
-        first_derivative : function
-            The first derivative of the function
-        second_derivative : function
-            The second derivative of the function
-        third_derivative : function
-            The third derivative of the function
-        fourth_derivative : function
-            The fourth derivative of the function
-        x : float
-            The point where the derivative should be computed
-        """
         self.name = name
         self.function = function
         self.first_derivative = first_derivative
@@ -46,16 +46,16 @@ class DerivativeBenchmark:
 
 
 class ExponentialDerivativeBenchmark(DerivativeBenchmark):
+    """
+    Create an exponential derivative benchmark
+
+    The function is:
+
+    f(x) = exp(x)
+
+    for any x.
+    """
     def __init__(self):
-        """
-        Create an exponential derivative benchmark
-
-        The function is:
-
-        f(x) = exp(x)
-
-        for any x.
-        """
 
         def my_exp(x):
             return np.exp(x)
@@ -85,16 +85,16 @@ class ExponentialDerivativeBenchmark(DerivativeBenchmark):
 
 
 class LogarithmicDerivativeBenchmark(DerivativeBenchmark):
+    """
+    Create a logarithmic derivative benchmark
+
+    The function is:
+
+    f(x) = log(x)
+
+    for any x > 0.
+    """
     def __init__(self):
-        """
-        Create a logarithmic derivative benchmark
-
-        The function is:
-
-        f(x) = log(x)
-
-        for any x > 0.
-        """
 
         def my_log(x):
             return np.log(x)
@@ -125,16 +125,16 @@ class LogarithmicDerivativeBenchmark(DerivativeBenchmark):
 
 
 class SquareRootDerivativeBenchmark(DerivativeBenchmark):
+    """
+    Create a square root derivative benchmark
+
+    The function is:
+
+    f(x) = log(x)
+
+    for any x >= 0.
+    """
     def __init__(self):
-        """
-        Create a square root derivative benchmark
-
-        The function is:
-
-        f(x) = log(x)
-
-        for any x >= 0.
-        """
 
         def my_squareroot(x):
             return np.sqrt(x)
@@ -164,16 +164,16 @@ class SquareRootDerivativeBenchmark(DerivativeBenchmark):
 
 
 class AtanDerivativeBenchmark(DerivativeBenchmark):
+    """
+    Create an arctangent derivative benchmark
+
+    The function is:
+
+    f(x) = atan(x)
+
+    for any x.
+    """
     def __init__(self):
-        """
-        Create an arctangent derivative benchmark
-
-        The function is:
-
-        f(x) = atan(x)
-
-        for any x.
-        """
 
         def my_atan(x):
             return np.arctan(x)
@@ -204,16 +204,16 @@ class AtanDerivativeBenchmark(DerivativeBenchmark):
 
 
 class SinDerivativeBenchmark(DerivativeBenchmark):
+    """
+    Create a sine derivative benchmark
+
+    The function is:
+
+    f(x) = sin(x)
+
+    for any x.
+    """
     def __init__(self):
-        """
-        Create a sine derivative benchmark
-
-        The function is:
-
-        f(x) = sin(x)
-
-        for any x.
-        """
 
         def my_sin(x):
             return np.sin(x)
@@ -243,21 +243,21 @@ class SinDerivativeBenchmark(DerivativeBenchmark):
 
 
 class ScaledExponentialDerivativeBenchmark(DerivativeBenchmark):
+    """
+    Create a scaled exponential derivative benchmark
+
+    The function is:
+
+    f(x) = exp(-x / alpha)
+
+    for any x.
+
+    Parameters
+    ----------
+    alpha : float, > 0
+        The parameter
+    """
     def __init__(self, alpha=1.0e6):
-        """
-        Create a scaled exponential derivative benchmark
-
-        The function is:
-
-        f(x) = exp(-x / alpha)
-
-        for any x.
-
-        Parameters
-        ----------
-        alpha : float, > 0
-            The parameter
-        """
         if alpha <= 0.0:
             raise ValueError(f"alpha = {alpha} should be > 0")
         self.alpha = alpha
@@ -290,25 +290,25 @@ class ScaledExponentialDerivativeBenchmark(DerivativeBenchmark):
 
 
 class GillMurraySaundersWrightExponentialDerivativeBenchmark(DerivativeBenchmark):
+    """
+    Create an exponential derivative benchmark
+
+    See eq. 4 page 312 in (Gill, Murray, Saunders & Wright, 1983)
+
+    f(x) = (exp(x) - 1)^2 + (1 / sqrt(1 + x^2) - 1)^2
+
+    Parameters
+    ----------
+    alpha : float, > 0
+        The parameter
+
+    References
+    ----------
+    - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983).
+        Computing forward-difference intervals for numerical optimization.
+        SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+    """
     def __init__(self, alpha=1.0e6):
-        """
-        Create an exponential derivative benchmark
-
-        See eq. 4 page 312 in (Gill, Murray, Saunders & Wright, 1983)
-
-        f(x) = (exp(x) - 1)^2 + (1 / sqrt(1 + x^2) - 1)^2
-
-        Parameters
-        ----------
-        alpha : float, > 0
-            The parameter
-
-        References
-        ----------
-        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983).
-          Computing forward-difference intervals for numerical optimization.
-          SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
-        """
         if alpha <= 0.0:
             raise ValueError(f"alpha = {alpha} should be > 0")
         self.alpha = alpha
