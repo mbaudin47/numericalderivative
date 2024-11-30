@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-References
-----------
-- Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). 
-  Computing forward-difference intervals for numerical optimization. 
-  SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+Class to define Gill, Murray, Saunders and Wright algorithm
 """
 
 import numpy as np
@@ -29,12 +25,10 @@ class GillMurraySaundersWright(NumericalDerivative):
         Compute an approximately optimal step for the forward finite difference first derivative.
 
         The method is based on three steps:
-        - compute an approximate optimal step for the second derivative using
-          central finite difference formula,
-        - compute the approximate second derivative using
-          central finite difference formula,
-        - compute the approximate optimal step for the first derivative using
-          the forward finite difference formula.
+
+        - compute an approximate optimal step for the second derivative using central finite difference formula,
+        - compute the approximate second derivative using central finite difference formula,
+        - compute the approximate optimal step for the first derivative using the forward finite difference formula.
 
         Finally, this approximately optimal step can be use to compute the
         first derivative using the forward finite difference formula.
@@ -73,6 +67,9 @@ class GillMurraySaundersWright(NumericalDerivative):
         -------
         None.
 
+        References
+        ----------
+        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
         """
         if c_threshold_max <= c_threshold_min:
             raise ValueError(
@@ -295,7 +292,7 @@ class GillMurraySaundersWright(NumericalDerivative):
         Returns the number of function evaluations.
 
         Returns
-        ----------
+        -------
         number_of_function_evaluations : int
             The number of function evaluations.
         """

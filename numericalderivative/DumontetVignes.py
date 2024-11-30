@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-References
-----------
-- Dumontet, J., & Vignes, J. (1977). 
-  Détermination du pas optimal dans le calcul des dérivées sur ordinateur. 
-  RAIRO. Analyse numérique, 11 (1), 13-25.
+Class to define Dumontet and Vignes algorithm
 """
 
 import numpy as np
@@ -61,6 +57,10 @@ class DumontetVignes(NumericalDerivative):
         Returns
         -------
         None.
+
+        References
+        ----------
+        - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
 
         """
         self.relative_precision = relative_precision
@@ -359,7 +359,7 @@ class DumontetVignes(NumericalDerivative):
         Returns the number of function evaluations.
 
         Returns
-        ----------
+        -------
         number_of_function_evaluations : int
             The number of function evaluations.
         """

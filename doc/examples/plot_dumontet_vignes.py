@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
+Experiments with Dumontet & Vignes method
+=========================================
+
 References
 ----------
-- Dumontet, J., & Vignes, J. (1977). 
-  Détermination du pas optimal dans le calcul des dérivées sur ordinateur. 
-  RAIRO. Analyse numérique, 11 (1), 13-25.
+- Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
 """
 
 # %%

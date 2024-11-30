@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Experiment with Stepleman & Winarsky method. 
+Plot Stepleman & Winarsky's method
+==================================
+
 Find a step which is near to optimal for a centered finite difference 
 formula.
 

@@ -55,7 +55,7 @@ class NumericalDerivative:
             The input point.
 
         Returns
-        ----------
+        -------
         y : float
             The output point.
         """
@@ -71,7 +71,7 @@ class NumericalDerivative:
         Returns the number of function evaluations.
 
         Returns
-        ----------
+        -------
         number_of_function_evaluations : int
             The number of function evaluations.
         """
@@ -87,7 +87,7 @@ class NumericalDerivative:
             The finite difference step
 
         Returns
-        ----------
+        -------
         f_prime_approx : float, > 0
             The approximate first derivative of the function
         """
@@ -100,7 +100,7 @@ class NumericalDerivative:
         Compute an approximate optimal step
 
         Returns
-        ----------
+        -------
         step : float, > 0
             The finite difference step for the first derivative
         number_of_iterations : int

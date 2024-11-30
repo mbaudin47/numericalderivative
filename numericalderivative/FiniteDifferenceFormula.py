@@ -46,7 +46,7 @@ class FiniteDifferenceFormula(NumericalDerivative):
             The input point.
 
         Returns
-        ----------
+        -------
         y : float
             The output point.
         """
@@ -62,7 +62,7 @@ class FiniteDifferenceFormula(NumericalDerivative):
         Returns the number of function evaluations.
 
         Returns
-        ----------
+        -------
         number_of_function_evaluations : int
             The number of function evaluations.
         """

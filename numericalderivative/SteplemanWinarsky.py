@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-References
-----------
-Adaptive numerical differentiation
-R. S. Stepleman and N. D. Winarsky
-Journal: Math. Comp. 33 (1979), 1257-1264 
+Class to define Stepleman and Winarsky algorithm
 """
 
 import numpy as np
@@ -49,6 +45,9 @@ class SteplemanWinarsky(NumericalDerivative):
         -------
         None.
 
+        References
+        ----------
+        - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
         """
         if relative_precision <= 0.0:
             raise ValueError(
@@ -334,7 +333,7 @@ class SteplemanWinarsky(NumericalDerivative):
         Returns the number of function evaluations.
 
         Returns
-        ----------
+        -------
         number_of_function_evaluations : int
             The number of function evaluations.
         """

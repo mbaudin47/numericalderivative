@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Experiment with Gill, Murray, Saunders and Wright method. 
+Experiment with Gill, Murray, Saunders and Wright method
+========================================================
+
 Find a step which is near to optimal for a centered finite difference 
 formula.
 
 References
 ----------
-- Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). 
-  Computing forward-difference intervals for numerical optimization. 
-  SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+- Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
 """
 
 # %%
@@ -237,7 +237,7 @@ def plot_error_vs_h_with_GMSW_steps(
         [step] * 2,
         [minimum_error, maximum_error],
         "--",
-        label="$\hat{h}$",
+        label=r"$\hat{h}$",
     )
     pl.title(f"(GMS & W). {name} at point x = {x}")
     pl.xlabel("h")

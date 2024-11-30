@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-A simple demonstration of the methods. 
+A simple demonstration of the methods
+=====================================
+
 Finds a step which is near to optimal for a centered finite difference 
 formula.
 
 References
 ----------
-- Adaptive numerical differentiation
-  R. S. Stepleman and N. D. Winarsky
-  Journal: Math. Comp. 33 (1979), 1257-1264 
+- Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
 """
 # %%
 import numpy as np

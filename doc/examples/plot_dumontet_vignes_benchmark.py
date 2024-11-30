@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Experiment with Stepleman & ùWinarsky method. 
+Benchmark Dumontet & Vignes method
+==================================
+
 Find a step which is near to optimal for a centered finite difference 
 formula.
 
 References
 ----------
-- Adaptive numerical differentiation
-  R. S. Stepleman and N. D. Winarsky
-  Journal: Math. Comp. 33 (1979), 1257-1264 
+- Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
 """
 # %%
 import numpy as np
