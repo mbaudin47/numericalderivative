@@ -61,14 +61,10 @@ if LooseVersion(sphinx.__version__) >= '1.8':
 else:
     autodoc_default_flags =  ['members', 'inherited-members']
 
-intersphinx_mapping = {'openturns': ('http://openturns.github.io/openturns/latest', None)}
 autosummary_generate = True
 
 numpydoc_show_class_members = True
 numpydoc_class_members_toctree = False
-
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 source_suffix = ['.rst']
@@ -90,21 +86,7 @@ language = 'python'
 exclude_patterns = []
 
 
-
 # -- Options for HTML output ----------------------------------------------
-
-html_theme = 'openturns'
-html_theme_path = ['themes']
-# html_sidebars = {
-#     '**': [
-#         # 'about.html',
-#         'navigation.html',
-#         'relations.html',
-#         'searchbox.html',
-#         'donate.html',
-#     ]
-# }
-
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -129,18 +111,11 @@ latex_elements = {
     'papersize': 'a4paper',
     # The font size ('10pt', '11pt' or '12pt').
     'pointsize': '10pt',
-    # Additional stuff for the LaTeX preamble.
-    'preamble': r'\usepackage{math_notations},\usepackage{stackrel}',
 }
 
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
-
 # The suffix(es) of source filenames.
 source_suffix = ['.rst']
-
-
 
 man_pages = [
     ('index', 'numericalderivative', u'numericalderivative Documentation',

@@ -7,8 +7,6 @@ Algorithms
 ----------
 
 .. autosummary::
-   :toctree: _generated/
-   :template: class.rst_t
 
        NumericalDerivative
        DumontetVignes
@@ -19,8 +17,6 @@ Finite Differences
 ------------------
 
 .. autosummary::
-   :toctree: _generated/
-   :template: class.rst_t
 
        FiniteDifferenceFormula
        FiniteDifferenceOptimalStep
@@ -29,8 +25,6 @@ Benchmark problems
 ------------------
 
 .. autosummary::
-   :toctree: _generated/
-   :template: class.rst_t
    
        DerivativeBenchmark
        ExponentialDerivativeBenchmark
@@ -40,7 +34,4 @@ Benchmark problems
        SinDerivativeBenchmark
        ScaledExponentialDerivativeBenchmark
        GillMurraySaundersWrightExponentialDerivativeBenchmark
-
-    :template: function.rst_t
-
        BuildBenchmarkList

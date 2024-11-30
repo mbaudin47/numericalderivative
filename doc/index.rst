@@ -28,7 +28,7 @@ User documentation
 ------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    
    user_manual/user_manual
 
@@ -50,5 +50,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
