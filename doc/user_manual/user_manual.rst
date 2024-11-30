@@ -7,6 +7,7 @@ Algorithms
 ----------
 
 .. autosummary::
+   :toctree: _generated/
 
        NumericalDerivative
        DumontetVignes
@@ -17,6 +18,7 @@ Finite Differences
 ------------------
 
 .. autosummary::
+   :toctree: _generated/
 
        FiniteDifferenceFormula
        FiniteDifferenceOptimalStep
@@ -25,6 +27,7 @@ Benchmark problems
 ------------------
 
 .. autosummary::
+   :toctree: _generated/
    
        DerivativeBenchmark
        ExponentialDerivativeBenchmark
