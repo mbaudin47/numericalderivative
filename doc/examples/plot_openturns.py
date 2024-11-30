@@ -14,6 +14,9 @@ from openturns.usecases import cantilever_beam
 from openturns.usecases import fireSatellite_function
 
 # %%
+# Chaboche model
+# --------------
+#
 # Load the Chaboche model
 cm = chaboche_model.ChabocheModel()
 model = ot.Function(cm.model)
@@ -25,22 +28,23 @@ meanStrain, meanR, meanC, meanGamma = inputMean
 # Print the derivative from OpenTURNS
 derivative = model.gradient(inputMean)
 print(f"derivative = ")
-print(f"{derivative}")
+derivative
 
-"""
-Derivative with default step size in OpenTURNS :
-derivative = 
-[[  1.93789e+09 ]
- [  1           ]
- [  0.0297619   ]
- [ -1.33845e+06 ]]
-"""
+# %%
+# Here is the derivative with default step size in OpenTURNS :
+#
+# .. code-block::
+#
+#    derivative = 
+#    [[  1.93789e+09 ]
+#    [  1           ]
+#    [  0.0297619   ]
+#    [ -1.33845e+06 ]]
 
 # %%
 # Print the gradient function
 gradient = model.getGradient()
-print(gradient)
-
+gradient
 
 # %%
 # Derivative with respect to strain
@@ -154,6 +158,7 @@ def genericFunction(x, xIndex, referenceInput):
     return modelOutput
 
 
+# %%
 # Default step size for all components
 initialStep = ot.Point([1.0e0, 1.0e8, 1.0e8, 1.0e0])
 inputDimension = model.getInputDimension()
@@ -184,6 +189,7 @@ for xIndex in range(inputDimension):
     # Store optimal point
     optimalStep[xIndex] = h_optimal
 
+# %%
 print("The optimal step for central finite difference is")
 print(f"optimalStep = {optimalStep}")
 
@@ -197,15 +203,23 @@ derivative = model.gradient(inputMean)
 print(f"derivative = ")
 print(derivative)
 
-"""
-Derivative with step size computed from SteplemanWinarsky :
-derivative = 
-[[  1.93789e+09 ]
- [  1           ]
- [  0.0295312   ]  # <- This is a change in the 3d decimal
- [ -1.33845e+06 ]]
-"""
+# %%
+# Derivative with step size computed from SteplemanWinarsky :
+#
+# .. code-block::
+#
+#     derivative = 
+#     [[  1.93789e+09 ]
+#      [  1           ]
+#      [  0.0295312   ]  # <- This is a change in the 3d decimal
+#      [ -1.33845e+06 ]]
 
+# %%
+# Compute the step of a ot.Function using Stepleman & Winarsky
+# ------------------------------------------------------------
+#
+# The function below computes the step of a finite difference formula
+# applied to an OpenTURNS function using Stepleman & Winarsky's method.
 
 # %%
 def computeSteplemanWinarskyStep(
@@ -297,6 +311,9 @@ def computeSteplemanWinarskyStep(
 
 
 # %%
+# Cantilever beam model
+# ---------------------
+#
 # Apply the same method to the cantilever beam model
 # Load the cantilever beam model
 cb = cantilever_beam.CantileverBeam()
@@ -310,18 +327,22 @@ derivative = model.gradient(inputMean)
 print(f"derivative = ")
 print(f"{derivative}")
 
-"""
-Derivative with OpenTURNS's default step size :
-derivative = 
-[[ -2.53725e-12 ]
- [  0.000567037 ]
- [  0.200131    ]
- [ -1.17008e+06 ]]
+# %%
+# Derivative with OpenTURNS's default step size :
+#
+# .. code-block::
+#
+#    derivative = 
+#    [[ -2.53725e-12 ]
+#     [  0.000567037 ]
+#     [  0.200131    ]
+#     [ -1.17008e+06 ]]
 
-Notice that the CantileverBeam model has an exact gradient in OpenTURNS,
-because it is symbolic.
-Hence, using the optimal step should not make any difference.
-"""
+# %%
+# Notice that the CantileverBeam model has an exact gradient in OpenTURNS,
+# because it is symbolic.
+# Hence, using the optimal step should not make any difference.
+
 # %%
 # Compute step from SteplemanWinarsky
 initialStep = ot.Point(inputMean) / 2
@@ -329,7 +350,6 @@ optimalStep = computeSteplemanWinarskyStep(model, initialStep, inputMean)
 print("The optimal step for central finite difference is")
 print(f"optimalStep = {optimalStep}")
 
-# %%
 gradStep = ot.ConstantStep(optimalStep)  # Constant gradient step
 model.setGradient(ot.CenteredFiniteDifferenceGradient(gradStep, model.getEvaluation()))
 # Now the gradient uses the optimal step sizes
@@ -338,17 +358,23 @@ print(f"derivative = ")
 print(f"{derivative}")
 
 # %%
-"""
-Derivative with SteplemanWinarskyStep
-derivative = 
-[[ -2.53725e-12 ]
- [  0.000567037 ]
- [  0.200131    ]
- [ -1.17008e+06 ]]
+# Derivative with SteplemanWinarskyStep
+#
+# .. code-block::
+#
+#     derivative = 
+#     [[ -2.53725e-12 ]
+#      [  0.000567037 ]
+#      [  0.200131    ]
+#      [ -1.17008e+06 ]]
+#
+# We see that this is the correct step size.
 
-We see that this is the correct step size.
-"""
+
 # %%
+# Fire satellite model
+# --------------------
+#
 # Load the Fire satellite use case with total torque as output
 # Print the derivative from OpenTURNS
 m = fireSatellite_function.FireSatelliteModel()
@@ -362,36 +388,38 @@ derivative = model.gradient(inputMean)
 print(f"derivative = ")
 print(f"{derivative}")
 
-"""
-From OpenTURNS with default settings:
-derivative = 
-9x1
-[[ -4.78066e-10 ]
- [ -3.46945e-13 ]
- [  2.30666e-09 ]
- [  4.90736e-09 ]
- [  1.61453e-06 ]
- [  2.15271e-06 ]
- [  5.17815e-10 ]
- [  0.00582819  ]
- [  0.0116564   ]]
-"""
+# %%
+# From OpenTURNS with default settings:
+#
+# .. code-block::
+#
+#     derivative = 
+#     9x1
+#     [[ -4.78066e-10 ]
+#      [ -3.46945e-13 ]
+#      [  2.30666e-09 ]
+#      [  4.90736e-09 ]
+#      [  1.61453e-06 ]
+#      [  2.15271e-06 ]
+#      [  5.17815e-10 ]
+#      [  0.00582819  ]
+#      [  0.0116564   ]]
 
-"""
-There is a specific difficulty with FireSatellite model for the derivative 
-with respect to Pother.
-Indeed, the gradient of the TotalTorque with respect to Pother is close 
-to zero.
-Furthermore, the nominal value (mean) of Pother is 1000.
-Therefore, in order to get a sufficiently large number of lost digits, 
-the algorithm is forced to use a very large step h, close to 10^4.
-But this leads to a negative value of Pother - h, which produces
-a math domain error.
-In other words, the model has an input range which is ignored by the 
-algorithm.
-To solve this issue the interval which defines the set of
-possible values of x should be introduced.
-"""
+# %%
+# There is a specific difficulty with FireSatellite model for the derivative 
+# with respect to Pother.
+# Indeed, the gradient of the TotalTorque with respect to Pother is close 
+# to zero.
+# Furthermore, the nominal value (mean) of Pother is 1000.
+# Therefore, in order to get a sufficiently large number of lost digits, 
+# the algorithm is forced to use a very large step h, close to 10^4.
+# But this leads to a negative value of Pother - h, which produces
+# a math domain error.
+# In other words, the model has an input range which is ignored by the 
+# algorithm.
+# To solve this issue the interval which defines the set of
+# possible values of x should be introduced.
+
 # %%
 # Compute step from SteplemanWinarsky
 initialStep = ot.Point(inputMean) / 2
@@ -413,18 +441,21 @@ derivative = model.gradient(inputMean)
 print(f"derivative = ")
 print(f"{derivative}")
 
-"""
-From SteplemanWinarsky
-derivative = 
-9x1
-[[ -4.78157e-10 ]
- [ -2.91776e-13 ]  # <- This is a significant change
- [  2.30671e-09 ]
- [  4.90745e-09 ]
- [  1.61453e-06 ]
- [  2.15271e-06 ]
- [  5.17805e-10 ]
- [  0.00582819  ]
- [  0.0116564   ]]
- """
+# %%
+# From SteplemanWinarsky
+#
+# .. code-block::
+#
+#    derivative = 
+#    9x1
+#    [[ -4.78157e-10 ]
+#     [ -2.91776e-13 ]  # <- This is a minor change
+#     [  2.30671e-09 ]
+#     [  4.90745e-09 ]
+#     [  1.61453e-06 ]
+#     [  2.15271e-06 ]
+#     [  5.17805e-10 ]
+#     [  0.00582819  ]
+#     [  0.0116564   ]]
+
 # %%
