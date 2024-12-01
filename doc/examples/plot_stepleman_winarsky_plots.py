@@ -103,13 +103,13 @@ def plot_error_vs_h_with_SW_steps(
         [h_min] * 2,
         [minimum_error, maximum_error],
         "--",
-        label="$h_{\min}$",
+        label=r"$h_{\min}$",
     )
     pl.plot(
         [h_max] * 2,
         [minimum_error, maximum_error],
         "--",
-        label="$h_{\max}$",
+        label=r"$h_{\max}$",
     )
     pl.plot(
         [bisection_h0_step] * 2,

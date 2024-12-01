@@ -19,6 +19,7 @@ import os
 import subprocess
 from distutils.version import LooseVersion
 import sphinx
+import sphinx_gallery
 
 sys.path.insert(0, os.path.abspath('../../..'))
 # -- Project information -----------------------------------------------------
@@ -41,8 +42,17 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.autosummary',
     'numpydoc',
+    'sphinx_gallery.gen_gallery',
 ]
 
+sphinx_gallery_conf = {
+    'examples_dirs': ['examples'], # # path to
+    # example scripts
+    'gallery_dirs': ['auto_example'],
+    #path to where to save gallery gen. output
+    'run_stale_examples':True,
+    'show_signature': False
+    }
 
 if LooseVersion(sphinx.__version__) >= '1.8':
     autodoc_default_options = {'members': None, 'inherited-members': None}

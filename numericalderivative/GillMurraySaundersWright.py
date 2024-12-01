@@ -5,12 +5,10 @@ Class to define Gill, Murray, Saunders and Wright algorithm
 """
 
 import numpy as np
-from .FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
-from .NumericalDerivative import NumericalDerivative
-from .FiniteDifferenceFormula import FiniteDifferenceFormula
+import numericalderivative as nd
 
 
-class GillMurraySaundersWright(NumericalDerivative):
+class GillMurraySaundersWright():
     """
     Compute an approximately optimal step for the forward finite difference first derivative.
 
@@ -85,9 +83,10 @@ class GillMurraySaundersWright(NumericalDerivative):
         self.c_threshold_min = c_threshold_min
         self.c_threshold_max = c_threshold_max
         self.verbose = verbose
-        self.finite_difference = FiniteDifferenceFormula(function, x, args)
-        super().__init__(function, x, args)
-        self.y = self.function_eval(self.x)
+        self.x = x
+        self.finite_difference = nd.FiniteDifferenceFormula(function, x, args)
+        self.function = nd.FunctionWithArguments(function, args)
+        self.y = self.function(self.x)
         self.absolute_precision = abs(relative_precision * self.y)
 
     def compute_condition(self, k):
@@ -117,7 +116,7 @@ class GillMurraySaundersWright(NumericalDerivative):
         # We do not use compute_2nd_derivative because y=f(x) is known.
         # This way, we compute it only once.
         phi = (
-            self.function_eval(self.x + k) - 2 * self.y + self.function_eval(self.x - k)
+            self.function(self.x + k) - 2 * self.y + self.function(self.x - k)
         ) / (k**2)
         # Eq. 11 page 315
         if phi == 0.0:
@@ -265,7 +264,7 @@ class GillMurraySaundersWright(NumericalDerivative):
         )
         # Plug the step for second derivative, evaluate the second derivative,
         # and plug it into the formula.
-        fd_step = FiniteDifferenceOptimalStep(self.absolute_precision)
+        fd_step = nd.FiniteDifferenceOptimalStep(self.absolute_precision)
         step, _ = fd_step.compute_step_first_derivative_forward(second_derivative_value)
         return step, number_of_iterations
 
@@ -303,5 +302,8 @@ class GillMurraySaundersWright(NumericalDerivative):
         finite_difference_feval = (
             self.finite_difference.get_number_of_function_evaluations()
         )
-        total_feval = finite_difference_feval + self.number_of_function_evaluations
+        function_eval = (
+            self.function.get_number_of_evaluations()
+        )
+        total_feval = finite_difference_feval + function_eval
         return total_feval

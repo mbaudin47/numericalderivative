@@ -183,7 +183,7 @@ x = 1.0
 f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(
     1.0e-7, 1.0e7,
 )
-feval = algorithm.number_of_function_evaluations
+feval = algorithm.get_number_of_function_evaluations()
 print("FD(x) = ", f_prime_approx)
 print("number_of_iterations = ", number_of_iterations)
 print("Func. eval = ", feval)
@@ -216,10 +216,12 @@ f_prime_approx, estim_relative_error = algorithm.search_step_with_bisection(
     beta=4.0,
 )
 absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
-feval = algorithm.number_of_function_evaluations
+feval = algorithm.get_number_of_function_evaluations()
 print(
     "x = %.3f, abs. error = %.3e, estim. rel. error = %.3e, Func. eval. = %d"
     % (x, absolute_error, estim_relative_error, number_of_function_evaluations)
 )
 
 #
+
+# %%

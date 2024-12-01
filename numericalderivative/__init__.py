@@ -1,6 +1,6 @@
 """numericalderivative module."""
 
-from .NumericalDerivative import NumericalDerivative
+from .FunctionWithArguments import FunctionWithArguments
 from .DerivativeBenchmark import (
     DerivativeBenchmark,
     ExponentialDerivativeBenchmark,
@@ -20,7 +20,7 @@ from .FiniteDifferenceFormula import FiniteDifferenceFormula
 
 __all__ = [
     "FiniteDifferenceFormula",
-    "NumericalDerivative",
+    "FunctionWithArguments",
     "DerivativeBenchmark",
     "ExponentialDerivativeBenchmark",
     "LogarithmicDerivativeBenchmark",

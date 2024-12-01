@@ -5,11 +5,10 @@ Class to define Stepleman and Winarsky algorithm
 """
 
 import numpy as np
-from .NumericalDerivative import NumericalDerivative
-from .FiniteDifferenceFormula import FiniteDifferenceFormula
+import numericalderivative as nd
 
 
-class SteplemanWinarsky(NumericalDerivative):
+class SteplemanWinarsky():
     """
     Use Stepleman & Winarsky method to compute the optimum step size for the first derivative.
 
@@ -56,8 +55,9 @@ class SteplemanWinarsky(NumericalDerivative):
             )
         self.relative_precision = relative_precision
         self.verbose = verbose
-        self.finite_difference = FiniteDifferenceFormula(function, x, args)
-        super().__init__(function, x, args)
+        self.finite_difference = nd.FiniteDifferenceFormula(function, x, args)
+        self.function = nd.FunctionWithArguments(function, args)
+        self.x = x
         return
 
     def compute_step(self, initial_step=None, iteration_maximum=53, beta=4.0):
@@ -164,7 +164,7 @@ class SteplemanWinarsky(NumericalDerivative):
 
         """
         d = self.finite_difference.compute_first_derivative_central(h)
-        function_value = self.function_eval(self.x)
+        function_value = self.function(self.x)
         # eq. 3.10
         if function_value == 0.0:
             delta = abs(2 * h * d)
@@ -342,5 +342,8 @@ class SteplemanWinarsky(NumericalDerivative):
         finite_difference_feval = (
             self.finite_difference.get_number_of_function_evaluations()
         )
-        total_feval = finite_difference_feval + self.number_of_function_evaluations
+        function_eval = (
+            self.function.get_number_of_evaluations()
+        )
+        total_feval = finite_difference_feval + function_eval
         return total_feval
