@@ -9,7 +9,6 @@ Algorithms
 .. autosummary::
    :toctree: _generated/
 
-       NumericalDerivative
        DumontetVignes
        GillMurraySaundersWright
        SteplemanWinarsky
@@ -20,6 +19,7 @@ Finite Differences
 .. autosummary::
    :toctree: _generated/
 
+       FunctionWithArguments
        FiniteDifferenceFormula
        FiniteDifferenceOptimalStep
 

@@ -25,19 +25,19 @@ def my_exp_3d_derivative(x):
 
 
 # Define a function
-def my_scaled_exp(x):
+def scaled_exp(x):
     alpha = 1.0e6
     return np.exp(-x / alpha)
 
 
 # Define its exact derivative (for testing purposes only)
-def my_scaled_exp_prime(x):
+def scaled_exp_prime(x):
     alpha = 1.0e6
     return -np.exp(-x / alpha) / alpha
 
 
 # Define its exact derivative (for testing purposes only)
-def my_scaled_exp_3d_derivative(x):
+def scaled_exp_3d_derivative(x):
     alpha = 1.0e6
     return -np.exp(-x / alpha) / (alpha**3)
 
@@ -74,7 +74,7 @@ class CheckStepleman(unittest.TestCase):
         print("test_base")
         x = 1.0e0
         # Check approximate optimal h
-        algorithm = nd.SteplemanWinarsky(my_scaled_exp, x, verbose=True)
+        algorithm = nd.SteplemanWinarsky(scaled_exp, x, verbose=True)
         initial_step = 1.0e8
         step_computed, iterations = algorithm.compute_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
@@ -82,7 +82,7 @@ class CheckStepleman(unittest.TestCase):
         assert number_of_function_evaluations > 0
         print("Optimum h =", step_computed)
         fdoptimal = nd.FiniteDifferenceOptimalStep()
-        third_derivative_value = my_scaled_exp_3d_derivative(x)
+        third_derivative_value = scaled_exp_3d_derivative(x)
         step_exact, absolute_error = fdoptimal.compute_step_first_derivative_central(
             third_derivative_value
         )
@@ -92,7 +92,7 @@ class CheckStepleman(unittest.TestCase):
         # Check approximate f'(x)
         f_prime_approx = algorithm.compute_first_derivative(step_computed)
         print("f_prime_approx = ", f_prime_approx)
-        f_prime_exact = my_scaled_exp_prime(x)
+        f_prime_exact = scaled_exp_prime(x)
         absolute_error = abs(f_prime_approx - f_prime_exact)
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
@@ -100,14 +100,14 @@ class CheckStepleman(unittest.TestCase):
     def test_compute_step_with_bisection(self):
         print("test_compute_step_with_bisection")
         x = 1.0e0
-        algorithm = nd.SteplemanWinarsky(my_scaled_exp, x, verbose=True)
+        algorithm = nd.SteplemanWinarsky(scaled_exp, x, verbose=True)
         initial_h, number_of_iterations = algorithm.search_step_with_bisection(
             1.0e-10, 1.0e8,
         )
         print("number_of_iterations =", number_of_iterations)
         print("initial_h =", initial_h)
         fdoptimal = nd.FiniteDifferenceOptimalStep()
-        third_derivative_value = my_scaled_exp_3d_derivative(x)
+        third_derivative_value = scaled_exp_3d_derivative(x)
         step_exact, absolute_error = fdoptimal.compute_step_first_derivative_central(
             third_derivative_value
         )
@@ -119,14 +119,14 @@ class CheckStepleman(unittest.TestCase):
         print("test_compute_step_with_monotony")
         x = 1.0e0
         h0 = 1.0e5
-        algorithm = nd.SteplemanWinarsky(my_scaled_exp, x, verbose=True)
+        algorithm = nd.SteplemanWinarsky(scaled_exp, x, verbose=True)
         initial_h, number_of_iterations = algorithm.compute_step(
             h0,
         )
         print("number_of_iterations =", number_of_iterations)
         print("initial_h =", initial_h)
         fdoptimal = nd.FiniteDifferenceOptimalStep()
-        third_derivative_value = my_scaled_exp_3d_derivative(x)
+        third_derivative_value = scaled_exp_3d_derivative(x)
         step_exact, absolute_error = fdoptimal.compute_step_first_derivative_central(
             third_derivative_value
         )

@@ -8,7 +8,7 @@ import numpy as np
 import numericalderivative as nd
 
 
-class DumontetVignes(nd.NumericalDerivative):
+class DumontetVignes():
     """
     Use Dumontet & Vignes method to compute the optimum step size.
 
@@ -29,7 +29,7 @@ class DumontetVignes(nd.NumericalDerivative):
         The maximum number of digits of the floating point system.
     ell_1 : float
         The minimum bound of the L ratio.
-    ell_2 : float
+    ell_2 : float, > ell_1
         The maximum bound of the L ratio.
     args : list
         A list of optional arguments that the function takes as inputs.
@@ -57,8 +57,15 @@ class DumontetVignes(nd.NumericalDerivative):
         args=None,
         verbose=False,
     ):
+        if relative_precision <= 0.0:
+            raise ValueError(
+                f"The relative precision must be > 0. "
+                f"here relative precision = {relative_precision}"
+            )
         self.relative_precision = relative_precision
         self.number_of_digits = number_of_digits
+        if ell_2 <= ell_1:
+            raise ValueError(f"We must have ell_2 > ell_1, but ell_1 = {ell_1} and ell_2 = {ell_2}")
         # Eq. 34, fixed
         self.ell_1 = ell_1
         self.ell_2 = ell_2
@@ -66,7 +73,8 @@ class DumontetVignes(nd.NumericalDerivative):
         self.ell_4 = 1.0 / ell_1
         self.verbose = verbose
         self.finite_difference = nd.FiniteDifferenceFormula(function, x, args)
-        super().__init__(function, x, args)
+        self.function = nd.FunctionWithArguments(function, args)
+        self.x = x
 
     def compute_ell(self, k):
         """
@@ -88,10 +96,10 @@ class DumontetVignes(nd.NumericalDerivative):
 
         """
         t = np.zeros(4)
-        t[0] = self.finite_difference.function_eval(self.x + 2 * k)
-        t[1] = -self.finite_difference.function_eval(self.x - 2 * k)  # Fixed wrt paper
-        t[2] = -2.0 * self.finite_difference.function_eval(self.x + k)
-        t[3] = 2.0 * self.finite_difference.function_eval(self.x - k)  # Fixed wrt paper
+        t[0] = self.function(self.x + 2 * k)
+        t[1] = -self.function(self.x - 2 * k)  # Fixed wrt paper
+        t[2] = -2.0 * self.function(self.x + k)
+        t[3] = 2.0 * self.function(self.x - k)  # Fixed wrt paper
         a = 0.0
         b = 0.0
         for i in range(4):
@@ -322,7 +330,7 @@ class DumontetVignes(nd.NumericalDerivative):
             markdown,
         )
         # Compute the approximate optimal step for the first derivative
-        function_value = self.function_eval(self.x)
+        function_value = self.function(self.x)
         absolute_precision = self.relative_precision * abs(function_value)
         fd_optimal_step = nd.FiniteDifferenceOptimalStep(absolute_precision)
         step, _ = fd_optimal_step.compute_step_first_derivative_central(
@@ -363,5 +371,8 @@ class DumontetVignes(nd.NumericalDerivative):
         finite_difference_feval = (
             self.finite_difference.get_number_of_function_evaluations()
         )
-        total_feval = finite_difference_feval + self.number_of_function_evaluations
+        function_eval = (
+            self.function.get_number_of_evaluations()
+        )
+        total_feval = finite_difference_feval + function_eval
         return total_feval

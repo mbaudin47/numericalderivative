@@ -67,7 +67,6 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
-- Remove NumericalDerivative: move it to FiniteDifferenceFormula.
 - Rename DerivativeBenchmark into DerivativeProblem.
   Rename ExponentialDerivativeBenchmark into ExponentialProblem, etc.
   Rename GillMurraySaundersWrightExponentialDerivativeBenchmark into GMSWProblem.
