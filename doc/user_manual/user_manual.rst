@@ -29,12 +29,12 @@ Benchmark problems
 .. autosummary::
    :toctree: _generated/
    
-       DerivativeBenchmark
-       ExponentialDerivativeBenchmark
-       LogarithmicDerivativeBenchmark
-       SquareRootDerivativeBenchmark
-       AtanDerivativeBenchmark
-       SinDerivativeBenchmark
-       ScaledExponentialDerivativeBenchmark
-       GillMurraySaundersWrightExponentialDerivativeBenchmark
-       BuildBenchmarkList
+       DerivativeBenchmarkProblem
+       ExponentialProblem
+       LogarithmicProblem
+       SquareRootProblem
+       AtanProblem
+       SinProblem
+       ScaledExponentialProblem
+       GMSWExponentialProblem
+       BuildBenchmark

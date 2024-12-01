@@ -2,15 +2,15 @@
 
 from .FunctionWithArguments import FunctionWithArguments
 from .DerivativeBenchmark import (
-    DerivativeBenchmark,
-    ExponentialDerivativeBenchmark,
-    LogarithmicDerivativeBenchmark,
-    SquareRootDerivativeBenchmark,
-    AtanDerivativeBenchmark,
-    SinDerivativeBenchmark,
-    ScaledExponentialDerivativeBenchmark,
-    GillMurraySaundersWrightExponentialDerivativeBenchmark,
-    BuildBenchmarkList,
+    DerivativeBenchmarkProblem,
+    ExponentialProblem,
+    LogarithmicProblem,
+    SquareRootProblem,
+    AtanProblem,
+    SinProblem,
+    ScaledExponentialProblem,
+    GMSWExponentialProblem,
+    BuildBenchmark,
 )
 from .DumontetVignes import DumontetVignes
 from .FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
@@ -21,18 +21,18 @@ from .FiniteDifferenceFormula import FiniteDifferenceFormula
 __all__ = [
     "FiniteDifferenceFormula",
     "FunctionWithArguments",
-    "DerivativeBenchmark",
-    "ExponentialDerivativeBenchmark",
-    "LogarithmicDerivativeBenchmark",
-    "SquareRootDerivativeBenchmark",
-    "AtanDerivativeBenchmark",
-    "SinDerivativeBenchmark",
-    "ScaledExponentialDerivativeBenchmark",
+    "DerivativeBenchmarkProblem",
+    "ExponentialProblem",
+    "LogarithmicProblem",
+    "SquareRootProblem",
+    "AtanProblem",
+    "SinProblem",
+    "ScaledExponentialProblem",
+    "GMSWExponentialProblem",
     "DumontetVignes",
     "FiniteDifferenceOptimalStep",
     "GillMurraySaundersWright",
     "SteplemanWinarsky",
-    "GillMurraySaundersWrightExponentialDerivativeBenchmark",
-    "BuildBenchmarkList",
+    "BuildBenchmark",
 ]
 __version__ = "1.0"

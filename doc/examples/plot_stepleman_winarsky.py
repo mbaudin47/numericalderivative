@@ -22,7 +22,7 @@ import numericalderivative as nd
 
 # %%
 # 1. Plot the error vs h
-benchmark = nd.ScaledExponentialDerivativeBenchmark()
+benchmark = nd.ScaledExponentialProblem()
 x = 1.0
 finite_difference = nd.FiniteDifferenceFormula(benchmark.function, x)
 number_of_points = 1000
@@ -208,7 +208,7 @@ print("Pas initial = ", h0, ", iterations = ", iterations)
 
 # %%
 # Test
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 x = 1.0
 algorithm = nd.SteplemanWinarsky(benchmark.function, x, verbose=True)
 f_prime_approx, estim_relative_error = algorithm.search_step_with_bisection(

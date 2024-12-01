@@ -144,7 +144,7 @@ def plot_error_vs_h_benchmark(benchmark, x, h_array, h_min, h_max, verbose=False
 
 
 # %%
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 x = 1.0
 number_of_points = 1000
 h_array = np.logspace(-15.0, 1.0, number_of_points)
@@ -156,36 +156,36 @@ h_array = np.logspace(-15.0, 1.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-10, 1.0e0)
 
 if False:
-    benchmark = nd.LogarithmicDerivativeBenchmark()
+    benchmark = nd.LogarithmicProblem()
     x = 1.0
     plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e0, True)
 
 # %%
-benchmark = nd.LogarithmicDerivativeBenchmark()
+benchmark = nd.LogarithmicProblem()
 x = 1.1
 h_array = np.logspace(-15.0, -1.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-14, 1.0e-1, True)
 
 # %%
-benchmark = nd.SinDerivativeBenchmark()
+benchmark = nd.SinProblem()
 x = 1.0
 h_array = np.logspace(-15.0, 0.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0)
 
 # %%
-benchmark = nd.SquareRootDerivativeBenchmark()
+benchmark = nd.SquareRootProblem()
 x = 1.0
 h_array = np.logspace(-15.0, 0.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0, True)
 
 # %%
-benchmark = nd.AtanDerivativeBenchmark()
+benchmark = nd.AtanProblem()
 x = 1.0
 h_array = np.logspace(-15.0, 0.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0)
 
 # %%
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 print("+ Sensitivity of SW step depending on h0")
 print("Case 1 : exp")
 x = 1.0
@@ -210,7 +210,7 @@ print("Case 2 : Scaled exp")
 x = 1.0
 
 # %%
-benchmark = nd.ScaledExponentialDerivativeBenchmark()
+benchmark = nd.ScaledExponentialProblem()
 algorithm = nd.SteplemanWinarsky(benchmark.function, x)
 finite_difference_optimal_step = nd.FiniteDifferenceOptimalStep()
 third_derivative_value = benchmark.third_derivative(benchmark.x)

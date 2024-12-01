@@ -75,7 +75,7 @@ print("+ Test on ExponentialDerivativeBenchmark")
 kmin = 1.0e-15
 kmax = 1.0e1
 x = 1.0
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 optimal_step_formula = nd.FiniteDifferenceOptimalStep()
 second_derivative_value = benchmark.second_derivative(x)
 optimal_step, absolute_error = (
@@ -103,7 +103,7 @@ print("+ Test on ScaledExponentialDerivativeBenchmark")
 kmin = 1.0e-9
 kmax = 1.0e8
 x = 1.0
-benchmark = nd.ScaledExponentialDerivativeBenchmark()
+benchmark = nd.ScaledExponentialProblem()
 optimal_step_formula = nd.FiniteDifferenceOptimalStep()
 second_derivative_value = benchmark.second_derivative(x)
 optimal_step, absolute_error = (
@@ -199,7 +199,7 @@ number_of_test_points = 100
 test_points = np.linspace(0.01, 12.2, number_of_test_points)
 kmin = 1.0e-13
 kmax = 1.0e-1
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 average_error, average_feval = benchmark_method(
     benchmark.function, benchmark.first_derivative, test_points, kmin, kmax, True
 )
@@ -263,7 +263,7 @@ def plot_error_vs_h_benchmark(benchmark, x, h_array, kmin, kmax, verbose=False):
 
 
 # %%
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 x = 1.0
 number_of_points = 1000
 h_array = np.logspace(-15.0, -1.0, number_of_points)
@@ -277,7 +277,7 @@ h_array = np.logspace(-15.0, -1.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, kmin, kmax)
 
 # %%
-benchmark = nd.ScaledExponentialDerivativeBenchmark()
+benchmark = nd.ScaledExponentialProblem()
 x = 1.0
 kmin = 1.0e-10
 kmax = 1.0e8
@@ -285,7 +285,7 @@ h_array = np.logspace(-10.0, 8.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, kmin, kmax)
 
 # %%
-benchmark = nd.LogarithmicDerivativeBenchmark()
+benchmark = nd.LogarithmicProblem()
 x = 1.1
 kmin = 1.0e-14
 kmax = 1.0e-1
@@ -293,7 +293,7 @@ h_array = np.logspace(-15.0, -1.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, kmin, kmax, True)
 
 # %%
-benchmark = nd.SinDerivativeBenchmark()
+benchmark = nd.SinProblem()
 x = 1.0
 kmin = 1.0e-15
 kmax = 1.0e-1
@@ -301,7 +301,7 @@ h_array = np.logspace(-15.0, -1.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, kmin, kmax)
 
 # %%
-benchmark = nd.SquareRootDerivativeBenchmark()
+benchmark = nd.SquareRootProblem()
 x = 1.0
 kmin = 1.0e-15
 kmax = 1.0e-1
@@ -309,7 +309,7 @@ h_array = np.logspace(-15.0, -1.0, number_of_points)
 plot_error_vs_h_benchmark(benchmark, x, h_array, kmin, kmax, True)
 
 # %%
-benchmark = nd.AtanDerivativeBenchmark()
+benchmark = nd.AtanProblem()
 x = 1.1
 kmin = 1.0e-15
 kmax = 1.0e-1
