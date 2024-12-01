@@ -24,7 +24,7 @@ class DumontetVignes(nd.NumericalDerivative):
     x : float
         The point where the derivative is to be evaluated.
     relative_precision : float, > 0, optional
-        The relative precision of evaluation of f. The default is 1.0e-16.
+        The relative precision of evaluation of f.
     number_of_digits : int
         The maximum number of digits of the floating point system.
     ell_1 : float
@@ -132,8 +132,7 @@ class DumontetVignes(nd.NumericalDerivative):
         differences.
         The finite difference formula for the third derivative is:
 
-        f'''(x) ~ [f(x + 2 * k) - f(x - 2 * k)
-                   - 2 * f(x + k) + 2 * f(x - k)] / (2 * k**3)
+        f'''(x) ~ [f(x + 2 * k) - f(x - 2 * k) - 2 * f(x + k) + 2 * f(x - k)] / (2 * k**3)
 
         The method computes the optimal step k for f'''(x).
         Then this step is used to compute an approximate value of f'''(x).
