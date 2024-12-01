@@ -180,9 +180,8 @@ pl.yscale("log")
 # 6. Benchmark
 # Test with single point
 x = 1.0
-bracket_step = [1.0e-7, 1.0e7]
 f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(
-    bracket_step,
+    1.0e-7, 1.0e7,
 )
 feval = algorithm.number_of_function_evaluations
 print("FD(x) = ", f_prime_approx)

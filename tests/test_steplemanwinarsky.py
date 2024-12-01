@@ -100,10 +100,9 @@ class CheckStepleman(unittest.TestCase):
     def test_compute_step_with_bisection(self):
         print("test_compute_step_with_bisection")
         x = 1.0e0
-        bracket_step = [1.0e-10, 1.0e8]
         algorithm = nd.SteplemanWinarsky(my_scaled_exp, x, verbose=True)
         initial_h, number_of_iterations = algorithm.search_step_with_bisection(
-            bracket_step,
+            1.0e-10, 1.0e8,
         )
         print("number_of_iterations =", number_of_iterations)
         print("initial_h =", initial_h)
