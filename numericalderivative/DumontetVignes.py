@@ -45,6 +45,25 @@ class DumontetVignes():
     ----------
     - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
 
+
+    Examples
+    --------
+    Compute the step of a badly scaled function.
+
+    >>> import numericalderivative as nd
+    >>>
+    >>> def scaled_exp(x):
+    >>>     alpha = 1.e6
+    >>>     return np.exp(-x / alpha)
+    >>>
+    >>> x = 1.0e-2
+    >>> kmin = 1.0e-10
+    >>> kmax = 1.0e+8
+    >>> algorithm = nd.DumontetVignes(
+    >>>     scaled_exp, x, 
+    >>> )
+    >>> h_optimal, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+    >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
     def __init__(
         self,
@@ -298,11 +317,11 @@ class DumontetVignes():
         iteration_maximum : int, optional
             The number of number_of_iterations. The default is 53.
         kmin : float, kmin > 0
-            A minimum bound for k. The default is None.
+            A minimum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the smallest
             possible kmin using number_of_digits and x.
         kmax : float, kmax > kmin > 0
-            A maximum bound for k. The default is None.
+            A maximum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the largest
             possible kmax using number_of_digits and x.
         logscale : bool, optional

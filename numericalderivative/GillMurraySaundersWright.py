@@ -58,6 +58,22 @@ class GillMurraySaundersWright():
     References
     ----------
     - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+    Compute the step of a badly scaled function.
+
+    >>> import numericalderivative as nd
+    >>>
+    >>> def scaled_exp(x):
+    >>>     alpha = 1.e6
+    >>>     return np.exp(-x / alpha)
+    >>>
+    >>> x = 1.0e-2
+    >>> kmin = 1.0e-8
+    >>> kmax = 1.0e8
+    >>> algorithm = nd.GillMurraySaundersWright(
+    >>>     scaled_exp, x,
+    >>> )
+    >>> h_optimal, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+    >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
     def __init__(
         self,
@@ -137,9 +153,9 @@ class GillMurraySaundersWright():
         Parameters
         ----------
         kmin : float, > 0
-            The minimum step k for the second derivative.
+            The minimum finite difference step k for the second derivative.
         kmax : float, > kmin
-            The maximum step k for the second derivative.
+            The maximum step finite difference k for the second derivative.
         iteration_maximum : in, optional
             The maximum number of iterations.
         logscale : bool, optional

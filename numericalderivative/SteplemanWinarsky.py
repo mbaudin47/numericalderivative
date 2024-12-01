@@ -44,6 +44,20 @@ class SteplemanWinarsky():
     References
     ----------
     - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
+
+    >>> import numericalderivative as nd
+    >>>
+    >>> def scaled_exp(x):
+    >>>     alpha = 1.e6
+    >>>     return np.exp(-x / alpha)
+    >>>
+    >>> x = 1.0e-2
+    >>> initial_step = 1.0e8
+    >>> algorithm = nd.SteplemanWinarsky(
+    >>>     scaled_exp, x,
+    >>> )
+    >>> h_optimal, number_of_iterations = algorithm.compute_step(initial_step)
+    >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
     def __init__(
         self, function, x, relative_precision=1.0e-16, args=None, verbose=False
@@ -76,6 +90,8 @@ class SteplemanWinarsky():
             The number of iterations. The default is 53.
         beta : float, > 1.0
             The reduction factor of h at each iteration.
+            A value of beta closer to 1 can improve the accuracy of the optimum
+            step, but may increase the number of iterations.
 
         Returns
         -------
@@ -86,7 +102,7 @@ class SteplemanWinarsky():
 
         """
         if self.verbose:
-            print("+ search_step_using_motony()")
+            print("+ compute_step()")
         if beta <= 1.0:
             raise ValueError(f"beta must be greater than 1. Here beta = {beta}.")
         if initial_step is None:
@@ -188,12 +204,14 @@ class SteplemanWinarsky():
         The initial step initial_step is chosen so that:
 
             0 < N(initial_step) < T := log10(precision ** (-1.0 / 3.0) / beta)
+        
+        where N is the number of lost digits (as computed by number_of_lost_digits()).
 
-        This algorithm can be effective compared to search_step_using_motony()
+        This algorithm can be effective compared to compute_step()
         in the cases where it is difficult to find an initial step.
         In this case, the step returned by search_step_with_bisection()
-        can be used as the initial step for search_step_using_motony().
-        This can be costly.
+        can be used as the initial step for compute_step().
+        This can require several extra function evaluations.
 
         This algorithm can fail if the required finite difference step is
         so large that the points x+/-h fall beyond the mathematical input
@@ -203,7 +221,7 @@ class SteplemanWinarsky():
         ----------
         h_min : float
             The lower bound to bracket the initial differentiation step.
-        h_max : float
+        h_max : float, > h_min
             The upper bound to bracket the initial differentiation step.
             We must have N(h_min) > N(h_max) where N is the number of lost digits.
         maximum_bisection : int, optional
@@ -223,12 +241,20 @@ class SteplemanWinarsky():
         """
         if self.verbose:
             print("+ search_step_with_bisection()")
+        if h_min <= 0.0:
+            raise ValueError(
+                f"h_min  = {h_min} must be greater than zero."
+            )
         if h_min >= h_max:
             raise ValueError(
                 f"h_min  = {h_min} > h_max = {h_max}." "Please update the bounds."
             )
         if beta <= 1.0:
             raise ValueError(f"beta must be greater than 1. Here beta = {beta}.")
+        if maximum_bisection <= 0:
+            raise ValueError(
+                f"maximum_bisection  = {maximum_bisection} must be greater than 1."
+            )
         if self.verbose:
             print(f"+ h_min = {h_min:.3e}, h_max = {h_max:.3e}")
         # eq. 3.15
