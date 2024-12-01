@@ -128,7 +128,7 @@ number_of_test_points = 100
 test_points = np.linspace(0.01, 12.2, number_of_test_points)
 kmin = 1.0e-16
 kmax = 1.0e-1
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 average_relative_error, average_feval = benchmark_method(
     benchmark.function, benchmark.first_derivative, test_points, kmin, kmax, True
 )
@@ -136,12 +136,12 @@ average_relative_error, average_feval = benchmark_method(
 
 # %%
 function_list = [
-    [nd.ExponentialDerivativeBenchmark(), 1.0e-16, 1.0e-1],
-    [nd.LogarithmicDerivativeBenchmark(), 1.0e-16, 1.0e-3],
-    [nd.SquareRootDerivativeBenchmark(), 1.0e-16, 1.0e-3],
-    [nd.AtanDerivativeBenchmark(), 1.0e-16, 1.0e0],
-    [nd.SinDerivativeBenchmark(), 1.0e-16, 1.0e0],
-    [nd.ScaledExponentialDerivativeBenchmark(), 1.0e-10, 1.0e5],
+    [nd.ExponentialProblem(), 1.0e-16, 1.0e-1],
+    [nd.LogarithmicProblem(), 1.0e-16, 1.0e-3],
+    [nd.SquareRootProblem(), 1.0e-16, 1.0e-3],
+    [nd.AtanProblem(), 1.0e-16, 1.0e0],
+    [nd.SinProblem(), 1.0e-16, 1.0e0],
+    [nd.ScaledExponentialProblem(), 1.0e-10, 1.0e5],
 ]
 
 # %%

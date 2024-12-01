@@ -45,7 +45,6 @@ class DumontetVignes():
     ----------
     - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
 
-
     Examples
     --------
     Compute the step of a badly scaled function.

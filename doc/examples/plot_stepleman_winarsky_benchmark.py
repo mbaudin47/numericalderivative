@@ -75,7 +75,7 @@ def compute_first_derivative_SW(
 # %%
 # Test
 x = 1.0
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 algorithm = nd.SteplemanWinarsky(
     benchmark.function,
     x,
@@ -181,7 +181,7 @@ print("+ Benchmark on several points")
 number_of_test_points = 100
 test_points = np.linspace(0.01, 12.2, number_of_test_points)
 initial_step = 1.0e-1
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 average_relative_error, average_feval = benchmark_method(
     benchmark.function, benchmark.first_derivative, test_points, initial_step, True
 )
@@ -189,12 +189,12 @@ average_relative_error, average_feval = benchmark_method(
 
 # %%
 function_list = [
-    [nd.ExponentialDerivativeBenchmark(), 1.0e-1],
-    [nd.LogarithmicDerivativeBenchmark(), 1.0e-3],  # x > 0
-    [nd.SquareRootDerivativeBenchmark(), 1.0e-3],  # x > 0
-    [nd.AtanDerivativeBenchmark(), 1.0e0],
-    [nd.SinDerivativeBenchmark(), 1.0e0],
-    [nd.ScaledExponentialDerivativeBenchmark(), 1.0e5],
+    [nd.ExponentialProblem(), 1.0e-1],
+    [nd.LogarithmicProblem(), 1.0e-3],  # x > 0
+    [nd.SquareRootProblem(), 1.0e-3],  # x > 0
+    [nd.AtanProblem(), 1.0e0],
+    [nd.SinProblem(), 1.0e0],
+    [nd.ScaledExponentialProblem(), 1.0e5],
 ]
 
 # %%

@@ -58,6 +58,9 @@ class GillMurraySaundersWright():
     References
     ----------
     - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+
+    Examples
+    --------
     Compute the step of a badly scaled function.
 
     >>> import numericalderivative as nd

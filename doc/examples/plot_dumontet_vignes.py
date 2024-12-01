@@ -18,14 +18,14 @@ import sys
 
 
 # %%
-def compute_ell(function, x, k, precision):
-    algorithm = nd.DumontetVignes(function, x, relative_precision=precision)
+def compute_ell(function, x, k, relative_precision):
+    algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
     ell = algorithm.compute_ell(k)
     return ell
 
 
-def compute_f3_inf_sup(function, x, k, precision):
-    algorithm = nd.DumontetVignes(function, x, relative_precision=precision)
+def compute_f3_inf_sup(function, x, k, relative_precision):
+    algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
     ell, f3inf, f3sup = algorithm.compute_ell(k)
     return f3inf, f3sup
 
@@ -38,7 +38,7 @@ def perform(
     function_third_derivative,
     h_array,
     iteration_maximum=53,
-    precision=1.0e-15,
+    relative_precision=1.0e-15,
     kmin=None,
     kmax=None,
 ):
@@ -51,7 +51,7 @@ def perform(
         error_array[i] = abs(f_prime_approx - function_derivative(x))
 
     # 2. Algorithm to detect h*
-    algorithm = nd.DumontetVignes(function, x, relative_precision=precision)
+    algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
     print("Exact f'''(x) = %.3e" % (function_third_derivative(x)))
     estim_step, number_of_iterations = algorithm.compute_step(
         iteration_maximum=iteration_maximum,
@@ -68,8 +68,9 @@ def perform(
     absolute_error = abs(f_prime_approx - function_derivative(x))
     print("Exact abs. error  = %.3e" % (absolute_error))
     print("Exact rel. error  = %.3e" % (absolute_error / abs(function_derivative(x))))
-
-    fdstep = nd.FiniteDifferenceOptimalStep(precision)
+    # Compute exact step
+    absolute_precision = abs(function(x) * relative_precision)
+    fdstep = nd.FiniteDifferenceOptimalStep(absolute_precision)
     third_derivative_value = function_third_derivative(x)
     optimal_step, optimal_error = fdstep.compute_step_first_derivative_central(
         third_derivative_value
@@ -104,7 +105,7 @@ def plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=None,
     kmax=None,
     y_logscale=False,
@@ -124,7 +125,7 @@ def plot_ell_ratio(
     k_array = np.logspace(np.log10(kmin), np.log10(kmax), number_of_points)
     ell_array = np.zeros((number_of_points))
     for i in range(number_of_points):
-        ell_array[i], f3inf, f3sup = compute_ell(function, x, k_array[i], precision)
+        ell_array[i], f3inf, f3sup = compute_ell(function, x, k_array[i], relative_precision)
 
     pl.figure(figsize=(4.0, 3.0))
     pl.plot(k_array, ell_array)
@@ -139,7 +140,7 @@ def plot_ell_ratio(
             pl.plot(k_array, [ell_3] * number_of_points, ":", label="$L_3$")
             pl.plot(k_array, [ell_4] * number_of_points, "--", label="$L_4$")
         pl.legend()
-    pl.title("%s, x = %.3e, p = %.3e" % (name, x, precision))
+    pl.title("%s, x = %.3e, p = %.3e" % (name, x, relative_precision))
     pl.xlabel("k")
     pl.ylabel("L")
     pl.xscale("log")
@@ -152,9 +153,9 @@ def plot_ell_ratio(
 # 1. Exponential
 
 number_of_points = 1000
-precision = 1.0e-15
+relative_precision = 1.0e-15
 x = 1.0
-function = nd.ExponentialDerivativeBenchmark().function
+function = nd.ExponentialProblem().get_function()
 name = "exp"
 number_of_digits = 53
 kmin = 1.55e-5
@@ -165,16 +166,16 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
     plot_L_constants=True,
 )
 
 # %%
-precision = 1.0e-10
+relative_precision = 1.0e-10
 x = 1.0
-function = nd.ExponentialDerivativeBenchmark().function
+function = nd.ExponentialProblem().get_function()
 name = "exp"
 number_of_digits = 53
 kmin = 5.0e-5
@@ -185,7 +186,7 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
     y_logscale=False,
@@ -194,9 +195,9 @@ plot_ell_ratio(
 pl.ylim(-20.0, 20.0)
 
 # %%
-precision = 1.0e-14
+relative_precision = 1.0e-14
 x = 1.0
-function = nd.ExponentialDerivativeBenchmark().function
+function = nd.ExponentialProblem().get_function()
 name = "exp"
 number_of_digits = 53
 kmin = 4.0e-5
@@ -207,15 +208,15 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
 )
 
 # %%
-precision = 1.0e-16
+relative_precision = 1.0e-16
 x = 4.0
-function = nd.ExponentialDerivativeBenchmark().function
+function = nd.ExponentialProblem().get_function()
 name = "exp"
 number_of_digits = 53
 kmin = 1.0e-5
@@ -226,15 +227,15 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
 )
 
 # %%
-precision = 1.0e-14
+relative_precision = 1.0e-14
 x = 4.0
-function = nd.ExponentialDerivativeBenchmark().function
+function = nd.ExponentialProblem().get_function()
 name = "exp"
 number_of_digits = 53
 kmin = 3.2e-5
@@ -245,7 +246,7 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
     y_logscale=False,
@@ -255,17 +256,18 @@ pl.ylim(-20.0, 20.0)
 
 # %%
 x = 4.0
-benchmark = nd.ExponentialDerivativeBenchmark()
-precision = sys.float_info.epsilon * benchmark.function(x)
-print("Precision = %.3e" % (precision))
+benchmark = nd.ExponentialProblem()
+function = benchmark.get_function()
+absolute_precision = sys.float_info.epsilon * function(x)
+print("absolute_precision = %.3e" % (absolute_precision))
 
 # %%
 x = 4.1
-precision = sys.float_info.epsilon * benchmark.function(x)
+function = benchmark.get_function()
+relative_precision = sys.float_info.epsilon
 name = "exp"
-function = benchmark.function
-function_derivative = benchmark.first_derivative
-function_third_derivative = benchmark.third_derivative
+function_derivative = benchmark.get_first_derivative()
+function_third_derivative = benchmark.get_third_derivative()
 number_of_points = 1000
 h_array = np.logspace(-15.0, 0.0, number_of_points)
 kmin = 1.0e-5
@@ -278,7 +280,7 @@ perform(
     function_third_derivative,
     h_array,
     iteration_maximum=20,
-    precision=1.0e-15,
+    relative_precision=1.0e-15,
     kmin=kmin,
     kmax=kmax,
 )
@@ -287,8 +289,8 @@ perform(
 # 2. Scaled exponential
 
 x = 1.0
-precision = 1.0e-14
-function = nd.ScaledExponentialDerivativeBenchmark().function
+relative_precision = 1.0e-14
+function = nd.ScaledExponentialProblem().get_function()
 name = "scaled exp"
 number_of_digits = 53
 kmin = 1.0e-1
@@ -299,7 +301,7 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
     plot_L_constants=True,
@@ -308,7 +310,7 @@ plot_ell_ratio(
 # %%
 x = 1.0
 name = "scaled exp"
-benchmark = nd.ScaledExponentialDerivativeBenchmark()
+benchmark = nd.ScaledExponentialProblem()
 function = benchmark.function
 function_derivative = benchmark.first_derivative
 function_third_derivative = benchmark.third_derivative
@@ -316,7 +318,7 @@ number_of_points = 1000
 h_array = np.logspace(-7.0, 6.0, number_of_points)
 kmin = 1.0e-2
 kmax = 1.0e2
-precision = 1.0e-15
+relative_precision = 1.0e-15
 perform(
     x,
     name,
@@ -324,7 +326,7 @@ perform(
     function_derivative,
     function_third_derivative,
     h_array,
-    precision=precision,
+    relative_precision=relative_precision,
     kmin=kmin,
     kmax=kmax,
 )
@@ -334,8 +336,8 @@ perform(
 print("+ 3. Square root")
 
 x = 1.0
-precision = 1.0e-14
-function = nd.SquareRootDerivativeBenchmark().function
+relative_precision = 1.0e-14
+function = nd.SquareRootProblem().get_function()
 name = "square root"
 number_of_digits = 53
 kmin = 4.3e-5
@@ -346,7 +348,7 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
     plot_L_constants=True,
@@ -359,7 +361,7 @@ x = 1.0
 k = 1.0e-3
 print("x = ", x)
 print("k = ", k)
-benchmark = nd.SquareRootDerivativeBenchmark()
+benchmark = nd.SquareRootProblem()
 finite_difference = nd.FiniteDifferenceFormula(benchmark.function, x)
 approx_f3d = finite_difference.compute_third_derivative(k)
 print("Approx. f''(x) = ", approx_f3d)
@@ -367,9 +369,9 @@ exact_f3d = benchmark.third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)
 
 # %%
-precision = 1.0e-14
-print("precision = ", precision)
-f3inf, f3sup = compute_f3_inf_sup(benchmark.function, x, k, precision)
+relative_precision = 1.0e-14
+print("relative_precision = ", relative_precision)
+f3inf, f3sup = compute_f3_inf_sup(benchmark.function, x, k, relative_precision)
 print("f3inf = ", f3inf)
 print("f3sup = ", f3sup)
 
@@ -394,12 +396,13 @@ pl.yscale("log")
 
 # %%
 number_of_points = 1000
-precision = 1.0e-16
+relative_precision = 1.0e-16
 k_array = np.logspace(-4.9, -4.0, number_of_points)
 f3_array = np.zeros((number_of_points, 3))
+function = benchmark.get_function()
 for i in range(number_of_points):
-    f3inf, f3sup = compute_f3_inf_sup(benchmark.function, x, k_array[i], precision)
-    algorithm = nd.FiniteDifferenceFormula(benchmark.function, x)
+    f3inf, f3sup = compute_f3_inf_sup(function, x, k_array[i], relative_precision)
+    algorithm = nd.FiniteDifferenceFormula(function, x)
     f3_approx = algorithm.compute_third_derivative(k_array[i])
     f3_array[i] = [f3inf, f3_approx, f3sup]
 
@@ -416,8 +419,8 @@ pl.legend()
 
 # %%
 x = 1.0e-2
-precision = 1.0e-14
-function = benchmark.function
+relative_precision = 1.0e-14
+function = benchmark.get_function()
 name = "square root"
 number_of_digits = 53
 kmin = 4.4e-7
@@ -428,7 +431,7 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
     plot_L_constants=True,
@@ -438,12 +441,13 @@ pl.ylim(-20.0, 20.0)
 # %%
 # Search step
 x = 1.0e-2
-precision = 1.0e-14
+relative_precision = 1.0e-14
 kmin = 1.0e-8
 kmax = 1.0e-3
 verbose = True
+function = benchmark.get_function()
 algorithm = nd.DumontetVignes(
-    benchmark.function, x, relative_precision=precision, verbose=verbose
+    function, x, relative_precision=relative_precision, verbose=verbose
 )
 h_optimal, _ = algorithm.compute_step(kmax=kmax)
 print("h optimal = %.3e" % (h_optimal))
@@ -451,7 +455,8 @@ number_of_feval = algorithm.get_number_of_function_evaluations()
 print(f"number_of_feval = {number_of_feval}")
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 feval = algorithm.get_number_of_function_evaluations()
-absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
+first_derivative = benchmark.get_first_derivative()
+absolute_error = abs(f_prime_approx - first_derivative(x))
 print("Abs. error = %.3e" % (absolute_error))
 
 ell_kmin, f3inf, f3sup = algorithm.compute_ell(kmin)
@@ -464,8 +469,8 @@ print("L(kmax) = ", ell_kmax)
 #
 print("+ 4. sin")
 x = 1.0
-precision = 1.0e-14
-benchmark = nd.SinDerivativeBenchmark()
+relative_precision = 1.0e-14
+benchmark = nd.SinProblem()
 function = benchmark.function
 name = "sin"
 number_of_digits = 53
@@ -477,7 +482,7 @@ plot_ell_ratio(
     x,
     number_of_points,
     number_of_digits,
-    precision,
+    relative_precision,
     kmin=kmin,
     kmax=kmax,
     plot_L_constants=True,
@@ -495,9 +500,9 @@ print("Approx. f''(x) = ", approx_f3d)
 exact_f3d = benchmark.third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)
 
-precision = 1.0e-14
-print("precision = ", precision)
-f3inf, f3sup = compute_f3_inf_sup(benchmark.function, x, k, precision)
+relative_precision = 1.0e-14
+print("relative_precision = ", relative_precision)
+f3inf, f3sup = compute_f3_inf_sup(benchmark.function, x, k, relative_precision)
 print("f3inf = ", f3inf)
 print("f3sup = ", f3sup)
 
