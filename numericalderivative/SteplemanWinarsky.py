@@ -51,7 +51,7 @@ class SteplemanWinarsky(NumericalDerivative):
     ):
         if relative_precision <= 0.0:
             raise ValueError(
-                f"The absolute precision must be > 0. "
+                f"The relative precision must be > 0. "
                 f"here precision = {relative_precision}"
             )
         self.relative_precision = relative_precision

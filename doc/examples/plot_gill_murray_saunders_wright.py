@@ -48,8 +48,8 @@ def compute_first_derivative_GMSW(
 
     Returns
     -------
-    absolute_error : float, > 0
-        The absolute error between the approximate first derivative
+    relative_error : float, > 0
+        The relative error between the approximate first derivative
         and the true first derivative.
 
     feval : int
@@ -59,7 +59,7 @@ def compute_first_derivative_GMSW(
     step, number_of_iterations = algorithm.compute_step(kmin, kmax)
     f_prime_approx = algorithm.compute_first_derivative(step)
     feval = algorithm.get_number_of_function_evaluations()
-    f_prime_exact = algorithm.compute_first_derivative(step)
+    f_prime_exact = f_prime(x)
     if verbose:
         print(f"Computed step = {step:.3e}")
         print(f"Number of iterations = {number_of_iterations}")

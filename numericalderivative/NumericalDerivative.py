@@ -70,6 +70,39 @@ class NumericalDerivative:
         self.number_of_function_evaluations += 1
         return function_value
 
+    def get_x(self):
+        """
+        Return the current point
+
+        Returns
+        -------
+        x : float
+            The current input point
+        """
+        return self.x
+
+    def get_function(self):
+        """
+        Return the function
+
+        Returns
+        -------
+        function : function
+            The function
+        """
+        return self.function
+
+    def get_args(self):
+        """
+        Return the extra arguments
+
+        Returns
+        -------
+        args : list
+            The arguments
+        """
+        return self.args
+
     def get_number_of_function_evaluations(self):
         """
         Returns the number of function evaluations.

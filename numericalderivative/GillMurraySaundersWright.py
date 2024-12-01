@@ -37,8 +37,8 @@ class GillMurraySaundersWright(NumericalDerivative):
         The function to differentiate.
     x : float
         The point where the derivative is approximated.
-    absolute_precision : float, optional
-        The absolute error of the function f at the point x.
+    relative_precision : float, optional
+        The relative error of the function f at the point x.
     c_threshold_min : float, optional, > 0
         The minimum value of the condition error.
     c_threshold_max : float, optional, > c_threshold_min
@@ -65,25 +65,32 @@ class GillMurraySaundersWright(NumericalDerivative):
         self,
         function,
         x,
-        absolute_precision=1.0e-14,
+        relative_precision=1.0e-16,
         c_threshold_min=0.001,
         c_threshold_max=0.1,
         args=None,
         verbose=False,
     ):
+        if relative_precision <= 0.0:
+            raise ValueError(
+                f"The relative precision must be > 0. "
+                f"here relative precision = {relative_precision}"
+            )
+        self.relative_precision = relative_precision
         if c_threshold_max <= c_threshold_min:
             raise ValueError(
                 f"c_threshold_max = {c_threshold_max} must be greater than "
                 f"c_threshold_min = {c_threshold_min}"
             )
-        self.absolute_precision = absolute_precision
         self.c_threshold_min = c_threshold_min
         self.c_threshold_max = c_threshold_max
         self.verbose = verbose
         self.finite_difference = FiniteDifferenceFormula(function, x, args)
         super().__init__(function, x, args)
+        self.y = self.function_eval(self.x)
+        self.absolute_precision = abs(relative_precision * self.y)
 
-    def compute_condition(self, k, y):
+    def compute_condition(self, k):
         """
         Compute the condition error for given step k.
 
@@ -99,8 +106,6 @@ class GillMurraySaundersWright(NumericalDerivative):
         k : float
             The step used for the finite difference approximation
             of the second derivative.
-        y : float
-            The function value at point x, i.e. f(x).
 
         Returns
         -------
@@ -112,7 +117,7 @@ class GillMurraySaundersWright(NumericalDerivative):
         # We do not use compute_2nd_derivative because y=f(x) is known.
         # This way, we compute it only once.
         phi = (
-            self.function_eval(self.x + k) - 2 * y + self.function_eval(self.x - k)
+            self.function_eval(self.x + k) - 2 * self.y + self.function_eval(self.x - k)
         ) / (k**2)
         # Eq. 11 page 315
         if phi == 0.0:
@@ -153,9 +158,8 @@ class GillMurraySaundersWright(NumericalDerivative):
         """
         if kmin >= kmax:
             raise ValueError(f"kmin = {kmin} must be less than kmax = {kmax}.")
-        y = self.function_eval(self.x)
         # Check C(kmin)
-        cmin = self.compute_condition(kmin, y)
+        cmin = self.compute_condition(kmin)
         if self.verbose:
             print(f"kmin = {kmin:.3e}, c(kmin) = {cmin:.3e}")
         if cmin >= self.c_threshold_min and cmin <= self.c_threshold_max:
@@ -167,7 +171,7 @@ class GillMurraySaundersWright(NumericalDerivative):
                 "Please decrease kmin. "
             )
         # Check C(kmax)
-        cmax = self.compute_condition(kmax, y)
+        cmax = self.compute_condition(kmax)
         if self.verbose:
             print(f"kmax = {kmax:.3e}, c(kmax) = {cmax:.3e}")
         if cmax >= self.c_threshold_min and cmax <= self.c_threshold_max:
@@ -189,7 +193,7 @@ class GillMurraySaundersWright(NumericalDerivative):
                 step_second_derivative = np.exp(logk)
             else:
                 step_second_derivative = (kmin + kmax) / 2.0
-            c = self.compute_condition(step_second_derivative, y)
+            c = self.compute_condition(step_second_derivative)
             if self.verbose:
                 print(f"Iter #{number_of_iterations}, "
                       f"kmin = {kmin:.3e}, "
