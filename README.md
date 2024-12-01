@@ -67,10 +67,6 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
-- Use bracket_step as a list of two floats in GillMurraySaundersWright
-  and DumontetVignes (this is done in SteplemanWinarsky)
-- Create a benchmark feature to test a given method on several 
-  benchmark problems
 - Use a relative precision in SteplemanWinarsky and GillMurraySaundersWright.
 - Remove NumericalDerivative: move it to FiniteDifferenceFormula.
 - Add finite_differences from menum and cite (Baudin, 2023).
