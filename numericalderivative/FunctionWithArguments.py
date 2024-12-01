@@ -31,6 +31,8 @@ class FunctionWithArguments:
     --------
     Define and evaluate a function with arguments.
 
+    >>> import numericalderivative as nd
+    >>>
     >>> def scaled_exp_with_2_args(x, alpha, beta):
     >>>     return beta * np.exp(-x / alpha)
     >>>
