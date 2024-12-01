@@ -22,7 +22,7 @@ import numericalderivative as nd
 
 # %%
 # 1. Plot the error vs h
-benchmark = nd.ScaledExponentialDerivativeBenchmark()
+benchmark = nd.ScaledExponentialProblem()
 x = 1.0
 finite_difference = nd.FiniteDifferenceFormula(benchmark.function, x)
 number_of_points = 1000
@@ -126,9 +126,8 @@ print("Number of lost digits = ", n_digits)
 threshold = np.log10(p ** (-1.0 / 3.0) / beta)
 print("Threshold = ", threshold)
 
-bracket_step = [1.0e-5, 1.0e7]
 step_zero, iterations = algorithm.search_step_with_bisection(
-    bracket_step,
+    1.0e-5, 1.0e7,
 )
 print("step_zero = ", step_zero)
 print("iterations = ", iterations)
@@ -181,29 +180,27 @@ pl.yscale("log")
 # 6. Benchmark
 # Test with single point
 x = 1.0
-bracket_step = [1.0e-7, 1.0e7]
 f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(
-    bracket_step,
+    1.0e-7, 1.0e7,
 )
-feval = algorithm.number_of_function_evaluations
+feval = algorithm.get_number_of_function_evaluations()
 print("FD(x) = ", f_prime_approx)
 print("number_of_iterations = ", number_of_iterations)
 print("Func. eval = ", feval)
 
 # %%
 # Algorithme de dichotomie pour le pas initial
-bracket_step = [1.0e-7, 1.0e1]
 x = 1.0
 maximum_bisection = 53
 log_scale = False
 h0, iterations = algorithm.search_step_with_bisection(
-    bracket_step,
+    1.0e-7, 1.0e1,
     maximum_bisection=53,
     log_scale=False,
 )
 print("Pas initial = ", h0, ", iterations = ", iterations)
 h0, iterations = algorithm.search_step_with_bisection(
-    bracket_step,
+    1.0e-7, 1.0e1,
     maximum_bisection=53,
     log_scale=True,
 )
@@ -211,19 +208,20 @@ print("Pas initial = ", h0, ", iterations = ", iterations)
 
 # %%
 # Test
-benchmark = nd.ExponentialDerivativeBenchmark()
-bracket_step = [1.0e-6, 100.0 * x]
+benchmark = nd.ExponentialProblem()
 x = 1.0
 algorithm = nd.SteplemanWinarsky(benchmark.function, x, verbose=True)
 f_prime_approx, estim_relative_error = algorithm.search_step_with_bisection(
-    bracket_step,
+    1.0e-6, 100.0 * x,
     beta=4.0,
 )
 absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
-feval = algorithm.number_of_function_evaluations
+feval = algorithm.get_number_of_function_evaluations()
 print(
     "x = %.3f, abs. error = %.3e, estim. rel. error = %.3e, Func. eval. = %d"
     % (x, absolute_error, estim_relative_error, number_of_function_evaluations)
 )
 
 #
+
+# %%

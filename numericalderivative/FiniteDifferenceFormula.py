@@ -5,10 +5,10 @@ Various finite difference formulas.
 """
 
 import numpy as np
-from .NumericalDerivative import NumericalDerivative
+import numericalderivative as nd
 
 
-class FiniteDifferenceFormula(NumericalDerivative):
+class FiniteDifferenceFormula():
     """
     Compute a derivative of the function using finite difference formula
 
@@ -32,30 +32,8 @@ class FiniteDifferenceFormula(NumericalDerivative):
 
     """
     def __init__(self, function, x, args=None) -> None:
-        super().__init__(function, x, args)
-
-    def function_eval(self, x):
-        """
-        Evaluates the function at point x
-
-        Manages the extra input arguments, if any.
-
-        Parameters
-        ----------
-        x : float
-            The input point.
-
-        Returns
-        -------
-        y : float
-            The output point.
-        """
-        if self.args is None:
-            function_value = self.function(x)
-        else:
-            function_value = self.function(x, *self.args)
-        self.number_of_function_evaluations += 1
-        return function_value
+        self.function = nd.FunctionWithArguments(function, args)
+        self.x = x
 
     def get_number_of_function_evaluations(self):
         """
@@ -66,7 +44,7 @@ class FiniteDifferenceFormula(NumericalDerivative):
         number_of_function_evaluations : int
             The number of function evaluations.
         """
-        return self.number_of_function_evaluations
+        return self.function.get_number_of_evaluations()
 
     def compute_third_derivative(self, step):
         """
@@ -89,10 +67,10 @@ class FiniteDifferenceFormula(NumericalDerivative):
           RAIRO. Analyse numérique, 11 (1), 13-25.
         """
         t = np.zeros(4)
-        t[0] = self.function_eval(self.x + 2 * step)
-        t[1] = -self.function_eval(self.x - 2 * step)  # Fixed wrt paper
-        t[2] = -2.0 * self.function_eval(self.x + step)
-        t[3] = 2.0 * self.function_eval(self.x - step)  # Fixed wrt paper
+        t[0] = self.function(self.x + 2 * step)
+        t[1] = -self.function(self.x - 2 * step)  # Fixed wrt paper
+        t[2] = -2.0 * self.function(self.x + step)
+        t[3] = 2.0 * self.function(self.x - step)  # Fixed wrt paper
         third_derivative = np.sum(t) / (2 * step**3)  # Eq. 27 and 35 in (D&V, 1977)
         return third_derivative
 
@@ -119,7 +97,7 @@ class FiniteDifferenceFormula(NumericalDerivative):
             raise ValueError("Zero computed step. Cannot perform finite difference.")
         x1 = self.x + step
         x2 = self.x - step
-        first_derivative = (self.function_eval(x1) - self.function_eval(x2)) / (x1 - x2)
+        first_derivative = (self.function(x1) - self.function(x2)) / (x1 - x2)
         return first_derivative
 
     def compute_first_derivative_forward(self, step):
@@ -188,8 +166,8 @@ class FiniteDifferenceFormula(NumericalDerivative):
             raise ValueError("Zero computed step. Cannot perform finite difference.")
         # Eq. 8 page 314 in (GMS&W, 1983)
         second_derivative = (
-            self.function_eval(self.x + step)
-            - 2 * self.function_eval(self.x)
-            + self.function_eval(self.x - step)
+            self.function(self.x + step)
+            - 2 * self.function(self.x)
+            + self.function(self.x - step)
         ) / (step**2)
         return second_derivative

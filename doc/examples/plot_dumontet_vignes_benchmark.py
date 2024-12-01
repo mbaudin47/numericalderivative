@@ -88,9 +88,9 @@ def benchmark_method(
 
 # %%
 x = 1.1
-benchmark = nd.LogarithmicDerivativeBenchmark()
+benchmark = nd.LogarithmicProblem()
 f = benchmark.function
-f_prime = benchmark.first_derivative
+f_prime = benchmark.get_first_derivative()
 kmin = 1.0e-9
 kmax = 1.0e-3
 relative_precision = 1.0e-14
@@ -110,7 +110,7 @@ print(f"feval = {feval}")
 print("+ Benchmark on several points")
 number_of_test_points = 100
 test_points = np.linspace(0.01, 12.5, number_of_test_points)
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 kmin = 1.0e-9
 kmax = 1.0e0
 relative_precision = 1.0e-14
@@ -127,12 +127,12 @@ average_relative_error, average_feval = benchmark_method(
 # %%
 # Define a collection of benchmark problems
 function_list = [
-    [nd.ExponentialDerivativeBenchmark(), [1.0e-10, 1.0e-1]],
-    [nd.LogarithmicDerivativeBenchmark(), [1.0e-10, 1.0e-3]],
-    [nd.SquareRootDerivativeBenchmark(), [1.0e-10, 1.0e-3]],
-    [nd.AtanDerivativeBenchmark(), [1.0e-10, 1.0e0]],
-    [nd.SinDerivativeBenchmark(), [1.0e-10, 1.0e0]],
-    [nd.ScaledExponentialDerivativeBenchmark(), [1.0e-10, 1.0e5]],
+    [nd.ExponentialProblem(), [1.0e-10, 1.0e-1]],
+    [nd.LogarithmicProblem(), [1.0e-10, 1.0e-3]],
+    [nd.SquareRootProblem(), [1.0e-10, 1.0e-3]],
+    [nd.AtanProblem(), [1.0e-10, 1.0e0]],
+    [nd.SinProblem(), [1.0e-10, 1.0e0]],
+    [nd.ScaledExponentialProblem(), [1.0e-10, 1.0e5]],
 ]
 
 
