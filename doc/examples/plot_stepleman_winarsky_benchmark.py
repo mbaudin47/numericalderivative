@@ -74,7 +74,6 @@ def compute_first_derivative_SW(
 
 # %%
 # Test
-bracket_step = [1.0e-7, 1.0e1]
 x = 1.0
 benchmark = nd.ExponentialDerivativeBenchmark()
 algorithm = nd.SteplemanWinarsky(
@@ -90,7 +89,7 @@ optimal_step, absolute_error = (
 print("Exact h* = %.3e" % (optimal_step))
 
 h0, iterations = algorithm.search_step_with_bisection(
-    bracket_step,
+    1.0e-7, 1.0e1,
 )
 print("Pas initial = ", h0, ", iterations = ", iterations)
 lost_digits = algorithm.number_of_lost_digits(h0)

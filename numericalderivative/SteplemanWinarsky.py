@@ -176,7 +176,8 @@ class SteplemanWinarsky(NumericalDerivative):
 
     def search_step_with_bisection(
         self,
-        bracket_initial_step,
+        h_min,
+        h_max,
         maximum_bisection=53,
         beta=4.0,
         log_scale=True,
@@ -200,8 +201,10 @@ class SteplemanWinarsky(NumericalDerivative):
 
         Parameters
         ----------
-        bracket_initial_step : [h_min, h_max]
-            The bounds to bracket the initial differentiation step.
+        h_min : float
+            The lower bound to bracket the initial differentiation step.
+        h_max : float
+            The upper bound to bracket the initial differentiation step.
             We must have N(h_min) > N(h_max) where N is the number of lost digits.
         maximum_bisection : int, optional
             The maximum number of bisection iterations. The default is 53.
@@ -220,10 +223,9 @@ class SteplemanWinarsky(NumericalDerivative):
         """
         if self.verbose:
             print("+ search_step_with_bisection()")
-        h_min, h_max = bracket_initial_step
         if h_min >= h_max:
             raise ValueError(
-                f"h_min  = {h_min} > h_max = {h_max}." "Please change the bounds."
+                f"h_min  = {h_min} > h_max = {h_max}." "Please update the bounds."
             )
         if beta <= 1.0:
             raise ValueError(f"beta must be greater than 1. Here beta = {beta}.")
