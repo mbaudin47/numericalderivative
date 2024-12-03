@@ -40,12 +40,10 @@ release = '0.1'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
-    'sphinx.ext.intersphinx',
     'sphinx.ext.autosummary',
     'numpydoc',
     'sphinx_gallery.gen_gallery',
 ]
-
 
 sphinx_gallery_conf = {
     'examples_dirs': ['examples'], # # path to

@@ -8,7 +8,7 @@ import numpy as np
 import numericalderivative as nd
 
 
-class DumontetVignes(nd.NumericalDerivative):
+class DumontetVignes():
     """
     Use Dumontet & Vignes method to compute the optimum step size.
 
@@ -24,12 +24,12 @@ class DumontetVignes(nd.NumericalDerivative):
     x : float
         The point where the derivative is to be evaluated.
     relative_precision : float, > 0, optional
-        The relative precision of evaluation of f. The default is 1.0e-16.
+        The relative precision of evaluation of f.
     number_of_digits : int
         The maximum number of digits of the floating point system.
     ell_1 : float
         The minimum bound of the L ratio.
-    ell_2 : float
+    ell_2 : float, > ell_1
         The maximum bound of the L ratio.
     args : list
         A list of optional arguments that the function takes as inputs.
@@ -45,6 +45,24 @@ class DumontetVignes(nd.NumericalDerivative):
     ----------
     - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
 
+    Examples
+    --------
+    Compute the step of a badly scaled function.
+
+    >>> import numericalderivative as nd
+    >>>
+    >>> def scaled_exp(x):
+    >>>     alpha = 1.e6
+    >>>     return np.exp(-x / alpha)
+    >>>
+    >>> x = 1.0e-2
+    >>> kmin = 1.0e-10
+    >>> kmax = 1.0e+8
+    >>> algorithm = nd.DumontetVignes(
+    >>>     scaled_exp, x, 
+    >>> )
+    >>> h_optimal, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+    >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
     def __init__(
         self,
@@ -57,8 +75,15 @@ class DumontetVignes(nd.NumericalDerivative):
         args=None,
         verbose=False,
     ):
+        if relative_precision <= 0.0:
+            raise ValueError(
+                f"The relative precision must be > 0. "
+                f"here relative precision = {relative_precision}"
+            )
         self.relative_precision = relative_precision
         self.number_of_digits = number_of_digits
+        if ell_2 <= ell_1:
+            raise ValueError(f"We must have ell_2 > ell_1, but ell_1 = {ell_1} and ell_2 = {ell_2}")
         # Eq. 34, fixed
         self.ell_1 = ell_1
         self.ell_2 = ell_2
@@ -66,7 +91,8 @@ class DumontetVignes(nd.NumericalDerivative):
         self.ell_4 = 1.0 / ell_1
         self.verbose = verbose
         self.finite_difference = nd.FiniteDifferenceFormula(function, x, args)
-        super().__init__(function, x, args)
+        self.function = nd.FunctionWithArguments(function, args)
+        self.x = x
 
     def compute_ell(self, k):
         """
@@ -88,10 +114,10 @@ class DumontetVignes(nd.NumericalDerivative):
 
         """
         t = np.zeros(4)
-        t[0] = self.finite_difference.function_eval(self.x + 2 * k)
-        t[1] = -self.finite_difference.function_eval(self.x - 2 * k)  # Fixed wrt paper
-        t[2] = -2.0 * self.finite_difference.function_eval(self.x + k)
-        t[3] = 2.0 * self.finite_difference.function_eval(self.x - k)  # Fixed wrt paper
+        t[0] = self.function(self.x + 2 * k)
+        t[1] = -self.function(self.x - 2 * k)  # Fixed wrt paper
+        t[2] = -2.0 * self.function(self.x + k)
+        t[3] = 2.0 * self.function(self.x - k)  # Fixed wrt paper
         a = 0.0
         b = 0.0
         for i in range(4):
@@ -132,8 +158,7 @@ class DumontetVignes(nd.NumericalDerivative):
         differences.
         The finite difference formula for the third derivative is:
 
-        f'''(x) ~ [f(x + 2 * k) - f(x - 2 * k)
-                   - 2 * f(x + k) + 2 * f(x - k)] / (2 * k**3)
+        f'''(x) ~ [f(x + 2 * k) - f(x - 2 * k) - 2 * f(x + k) + 2 * f(x - k)] / (2 * k**3)
 
         The method computes the optimal step k for f'''(x).
         Then this step is used to compute an approximate value of f'''(x).
@@ -291,11 +316,11 @@ class DumontetVignes(nd.NumericalDerivative):
         iteration_maximum : int, optional
             The number of number_of_iterations. The default is 53.
         kmin : float, kmin > 0
-            A minimum bound for k. The default is None.
+            A minimum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the smallest
             possible kmin using number_of_digits and x.
         kmax : float, kmax > kmin > 0
-            A maximum bound for k. The default is None.
+            A maximum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the largest
             possible kmax using number_of_digits and x.
         logscale : bool, optional
@@ -323,7 +348,7 @@ class DumontetVignes(nd.NumericalDerivative):
             markdown,
         )
         # Compute the approximate optimal step for the first derivative
-        function_value = self.function_eval(self.x)
+        function_value = self.function(self.x)
         absolute_precision = self.relative_precision * abs(function_value)
         fd_optimal_step = nd.FiniteDifferenceOptimalStep(absolute_precision)
         step, _ = fd_optimal_step.compute_step_first_derivative_central(
@@ -364,5 +389,8 @@ class DumontetVignes(nd.NumericalDerivative):
         finite_difference_feval = (
             self.finite_difference.get_number_of_function_evaluations()
         )
-        total_feval = finite_difference_feval + self.number_of_function_evaluations
+        function_eval = (
+            self.function.get_number_of_evaluations()
+        )
+        total_feval = finite_difference_feval + function_eval
         return total_feval

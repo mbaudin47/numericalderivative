@@ -67,12 +67,6 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
-- Use bracket_step as a list of two floats in GillMurraySaundersWright
-  and DumontetVignes (this is done in SteplemanWinarsky)
-- Create a benchmark feature to test a given method on several 
-  benchmark problems
-- Use a relative precision in SteplemanWinarsky and GillMurraySaundersWright.
-- Remove NumericalDerivative: move it to FiniteDifferenceFormula.
 - Add finite_differences from menum and cite (Baudin, 2023).
 Reference : https://github.com/mbaudin47/menum_code
 https://github.com/mbaudin47/menum_code/blob/cec64dea8d205da796d1f578b42948115257b3bb/Scripts-Eleves/Py3/numdiff.py#L801
@@ -80,3 +74,4 @@ https://github.com/mbaudin47/menum_code/blob/cec64dea8d205da796d1f578b4294811525
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+

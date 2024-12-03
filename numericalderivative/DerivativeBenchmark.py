@@ -7,9 +7,9 @@ A benchmark for derivatives of functions.
 import numpy as np
 
 
-class DerivativeBenchmark:
+class DerivativeBenchmarkProblem:
     """
-    Create a benchmark for numerical derivatives of a function
+    Create a benchmark problem for numerical derivatives of a function
 
     Parameters
     ----------
@@ -25,6 +25,11 @@ class DerivativeBenchmark:
         The fourth derivative of the function
     x : float
         The point where the derivative should be computed
+    
+    References
+    ----------
+    - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
+    - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
     """
     def __init__(
         self,
@@ -44,16 +49,97 @@ class DerivativeBenchmark:
         self.fourth_derivative = fourth_derivative
         self.x = x
 
+    def get_name(self):
+        """
+        Return the name of the problem
 
-class ExponentialDerivativeBenchmark(DerivativeBenchmark):
-    """
-    Create an exponential derivative benchmark
+        Returns
+        -------
+        name : str
+            The name
+        """
+        return self.name
+
+    def get_x(self):
+        """
+        Return the input point of the problem
+
+        Returns
+        -------
+        x : float
+            The input point
+        """
+        return self.x
+
+    def get_function(self):
+        """
+        Return the function of the problem
+
+        Returns
+        -------
+        function : function
+            The function
+        """
+        return self.function
+
+    def get_first_derivative(self):
+        """
+        Return the first derivative of the function of the problem
+
+        Returns
+        -------
+        first_derivative : function
+            The first derivative of the function
+        """
+        return self.first_derivative
+
+    def get_second_derivative(self):
+        """
+        Return the second derivative of the function of the problem
+
+        Returns
+        -------
+        second_derivative : function
+            The second derivative of the function
+        """
+        return self.second_derivative
+
+    def get_third_derivative(self):
+        """
+        Return the third derivative of the function of the problem
+
+        Returns
+        -------
+        third_derivative : function
+            The third derivative of the function
+        """
+        return self.third_derivative
+
+    def get_fourth_derivative(self):
+        """
+        Return the fourth derivative of the function of the problem
+
+        Returns
+        -------
+        fourth_derivative : function
+            The fourth derivative of the function
+        """
+        return self.fourth_derivative
+
+class ExponentialProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create an exponential derivative benchmark problem
 
     The function is:
 
-    f(x) = exp(x)
+    .. math::
+
+        f(x) = \exp(x)
 
     for any x.
+
+    See problem #1 in (Dumontet & Vignes, 1977) page 23.
+    See (Stepleman & Wirnarsky, 1979) page 1263.
     """
     def __init__(self):
 
@@ -84,15 +170,20 @@ class ExponentialDerivativeBenchmark(DerivativeBenchmark):
         )
 
 
-class LogarithmicDerivativeBenchmark(DerivativeBenchmark):
-    """
-    Create a logarithmic derivative benchmark
+class LogarithmicProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create a logarithmic derivative benchmark problem
 
     The function is:
 
-    f(x) = log(x)
+    .. math::
+
+        f(x) = \log(x)
 
     for any x > 0.
+
+    See problem #2 in (Dumontet & Vignes, 1977) page 23.
+    See (Stepleman & Wirnarsky, 1979) page 1263.
     """
     def __init__(self):
 
@@ -124,15 +215,20 @@ class LogarithmicDerivativeBenchmark(DerivativeBenchmark):
         )
 
 
-class SquareRootDerivativeBenchmark(DerivativeBenchmark):
-    """
-    Create a square root derivative benchmark
+class SquareRootProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create a square root derivative benchmark problem
 
     The function is:
 
-    f(x) = log(x)
+    .. math::
+
+        f(x) = \sqrt{x}
 
     for any x >= 0.
+
+    See problem #3 in (Dumontet & Vignes, 1977) page 23.
+    See (Stepleman & Wirnarsky, 1979) page 1263.
     """
     def __init__(self):
 
@@ -163,15 +259,20 @@ class SquareRootDerivativeBenchmark(DerivativeBenchmark):
         )
 
 
-class AtanDerivativeBenchmark(DerivativeBenchmark):
-    """
-    Create an arctangent derivative benchmark
+class AtanProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create an arctangent derivative benchmark problem
 
     The function is:
 
-    f(x) = atan(x)
+    .. math::
+
+        f(x) = \arctan(x)
 
     for any x.
+
+    See problem #4 in (Dumontet & Vignes, 1977) page 23.
+    See (Stepleman & Wirnarsky, 1979) page 1263.
     """
     def __init__(self):
 
@@ -203,15 +304,20 @@ class AtanDerivativeBenchmark(DerivativeBenchmark):
         )
 
 
-class SinDerivativeBenchmark(DerivativeBenchmark):
-    """
-    Create a sine derivative benchmark
+class SinProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create a sine derivative benchmark problem
 
     The function is:
 
-    f(x) = sin(x)
+    .. math::
+
+        f(x) = \sin(x)
 
     for any x.
+
+    See problem #5 in (Dumontet & Vignes, 1977) page 23.
+    See (Stepleman & Wirnarsky, 1979) page 1263.
     """
     def __init__(self):
 
@@ -242,15 +348,17 @@ class SinDerivativeBenchmark(DerivativeBenchmark):
         )
 
 
-class ScaledExponentialDerivativeBenchmark(DerivativeBenchmark):
-    """
-    Create a scaled exponential derivative benchmark
+class ScaledExponentialProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create a scaled exponential derivative benchmark problem
 
     The function is:
 
-    f(x) = exp(-x / alpha)
+    .. math::
 
-    for any x.
+        f(x) = \exp(-x / \alpha)
+
+    for any x where :math:`\alpha` is a parameter.
 
     Parameters
     ----------
@@ -289,13 +397,15 @@ class ScaledExponentialDerivativeBenchmark(DerivativeBenchmark):
         )
 
 
-class GillMurraySaundersWrightExponentialDerivativeBenchmark(DerivativeBenchmark):
-    """
-    Create an exponential derivative benchmark
+class GMSWExponentialProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create an exponential derivative benchmark problem
 
     See eq. 4 page 312 in (Gill, Murray, Saunders & Wright, 1983)
 
-    f(x) = (exp(x) - 1)^2 + (1 / sqrt(1 + x^2) - 1)^2
+    .. math::
+
+        f(x) = \left(\exp(x) - 1\right)^2 + \left(\frac{1}{\sqrt{1 + x^2}} - 1\right)^2
 
     Parameters
     ----------
@@ -383,21 +493,22 @@ class GillMurraySaundersWrightExponentialDerivativeBenchmark(DerivativeBenchmark
         )
 
 
-def BuildBenchmarkList():
+def BuildBenchmark():
     """
     Create a list of benchmark problems.
 
     Returns
     -------
-    benchmark_list : list(DerivativeBenchmark)
+    benchmark_list : list(DerivativeBenchmarkProblem)
         A collection of benchmark problems.
     """
     benchmark_list = [
-        ExponentialDerivativeBenchmark(),
-        LogarithmicDerivativeBenchmark(),
-        SquareRootDerivativeBenchmark(),
-        AtanDerivativeBenchmark(),
-        ScaledExponentialDerivativeBenchmark(),
-        GillMurraySaundersWrightExponentialDerivativeBenchmark(),
+        ExponentialProblem(),
+        LogarithmicProblem(),
+        SquareRootProblem(),
+        AtanProblem(),
+        SinProblem(),
+        ScaledExponentialProblem(),
+        GMSWExponentialProblem(),
     ]
     return benchmark_list

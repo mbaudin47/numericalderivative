@@ -9,7 +9,6 @@ Algorithms
 .. autosummary::
    :toctree: _generated/
 
-       NumericalDerivative
        DumontetVignes
        GillMurraySaundersWright
        SteplemanWinarsky
@@ -20,6 +19,7 @@ Finite Differences
 .. autosummary::
    :toctree: _generated/
 
+       FunctionWithArguments
        FiniteDifferenceFormula
        FiniteDifferenceOptimalStep
 
@@ -29,12 +29,12 @@ Benchmark problems
 .. autosummary::
    :toctree: _generated/
    
-       DerivativeBenchmark
-       ExponentialDerivativeBenchmark
-       LogarithmicDerivativeBenchmark
-       SquareRootDerivativeBenchmark
-       AtanDerivativeBenchmark
-       SinDerivativeBenchmark
-       ScaledExponentialDerivativeBenchmark
-       GillMurraySaundersWrightExponentialDerivativeBenchmark
-       BuildBenchmarkList
+       DerivativeBenchmarkProblem
+       ExponentialProblem
+       LogarithmicProblem
+       SquareRootProblem
+       AtanProblem
+       SinProblem
+       ScaledExponentialProblem
+       GMSWExponentialProblem
+       BuildBenchmark
