@@ -61,14 +61,18 @@ def compute_first_derivative_SW(
     feval : int
         The number of function evaluations.
     """
-    algorithm = nd.SteplemanWinarsky(f, x, verbose=verbose)
-    step, _ = algorithm.compute_step(
-        initial_step,
-        beta=beta,
-    )
-    f_prime_approx = algorithm.compute_first_derivative(step)
-    feval = algorithm.get_number_of_function_evaluations()
-    absolute_error = abs(f_prime_approx - f_prime(x))
+    try:
+        algorithm = nd.SteplemanWinarsky(f, x, verbose=verbose)
+        step, _ = algorithm.compute_step(
+            initial_step,
+            beta=beta,
+        )
+        f_prime_approx = algorithm.compute_first_derivative(step)
+        feval = algorithm.get_number_of_function_evaluations()
+        absolute_error = abs(f_prime_approx - f_prime(x))
+    except:
+        absolute_error = np.nan
+        feval = np.nan
     return absolute_error, feval
 
 
@@ -189,6 +193,7 @@ average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
 
 # %%
 function_list = [
+    [nd.InverseProblem(), 1.0e0],
     [nd.ExponentialProblem(), 1.0e-1],
     [nd.LogarithmicProblem(), 1.0e-3],  # x > 0
     [nd.SquareRootProblem(), 1.0e-3],  # x > 0
@@ -196,6 +201,13 @@ function_list = [
     [nd.SinProblem(), 1.0e0],
     [nd.ScaledExponentialProblem(), 1.0e5],
     [nd.GMSWExponentialProblem(), 1.0e0],
+    [nd.SXXNProblem1(), 1.e0],
+    [nd.SXXNProblem2(), 1.e0],  # Fails
+    [nd.SXXNProblem3(), 1.e0],
+    [nd.SXXNProblem4(), 1.e0],
+    [nd.OliverProblem1(), 1.e0],
+    [nd.OliverProblem2(), 1.e0],
+    [nd.OliverProblem3(), 1.e-3],
 ]
 
 # %%
@@ -207,10 +219,13 @@ number_of_functions = len(function_list)
 average_relative_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
-    benchmark, initial_step = function_list[i]
-    name = benchmark.name
+    problem, initial_step = function_list[i]
+    name = problem.get_name()
+    function = problem.get_function()
+    first_derivative = problem.get_first_derivative()
+    print(f"Function #{i}, {name}")
     average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
-        benchmark.function, benchmark.first_derivative, test_points, initial_step
+        function, first_derivative, test_points, initial_step
     )
     average_relative_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)
@@ -223,7 +238,7 @@ for i in range(number_of_functions):
         )
     )
 data.append(
-    ["Average", "-", np.mean(average_relative_error_list), np.mean(average_feval_list)]
+    ["Average", "-", np.nanmean(average_relative_error_list), np.nanmean(average_feval_list)]
 )
 tabulate.tabulate(
     data,

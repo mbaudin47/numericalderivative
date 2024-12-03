@@ -380,12 +380,12 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
 
     Parameters
     ----------
-    alpha : float, > 0
+    alpha : float, nonzero 0
         The parameter
     """
     def __init__(self, alpha=1.0e6):
-        if alpha <= 0.0:
-            raise ValueError(f"alpha = {alpha} should be > 0")
+        if alpha == 0.0:
+            raise ValueError(f"alpha = {alpha} should be nonzero")
         self.alpha = alpha
 
         def scaled_exp(x):
@@ -584,8 +584,22 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
 
         f(x) = \exp(\alpha x)
     
-    for any :math:`x`.
+    for any :math:`x` and :math:`\alpha` is a parameter.
     The test point is :math:`x = 0.01`.
+
+    The function is similar to ScaledExponentialProblem,
+    but the test point is different.
+
+    According to (Shi, Xie, Xuan & Nocedal, 2022), this problem is 
+    interesting because the function has high order derivatives
+    which increase rapidly.
+    Therefore, a finite difference formula can be inaccurate
+    if the step size is chosen to be large.
+
+    Parameters
+    ----------
+    alpha : float, > 0
+        The parameter.
 
     References
     ----------
@@ -627,6 +641,315 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
             x,
         )
 
+class SXXNProblem3(DerivativeBenchmarkProblem):
+    r"""
+    Create an exponential derivative benchmark problem
+
+    See page 14 in (Shi, Xie, Xuan & Nocedal, 2022)
+
+    The function is:
+
+    .. math::
+
+        f(x) = x^4 + 3x^2 - 10x
+    
+    for any :math:`x`.
+    The test point is :math:`x = 0.99999`.
+
+    According to (Shi, Xie, Xuan & Nocedal, 2022), this problem 
+    is difficult because f'(1) = 0.
+
+    References
+    ----------
+    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+
+    """
+    def __init__(self):
+        def sxxn_3(x):
+            y = x**4 + 3 * x**2 - 10 * x
+            return y
+
+        def sxxn_3_prime(x):
+            y = 4 * x**3 + 6 * x - 10
+            return y
+
+        def sxxn_3_2nd_derivative(x):
+            y = 12 * x**2 + 6
+            return y
+
+        def sxxn_3_3d_derivative(x):
+            y = 24 * x
+            return y
+
+        def sxxn_3_4th_derivative(x):
+            y = 24
+            return y
+
+        x = 0.99999
+
+        super().__init__(
+            "SXXN3",
+            sxxn_3,
+            sxxn_3_prime,
+            sxxn_3_2nd_derivative,
+            sxxn_3_3d_derivative,
+            sxxn_3_4th_derivative,
+            x,
+        )
+
+class SXXNProblem4(DerivativeBenchmarkProblem):
+    r"""
+    Create an exponential derivative benchmark problem
+
+    See page 14 in (Shi, Xie, Xuan & Nocedal, 2022)
+
+    The function is:
+
+    .. math::
+
+        f(x) = 10000 \; x^3 + 0.01 \; x^2 + 5x
+    
+    for any :math:`x`.
+    The test point is :math:`x = 10^{-9}`.
+
+    According to (Shi, Xie, Xuan & Nocedal, 2022), this problem 
+    is difficult because the function is approximately symmetric with 
+    respect to :math:`x = 0`.
+
+    The fourth derivative is zero, which produces an infinite optimal
+    second derivative step for central finite difference formula.
+
+    References
+    ----------
+    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+
+    """
+    def __init__(self):
+        def sxxn_4(x):
+            y = 1.e4 * x ** 3 + 0.01 * x ** 2 + 5 * x
+            return y
+
+        def sxxn_4_prime(x):
+            y = 3.e4 * x ** 2 + 0.02 * x + 5
+            return y
+
+        def sxxn_4_2nd_derivative(x):
+            y = 6.e4 * x + 0.02
+            return y
+
+        def sxxn_4_3d_derivative(x):
+            y = 6.e4
+            return y
+
+        def sxxn_4_4th_derivative(x):
+            y = 0
+            return y
+
+        x = 1.0e-9
+
+        super().__init__(
+            "SXXN4",
+            sxxn_4,
+            sxxn_4_prime,
+            sxxn_4_2nd_derivative,
+            sxxn_4_3d_derivative,
+            sxxn_4_4th_derivative,
+            x,
+        )
+
+class OliverProblem1(DerivativeBenchmarkProblem):
+    r"""
+    Create an exponential derivative benchmark problem
+
+    See table 1 page 151 in (Oliver, 1980)
+
+    The function is:
+
+    .. math::
+
+        f(x) = \exp(4 * x)
+    
+    for any :math:`x`.
+    The test point is :math:`x = 1`.
+    This is the ScaledExponentialProblem with :math:`\alpha = -1/4`.
+
+    References
+    ----------
+    - Oliver, J. (1980). An algorithm for numerical differentiation of a function of one real variable. _Journal of Computational and Applied Mathematics, 6,_ 145–160.
+
+    """
+    def __init__(self):
+        alpha = -1.0 / 4.0
+        problem = ScaledExponentialProblem(alpha)
+
+        super().__init__(
+            "Oliver1",
+            problem.get_function(),
+            problem.get_first_derivative(),
+            problem.get_second_derivative(),
+            problem.get_third_derivative(),
+            problem.get_fourth_derivative(),
+            problem.get_x(),
+        )
+
+class OliverProblem2(DerivativeBenchmarkProblem):
+    r"""
+    Create an exponential derivative benchmark problem
+
+    See table 1 page 151 in (Oliver, 1980)
+
+    The function is:
+
+    .. math::
+
+        f(x) = \exp(x^2)
+    
+    for any :math:`x`.
+    The test point is :math:`x = 1`.
+
+    References
+    ----------
+    - Oliver, J. (1980). An algorithm for numerical differentiation of a function of one real variable. _Journal of Computational and Applied Mathematics, 6,_ 145–160.
+
+    """
+    def __init__(self):
+        def function(x):
+            y = np.exp(x ** 2)
+            return y
+
+        def function_prime(x):
+            y = 2.0 * np.exp(x ** 2) * x
+            return y
+
+        def function_2nd_derivative(x):
+            y = 2.0 * np.exp(x ** 2) * (2 * x ** 2 + 1)
+            return y
+
+        def function_3d_derivative(x):
+            y = 4.0 * np.exp(x ** 2) * x * (2 * x ** 2 + 3)
+            return y
+
+        def function_4th_derivative(x):
+            y = 4.0 * np.exp(x ** 2) * (4 * x ** 4 + 12 * x ** 2 + 3)
+            return y
+
+        x = 1.0
+
+        super().__init__(
+            "Oliver2",
+            function,
+            function_prime,
+            function_2nd_derivative,
+            function_3d_derivative,
+            function_4th_derivative,
+            x,
+        )
+
+class OliverProblem3(DerivativeBenchmarkProblem):
+    r"""
+    Create an logarithmic derivative benchmark problem
+
+    See table 1 page 151 in (Oliver, 1980)
+
+    The function is:
+
+    .. math::
+
+        f(x) = x^2 \ln(x)
+    
+    for any :math:`x`.
+    The test point is :math:`x = 1`.
+
+    References
+    ----------
+    - Oliver, J. (1980). An algorithm for numerical differentiation of a function of one real variable. _Journal of Computational and Applied Mathematics, 6,_ 145–160.
+
+    """
+    def __init__(self):
+        def function(x):
+            y = x** 2 * np.log(x)
+            return y
+
+        def function_prime(x):
+            y = x + 2.0 * x * np.log(x)
+            return y
+
+        def function_2nd_derivative(x):
+            y = 2.0 * np.log(x) + 3.0
+            return y
+
+        def function_3d_derivative(x):
+            y = 2.0 / x
+            return y
+
+        def function_4th_derivative(x):
+            y = -2.0 / x ** 2
+            return y
+
+        x = 1.0
+
+        super().__init__(
+            "Oliver3",
+            function,
+            function_prime,
+            function_2nd_derivative,
+            function_3d_derivative,
+            function_4th_derivative,
+            x,
+        )
+
+class InverseProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create an inverse derivative benchmark problem
+
+    See table 1 page 151 in (Oliver, 1980)
+
+    The function is:
+
+    .. math::
+
+        f(x) = \frac{1}{x}
+    
+    for any nonzero :math:`x`.
+    The test point is :math:`x = 1`.
+
+    References
+    ----------
+    - Oliver, J. (1980). An algorithm for numerical differentiation of a function of one real variable. _Journal of Computational and Applied Mathematics, 6,_ 145–160.
+
+    """
+    def __init__(self):
+        def function(x):
+            y = 1.0 / x
+            return y
+
+        def function_prime(x):
+            y = - 1.0 / x ** 2
+            return y
+
+        def function_2nd_derivative(x):
+            y = 2.0 / x ** 3
+            return y
+
+        def function_3d_derivative(x):
+            y = - 6.0 / x ** 4
+            return y
+
+        def function_4th_derivative(x):
+            y = 24.0 / x ** 5
+            return y
+
+        x = 1.0
+
+        super().__init__(
+            "inverse",
+            function,
+            function_prime,
+            function_2nd_derivative,
+            function_3d_derivative,
+            function_4th_derivative,
+            x,
+        )
 
 def BuildBenchmark():
     """
@@ -638,6 +961,7 @@ def BuildBenchmark():
         A collection of benchmark problems.
     """
     benchmark_list = [
+        InverseProblem(),
         ExponentialProblem(),
         LogarithmicProblem(),
         SquareRootProblem(),
@@ -646,6 +970,11 @@ def BuildBenchmark():
         ScaledExponentialProblem(),
         GMSWExponentialProblem(),
         SXXNProblem1(),
-        SXXNProblem2()
+        SXXNProblem2(),
+        SXXNProblem3(),
+        SXXNProblem4(),
+        OliverProblem1(),
+        OliverProblem2(),
+        OliverProblem3()
     ]
     return benchmark_list

@@ -205,6 +205,7 @@ class GillMurraySaundersWright():
         # and c(kmax) <= c_threshold_max and c(kmax) < c_threshold_min
         # which implies: c(kmax) < c_threshold_min
         # In summary: c(kmax) < c_threshold_min < c_threshold_max < c(kmin).
+        found = False
         for number_of_iterations in range(iteration_maximum):
             if logscale:
                 logk = (np.log(kmin) + np.log(kmax)) / 2.0

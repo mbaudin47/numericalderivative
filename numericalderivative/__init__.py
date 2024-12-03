@@ -3,6 +3,7 @@
 from .FunctionWithArguments import FunctionWithArguments
 from .DerivativeBenchmark import (
     DerivativeBenchmarkProblem,
+    InverseProblem,
     ExponentialProblem,
     LogarithmicProblem,
     SquareRootProblem,
@@ -10,6 +11,13 @@ from .DerivativeBenchmark import (
     SinProblem,
     ScaledExponentialProblem,
     GMSWExponentialProblem,
+    SXXNProblem1,
+    SXXNProblem2,
+    SXXNProblem3,
+    SXXNProblem4,
+    OliverProblem1,
+    OliverProblem2,
+    OliverProblem3,
     BuildBenchmark,
 )
 from .DumontetVignes import DumontetVignes
@@ -22,6 +30,7 @@ __all__ = [
     "FiniteDifferenceFormula",
     "FunctionWithArguments",
     "DerivativeBenchmarkProblem",
+    "InverseProblem",
     "ExponentialProblem",
     "LogarithmicProblem",
     "SquareRootProblem",
@@ -29,6 +38,13 @@ __all__ = [
     "SinProblem",
     "ScaledExponentialProblem",
     "GMSWExponentialProblem",
+    "SXXNProblem1",
+    "SXXNProblem2",
+    "SXXNProblem3",
+    "SXXNProblem4",
+    "OliverProblem1",
+    "OliverProblem2",
+    "OliverProblem3",
     "DumontetVignes",
     "FiniteDifferenceOptimalStep",
     "GillMurraySaundersWright",
