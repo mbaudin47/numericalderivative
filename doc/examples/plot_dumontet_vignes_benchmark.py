@@ -126,6 +126,7 @@ average_relative_error, average_feval = benchmark_DumontetVignes_method(
 
 # %%
 # Define a collection of benchmark problems
+# function_list = nd.BuildBenchmark()
 function_list = [
     [nd.ExponentialProblem(), 1.0e-10, 1.0e-1],
     [nd.LogarithmicProblem(), 1.0e-10, 1.0e-3],
@@ -133,6 +134,7 @@ function_list = [
     [nd.AtanProblem(), 1.0e-10, 1.0e0],
     [nd.SinProblem(), 1.0e-10, 1.0e0],
     [nd.ScaledExponentialProblem(), 1.0e-10, 1.0e5],
+    [nd.GMSWExponentialProblem(), 1.0e-10, 1.0e0],
 ]
 
 
@@ -147,8 +149,15 @@ average_relative_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
     benchmark, kmin, kmax = function_list[i]
+    print(f"Function #{i}, {benchmark.name}")
     average_relative_error, average_feval = benchmark_DumontetVignes_method(
-        benchmark.function, benchmark.first_derivative, test_points, kmin, kmax, relative_precision
+        benchmark.function,
+        benchmark.first_derivative,
+        test_points,
+        kmin,
+        kmax,
+        relative_precision,
+        verbose=False,
     )
     average_relative_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)
