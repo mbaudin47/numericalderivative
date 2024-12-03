@@ -82,17 +82,12 @@ def plot_error_vs_h_with_SW_steps(
 
     if verbose:
         print(name)
-        print(
-            f"h_min = {h_min:.3e}, h_max = {h_max:.3e}"
-        )
+        print(f"h_min = {h_min:.3e}, h_max = {h_max:.3e}")
         print(
             "Bisection h0 = %.3e using %d iterations"
             % (bisection_h0_step, bisection_h0_iteration)
         )
-        print(
-            "Bisection h* = %.3e using %d iterations"
-            % (step, bisection_iterations)
-        )
+        print("Bisection h* = %.3e using %d iterations" % (step, bisection_iterations))
 
     minimum_error = np.nanmin(error_array)
     maximum_error = np.nanmax(error_array)
@@ -117,9 +112,7 @@ def plot_error_vs_h_with_SW_steps(
         "--",
         label="$h_{0}^{(B)}$",
     )
-    pl.plot(
-        [step] * 2, [minimum_error, maximum_error], "--", label="$h^{*}$"
-    )
+    pl.plot([step] * 2, [minimum_error, maximum_error], "--", label="$h^{*}$")
     pl.title("Finite difference : %s at point x = %.0f" % (name, x))
     pl.xlabel("h")
     pl.ylabel("Error")
@@ -138,7 +131,8 @@ def plot_error_vs_h_benchmark(benchmark, x, h_array, h_min, h_max, verbose=False
         benchmark.first_derivative,
         x,
         h_array,
-        h_min, h_max,
+        h_min,
+        h_max,
         True,
     )
 

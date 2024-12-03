@@ -125,7 +125,9 @@ def plot_ell_ratio(
     k_array = np.logspace(np.log10(kmin), np.log10(kmax), number_of_points)
     ell_array = np.zeros((number_of_points))
     for i in range(number_of_points):
-        ell_array[i], f3inf, f3sup = compute_ell(function, x, k_array[i], relative_precision)
+        ell_array[i], f3inf, f3sup = compute_ell(
+            function, x, k_array[i], relative_precision
+        )
 
     pl.figure(figsize=(4.0, 3.0))
     pl.plot(k_array, ell_array)

@@ -11,6 +11,13 @@ class DerivativeBenchmarkProblem:
     """
     Create a benchmark problem for numerical derivatives of a function
 
+    This provides the function and the exact first derivative.
+    This makes it possible to check the approximation of the first
+    derivative using a finite difference formula.
+    This class also provides the second, third and fourth derivative.
+    This makes it possible to compute the optimal step for 
+    various finite difference formula.
+
     Parameters
     ----------
     function : function
@@ -137,6 +144,8 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
         f(x) = \exp(x)
 
     for any x.
+    The test point is :math:`x = 1`.
+
 
     See problem #1 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
@@ -181,6 +190,7 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
         f(x) = \log(x)
 
     for any x > 0.
+    The test point is :math:`x = 1`.
 
     See problem #2 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
@@ -226,6 +236,7 @@ class SquareRootProblem(DerivativeBenchmarkProblem):
         f(x) = \sqrt{x}
 
     for any x >= 0.
+    The test point is :math:`x = 1`.
 
     See problem #3 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
@@ -270,6 +281,7 @@ class AtanProblem(DerivativeBenchmarkProblem):
         f(x) = \arctan(x)
 
     for any x.
+    The test point is :math:`x = 1/2`.
 
     See problem #4 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
@@ -315,6 +327,7 @@ class SinProblem(DerivativeBenchmarkProblem):
         f(x) = \sin(x)
 
     for any x.
+    The test point is :math:`x = 1`.
 
     See problem #5 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
@@ -359,6 +372,11 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
         f(x) = \exp(-x / \alpha)
 
     for any x where :math:`\alpha` is a parameter.
+    The test point is :math:`x = 1`.
+
+    This problem is interesting because the optimal step for the central 
+    finite difference formula of the first derivative is 6.694, which 
+    is much larger than we may expect.
 
     Parameters
     ----------
@@ -403,9 +421,16 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
 
     See eq. 4 page 312 in (Gill, Murray, Saunders & Wright, 1983)
 
+    The function is:
+
     .. math::
 
         f(x) = \left(\exp(x) - 1\right)^2 + \left(\frac{1}{\sqrt{1 + x^2}} - 1\right)^2
+    
+    for any :math:`x`.
+    The test point is :math:`x = 1`.
+    The optimal finite difference step for the forward finite difference 
+    formula of the first derivative is approximately :math:`10^{-3}`.
 
     Parameters
     ----------
@@ -414,14 +439,9 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
 
     References
     ----------
-    - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983).
-        Computing forward-difference intervals for numerical optimization.
-        SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+    - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
     """
-    def __init__(self, alpha=1.0e6):
-        if alpha <= 0.0:
-            raise ValueError(f"alpha = {alpha} should be > 0")
-        self.alpha = alpha
+    def __init__(self):
 
         def gms_exp(x):
             s = 1 + x**2
@@ -483,12 +503,127 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
         x = 1.0
 
         super().__init__(
-            "GMS",
+            "GMSW",
             gms_exp,
             gms_exp_prime,
             gms_exp_2nd_derivative,
             gms_exp_3d_derivative,
             gms_exp_4th_derivative,
+            x,
+        )
+
+class SXXNProblem1(DerivativeBenchmarkProblem):
+    r"""
+    Create an exponential derivative benchmark problem
+
+    See page 14 in (Shi, Xie, Xuan & Nocedal, 2022)
+
+    The function is:
+
+    .. math::
+
+        f(x) = \left(\exp(x) - 1\right)^2
+    
+    for any :math:`x`.
+    The test point is :math:`x = -8`.
+
+    According to (Shi, Xie, Xuan & Nocedal, 2022), this function
+    has "extremely small first and second order derivatives at t = -8".
+    A naive choice of the step for forward differences can result in
+    extremely large step and huge error.
+
+    References
+    ----------
+    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+
+    """
+    def __init__(self):
+        def sxxn_exp1(x):
+            expm1 = np.expm1(x)  # np.exp(x) - 1
+            y = expm1**2
+            return y
+
+        def sxxn_exp1_prime(x):
+            expm1 = np.expm1(x)  # np.exp(x) - 1
+            y = 2 * np.exp(x) * expm1
+            return y
+
+        def sxxn_exp1_2nd_derivative(x):
+            y = 2 * np.exp(x) * (2 * np.exp(x) - 1)
+            return y
+
+        def sxxn_exp1_3d_derivative(x):
+            y = 2 * np.exp(x) * (4 * np.exp(x) - 1)
+            return y
+
+        def sxxn_exp1_4th_derivative(x):
+            y = 2 * np.exp(x) * (8 * np.exp(x) - 1)
+            return y
+
+        x = -8.0
+
+        super().__init__(
+            "SXXN1",
+            sxxn_exp1,
+            sxxn_exp1_prime,
+            sxxn_exp1_2nd_derivative,
+            sxxn_exp1_3d_derivative,
+            sxxn_exp1_4th_derivative,
+            x,
+        )
+
+class SXXNProblem2(DerivativeBenchmarkProblem):
+    r"""
+    Create an exponential derivative benchmark problem
+
+    See page 14 in (Shi, Xie, Xuan & Nocedal, 2022)
+
+    The function is:
+
+    .. math::
+
+        f(x) = \exp(\alpha x)
+    
+    for any :math:`x`.
+    The test point is :math:`x = 0.01`.
+
+    References
+    ----------
+    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+
+    """
+    def __init__(self, alpha = 1.e2):
+        self.alpha = alpha
+
+        def sxxn_exp2(x):
+            y = np.exp(self.alpha * x)
+            return y
+
+        def sxxn_exp2_prime(x):
+            y = self.alpha * np.exp(self.alpha * x)
+            return y
+
+        def sxxn_exp2_2nd_derivative(x):
+            y = self.alpha ** 2 * np.exp(self.alpha * x)
+            return y
+
+        def sxxn_exp2_3d_derivative(x):
+            y = self.alpha ** 3 * np.exp(self.alpha * x)
+            return y
+
+        def sxxn_exp2_4th_derivative(x):
+            y = self.alpha ** 4 * np.exp(self.alpha * x)
+            return y
+
+        x = 0.01
+
+        super().__init__(
+            "SXXN2",
+            sxxn_exp2,
+            sxxn_exp2_prime,
+            sxxn_exp2_2nd_derivative,
+            sxxn_exp2_3d_derivative,
+            sxxn_exp2_4th_derivative,
             x,
         )
 
@@ -510,5 +645,7 @@ def BuildBenchmark():
         SinProblem(),
         ScaledExponentialProblem(),
         GMSWExponentialProblem(),
+        SXXNProblem1(),
+        SXXNProblem2()
     ]
     return benchmark_list

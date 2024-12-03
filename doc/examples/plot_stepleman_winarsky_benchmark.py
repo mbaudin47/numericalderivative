@@ -89,7 +89,8 @@ optimal_step, absolute_error = (
 print("Exact h* = %.3e" % (optimal_step))
 
 h0, iterations = algorithm.search_step_with_bisection(
-    1.0e-7, 1.0e1,
+    1.0e-7,
+    1.0e1,
 )
 print("Pas initial = ", h0, ", iterations = ", iterations)
 lost_digits = algorithm.number_of_lost_digits(h0)
@@ -115,7 +116,7 @@ print(
 
 
 # %%
-def benchmark_method(
+def benchmark_SteplemanWinarsky_method(
     function, derivative_function, test_points, initial_step, verbose=False
 ):
     """
@@ -182,10 +183,9 @@ number_of_test_points = 100
 test_points = np.linspace(0.01, 12.2, number_of_test_points)
 initial_step = 1.0e-1
 benchmark = nd.ExponentialProblem()
-average_relative_error, average_feval = benchmark_method(
+average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
     benchmark.function, benchmark.first_derivative, test_points, initial_step, True
 )
-
 
 # %%
 function_list = [
@@ -195,6 +195,7 @@ function_list = [
     [nd.AtanProblem(), 1.0e0],
     [nd.SinProblem(), 1.0e0],
     [nd.ScaledExponentialProblem(), 1.0e5],
+    [nd.GMSWExponentialProblem(), 1.0e0],
 ]
 
 # %%
@@ -208,7 +209,7 @@ average_feval_list = []
 for i in range(number_of_functions):
     benchmark, initial_step = function_list[i]
     name = benchmark.name
-    average_relative_error, average_feval = benchmark_method(
+    average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
         benchmark.function, benchmark.first_derivative, test_points, initial_step
     )
     average_relative_error_list.append(average_relative_error)
