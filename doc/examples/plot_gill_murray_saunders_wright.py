@@ -69,7 +69,6 @@ def compute_first_derivative_GMSW(
     return absolute_error, feval
 
 
-
 # %%
 print("+ Test on ExponentialDerivativeBenchmark")
 kmin = 1.0e-15
@@ -89,7 +88,7 @@ print("Exact h* = %.3e" % (optimal_step))
     benchmark.function,
     x,
     benchmark.first_derivative,
-    kmin, 
+    kmin,
     kmax,
     verbose=True,
 )
@@ -117,7 +116,7 @@ print("Exact h* = %.3e" % (optimal_step))
     benchmark.function,
     x,
     benchmark.first_derivative,
-    kmin, 
+    kmin,
     kmax,
     verbose=True,
 )
@@ -169,12 +168,7 @@ def benchmark_method(
             absolute_error,
             number_of_function_evaluations,
         ) = compute_first_derivative_GMSW(
-            function,
-            x,
-            derivative_function,
-            kmin, 
-            kmax,
-            verbose
+            function, x, derivative_function, kmin, kmax, verbose
         )
         relative_error = absolute_error / abs(derivative_function(x))
         if verbose:
@@ -203,7 +197,6 @@ benchmark = nd.ExponentialProblem()
 average_error, average_feval = benchmark_method(
     benchmark.function, benchmark.first_derivative, test_points, kmin, kmax, True
 )
-
 
 
 # For each function, at point x = 1, plot the error vs the step computed
@@ -256,7 +249,7 @@ def plot_error_vs_h_benchmark(benchmark, x, h_array, kmin, kmax, verbose=False):
         benchmark.first_derivative,
         x,
         h_array,
-        kmin, 
+        kmin,
         kmax,
         verbose,
     )

@@ -35,7 +35,7 @@ derivative
 #
 # .. code-block::
 #
-#    derivative = 
+#    derivative =
 #    [[  1.93789e+09 ]
 #    [  1           ]
 #    [  0.0297619   ]
@@ -45,6 +45,7 @@ derivative
 # Print the gradient function
 gradient = model.getGradient()
 gradient
+
 
 # %%
 # Derivative with respect to strain
@@ -208,7 +209,7 @@ print(derivative)
 #
 # .. code-block::
 #
-#     derivative = 
+#     derivative =
 #     [[  1.93789e+09 ]
 #      [  1           ]
 #      [  0.0295312   ]  # <- This is a change in the 3d decimal
@@ -220,6 +221,7 @@ print(derivative)
 #
 # The function below computes the step of a finite difference formula
 # applied to an OpenTURNS function using Stepleman & Winarsky's method.
+
 
 # %%
 def computeSteplemanWinarskyStep(
@@ -332,7 +334,7 @@ print(f"{derivative}")
 #
 # .. code-block::
 #
-#    derivative = 
+#    derivative =
 #    [[ -2.53725e-12 ]
 #     [  0.000567037 ]
 #     [  0.200131    ]
@@ -362,7 +364,7 @@ print(f"{derivative}")
 #
 # .. code-block::
 #
-#     derivative = 
+#     derivative =
 #     [[ -2.53725e-12 ]
 #      [  0.000567037 ]
 #      [  0.200131    ]
@@ -393,7 +395,7 @@ print(f"{derivative}")
 #
 # .. code-block::
 #
-#     derivative = 
+#     derivative =
 #     9x1
 #     [[ -4.78066e-10 ]
 #      [ -3.46945e-13 ]
@@ -406,16 +408,16 @@ print(f"{derivative}")
 #      [  0.0116564   ]]
 
 # %%
-# There is a specific difficulty with FireSatellite model for the derivative 
+# There is a specific difficulty with FireSatellite model for the derivative
 # with respect to Pother.
-# Indeed, the gradient of the TotalTorque with respect to Pother is close 
+# Indeed, the gradient of the TotalTorque with respect to Pother is close
 # to zero.
 # Furthermore, the nominal value (mean) of Pother is 1000.
-# Therefore, in order to get a sufficiently large number of lost digits, 
+# Therefore, in order to get a sufficiently large number of lost digits,
 # the algorithm is forced to use a very large step h, close to 10^4.
 # But this leads to a negative value of Pother - h, which produces
 # a math domain error.
-# In other words, the model has an input range which is ignored by the 
+# In other words, the model has an input range which is ignored by the
 # algorithm.
 # To solve this issue the interval which defines the set of
 # possible values of x should be introduced.
@@ -446,7 +448,7 @@ print(f"{derivative}")
 #
 # .. code-block::
 #
-#    derivative = 
+#    derivative =
 #    9x1
 #    [[ -4.78157e-10 ]
 #     [ -2.91776e-13 ]  # <- This is a minor change

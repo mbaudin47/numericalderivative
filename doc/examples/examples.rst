@@ -14,3 +14,4 @@ This section illustrates how to use the numericalderivative algorithms.
    ../auto_example/plot_dumontet_vignes_benchmark
    ../auto_example/plot_gill_murray_saunders_wright_benchmark
    ../auto_example/plot_stepleman_winarsky
+   ../auto_example/plot_use_benchmark

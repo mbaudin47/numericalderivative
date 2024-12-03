@@ -19,10 +19,26 @@ import numpy as np
 import pylab as pl
 import numericalderivative as nd
 
+# %%
+# Consider this problem.
+
+# %%
+benchmark = nd.ScaledExponentialProblem()
+name = benchmark.get_name()
+x = benchmark.get_x()
+third_derivative = benchmark.get_third_derivative()
+third_derivative_value = third_derivative(x)
+optimal_step_formula = nd.FiniteDifferenceOptimalStep()
+optimum_step, absolute_error = (
+    optimal_step_formula.compute_step_first_derivative_central(third_derivative_value)
+)
+print(f"Name = {name}, x = {x}")
+print(f"Optimal step for central finite difference formula = {optimum_step}")
+print(f"Minimum absolute error= {absolute_error}")
+
 
 # %%
 # 1. Plot the error vs h
-benchmark = nd.ScaledExponentialProblem()
 x = 1.0
 finite_difference = nd.FiniteDifferenceFormula(benchmark.function, x)
 number_of_points = 1000
@@ -36,11 +52,13 @@ for i in range(number_of_points):
 # %%
 pl.figure(figsize=(3.0, 2.0))
 pl.plot(h_array, error_array)
-pl.title("Finite difference")
+pl.plot([optimum_step] * 2, [min(error_array), max(error_array)], label=r"$h^*$")
+pl.title("Central finite difference")
 pl.xlabel("h")
 pl.ylabel("Error")
 pl.xscale("log")
 pl.yscale("log")
+pl.legend(bbox_to_anchor=(1, 1))
 
 
 # %%
@@ -127,7 +145,8 @@ threshold = np.log10(p ** (-1.0 / 3.0) / beta)
 print("Threshold = ", threshold)
 
 step_zero, iterations = algorithm.search_step_with_bisection(
-    1.0e-5, 1.0e7,
+    1.0e-5,
+    1.0e7,
 )
 print("step_zero = ", step_zero)
 print("iterations = ", iterations)
@@ -181,7 +200,8 @@ pl.yscale("log")
 # Test with single point
 x = 1.0
 f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(
-    1.0e-7, 1.0e7,
+    1.0e-7,
+    1.0e7,
 )
 feval = algorithm.get_number_of_function_evaluations()
 print("FD(x) = ", f_prime_approx)
@@ -194,13 +214,15 @@ x = 1.0
 maximum_bisection = 53
 log_scale = False
 h0, iterations = algorithm.search_step_with_bisection(
-    1.0e-7, 1.0e1,
+    1.0e-7,
+    1.0e1,
     maximum_bisection=53,
     log_scale=False,
 )
 print("Pas initial = ", h0, ", iterations = ", iterations)
 h0, iterations = algorithm.search_step_with_bisection(
-    1.0e-7, 1.0e1,
+    1.0e-7,
+    1.0e1,
     maximum_bisection=53,
     log_scale=True,
 )
@@ -212,7 +234,8 @@ benchmark = nd.ExponentialProblem()
 x = 1.0
 algorithm = nd.SteplemanWinarsky(benchmark.function, x, verbose=True)
 f_prime_approx, estim_relative_error = algorithm.search_step_with_bisection(
-    1.0e-6, 100.0 * x,
+    1.0e-6,
+    100.0 * x,
     beta=4.0,
 )
 absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
