@@ -91,7 +91,7 @@ class CheckGillMurraySaunders(unittest.TestCase):
     def test_gms_exp_example_2nd_derivative(self):
         # This is (Gill, Murray, Saunders & Wright, 1983) example 1 page 312.
         # Check that the approximate optimal step for the second derivative is correctly approximated
-        benchmark = nd.GillMurraySaundersWrightExponentialDerivativeBenchmark()
+        benchmark = nd.GMSWExponentialProblem()
         relative_precision = 1.0e-15
         algorithm = nd.GillMurraySaundersWright(
             benchmark.function, benchmark.x, relative_precision, verbose=True
@@ -115,7 +115,7 @@ class CheckGillMurraySaunders(unittest.TestCase):
 
     def test_gms_exp_example(self):
         # Check that the first derivative is correctly approximated
-        benchmark = nd.GillMurraySaundersWrightExponentialDerivativeBenchmark()
+        benchmark = nd.GMSWExponentialProblem()
         relative_precision = 1.0e-15
         algorithm = nd.GillMurraySaundersWright(
             benchmark.function, benchmark.x, relative_precision, verbose=True
