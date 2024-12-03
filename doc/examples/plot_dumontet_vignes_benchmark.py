@@ -19,7 +19,7 @@ import numericalderivative as nd
 
 
 # %%
-def benchmark_method(
+def benchmark_DumontetVignes_method(
     function,
     derivative_function,
     test_points,
@@ -94,7 +94,7 @@ f_prime = benchmark.get_first_derivative()
 kmin = 1.0e-9
 kmax = 1.0e-3
 relative_precision = 1.0e-14
-absolute_error, feval = benchmark_method(
+absolute_error, feval = benchmark_DumontetVignes_method(
     f,
     f_prime,
     [x],
@@ -114,7 +114,7 @@ benchmark = nd.ExponentialProblem()
 kmin = 1.0e-9
 kmax = 1.0e0
 relative_precision = 1.0e-14
-average_relative_error, average_feval = benchmark_method(
+average_relative_error, average_feval = benchmark_DumontetVignes_method(
     benchmark.function,
     benchmark.first_derivative,
     test_points,
@@ -127,30 +127,13 @@ average_relative_error, average_feval = benchmark_method(
 # %%
 # Define a collection of benchmark problems
 function_list = [
-    [nd.ExponentialProblem(), [1.0e-10, 1.0e-1]],
-    [nd.LogarithmicProblem(), [1.0e-10, 1.0e-3]],
-    [nd.SquareRootProblem(), [1.0e-10, 1.0e-3]],
-    [nd.AtanProblem(), [1.0e-10, 1.0e0]],
-    [nd.SinProblem(), [1.0e-10, 1.0e0]],
-    [nd.ScaledExponentialProblem(), [1.0e-10, 1.0e5]],
+    [nd.ExponentialProblem(), 1.0e-10, 1.0e-1],
+    [nd.LogarithmicProblem(), 1.0e-10, 1.0e-3],
+    [nd.SquareRootProblem(), 1.0e-10, 1.0e-3],
+    [nd.AtanProblem(), 1.0e-10, 1.0e0],
+    [nd.SinProblem(), 1.0e-10, 1.0e0],
+    [nd.ScaledExponentialProblem(), 1.0e-10, 1.0e5],
 ]
-
-
-# %%
-def benchmark_problem(benchmark, bracket, relative_precision, verbose=False):
-    function = benchmark.function
-    derivative = benchmark.first_derivative
-    kmin, kmax = bracket
-    average_relative_error, average_feval = benchmark_method(
-        function,
-        derivative,
-        test_points,
-        kmin,
-        kmax,
-        relative_precision,
-        verbose=verbose,
-    )
-    return average_relative_error, average_feval
 
 
 # %%
@@ -163,19 +146,15 @@ number_of_functions = len(function_list)
 average_relative_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
-    benchmark, bracket_k = function_list[i]
-    name = benchmark.name
-    function = benchmark.function
-    derivative = benchmark.first_derivative
-    kmin, kmax = bracket_k
-    average_relative_error, average_feval = benchmark_problem(
-        benchmark, bracket_k, relative_precision
+    benchmark, kmin, kmax = function_list[i]
+    average_relative_error, average_feval = benchmark_DumontetVignes_method(
+        benchmark.function, benchmark.first_derivative, test_points, kmin, kmax, relative_precision
     )
     average_relative_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)
     data.append(
         (
-            name,
+            benchmark.name,
             kmin,
             kmax,
             average_relative_error,
