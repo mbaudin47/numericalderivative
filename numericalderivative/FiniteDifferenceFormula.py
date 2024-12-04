@@ -47,8 +47,16 @@ class FiniteDifferenceFormula():
         return self.function.get_number_of_evaluations()
 
     def compute_third_derivative(self, step):
-        """
+        r"""
         Estimate the 3d derivative f'''(x) using finite differences.
+
+        This is based on the central finite difference formula:
+
+        .. math::
+
+            f^{(3)}(x) \approx \frac{f(x + 2h) - f(x - 2h) -2 f(x + h) + 2 f(x - h)}{2h^3}
+        
+        where :math:`h` is the step.
 
         Parameters
         ----------
@@ -62,9 +70,7 @@ class FiniteDifferenceFormula():
 
         References
         ----------
-        - Dumontet, J., & Vignes, J. (1977). 
-          Détermination du pas optimal dans le calcul des dérivées sur ordinateur. 
-          RAIRO. Analyse numérique, 11 (1), 13-25.
+        - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
         """
         t = np.zeros(4)
         t[0] = self.function(self.x + 2 * step)
@@ -75,12 +81,16 @@ class FiniteDifferenceFormula():
         return third_derivative
 
     def compute_first_derivative_central(self, step):
-        """
+        r"""
         Compute first derivative using central finite difference.
 
         This is based on the central finite difference formula:
 
-        f'(x) ~ (f(x + h) - f(x - h)) / (2h)
+        .. math::
+
+            f'(x) \approx \frac{f(x + h) - f(x - h)}{2h}
+        
+        where :math:`h` is the step.
 
         Parameters
         ----------
@@ -101,12 +111,16 @@ class FiniteDifferenceFormula():
         return first_derivative
 
     def compute_first_derivative_forward(self, step):
-        """
+        r"""
         Compute an approximate first derivative using finite differences
 
         This method uses the formula:
 
-        f'(x) ~ (f(x + h) - f(x)) / h
+        .. math::
+
+            f'(x) \approx \frac{f(x + h) - f(x)}{h}
+        
+        where :math:`h` is the step.
 
         Parameters
         ----------
@@ -120,9 +134,7 @@ class FiniteDifferenceFormula():
 
         References
         ----------
-        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). 
-          Computing forward-difference intervals for numerical optimization. 
-          SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983).  Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
         """
         step = (self.x + step) - self.x  # Magic trick
         if step <= 0.0:
@@ -133,12 +145,16 @@ class FiniteDifferenceFormula():
         return first_derivative
 
     def compute_second_derivative_central(self, step):
-        """
+        r"""
         Compute an approximate second derivative using finite differences.
 
         The formula is:
 
-        f''(x) ~ (f(x + k) - 2 f(x) + f(x - k)) / k^2
+        .. math::
+
+            f''(x) \approx \frac{f(x + h) - 2 f(x) + f(x - h)}{h^2}
+        
+        where :math:`h` is the step.
 
         This second derivative can be used to compute an
         approximate optimal step for the forward first finite difference.
@@ -157,9 +173,7 @@ class FiniteDifferenceFormula():
 
         References
         ----------
-        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). 
-          Computing forward-difference intervals for numerical optimization. 
-          SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
         """
         step = (self.x + step) - self.x  # Magic trick
         if step <= 0.0:
