@@ -8,23 +8,25 @@ import numpy as np
 
 
 class FiniteDifferenceOptimalStep:
-    """
-    Compute the optimum step for finite differences
+    """Compute the exact optimum step for a finite difference formula"""
 
-    Parameters
-    ----------
-    absolute_precision : float, optional
-        The absolute error of the function f at the point x.
-        This is equal to abs(relative_precision * f(x)) where
-        relative_precision is the relative accuracy and f(x) is the function
-        value of f at point x.
-
-    References
-    ----------
-    - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
-
-    """
     def __init__(self, absolute_precision=1.0e-16):
+        """
+        Compute the exact optimum step for a finite difference formula
+
+        Parameters
+        ----------
+        absolute_precision : float, optional
+            The absolute error of the function f at the point x.
+            This is equal to abs(relative_precision * f(x)) where
+            relative_precision is the relative accuracy and f(x) is the function
+            value of f at point x.
+
+        References
+        ----------
+        - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+
+        """
         if absolute_precision <= 0.0:
             raise ValueError(
                 f"The absolute precision = {absolute_precision} " "but it must be > 0"

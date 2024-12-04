@@ -3,8 +3,8 @@ User manual
 
 .. currentmodule:: numericalderivative
 
-Algorithms
-----------
+Algorithms for optimal step
+---------------------------
 
 .. autosummary::
    :toctree: _generated/
@@ -12,6 +12,7 @@ Algorithms
        DumontetVignes
        GillMurraySaundersWright
        SteplemanWinarsky
+       FiniteDifferenceOptimalStep
 
 Finite Differences
 ------------------
@@ -21,7 +22,7 @@ Finite Differences
 
        FunctionWithArguments
        FiniteDifferenceFormula
-       FiniteDifferenceOptimalStep
+       GeneralFiniteDifference
 
 Benchmark problems
 ------------------

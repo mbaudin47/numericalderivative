@@ -9,15 +9,17 @@ import numericalderivative as nd
 
 
 class SteplemanWinarsky():
-    """
-    Use Stepleman & Winarsky method to compute the optimum step size for the first derivative.
+    r"""
+    Compute an approximately optimal step for the central F.D. formula of the first derivative
 
     Uses centered finite difference to compute an approximate value of f'(x).
     The approximate optimal step for f'(x) is computed using a monotony property.
 
     The central F.D. is:
 
-    f'(x) ~ (f(x + h) - f(x - h)) / (2 * h)
+    .. math::
+
+        f'(x) \approx \frac{f(x + h) - f(x - h)}{2 h}
 
     Parameters
     ----------
@@ -202,23 +204,27 @@ class SteplemanWinarsky():
         beta=4.0,
         log_scale=True,
     ):
-        """
+        r"""
         Compute the initial step using bisection.
 
         The initial step initial_step is chosen so that:
 
-            0 < N(initial_step) < T := log10(precision ** (-1.0 / 3.0) / beta)
-        
-        where N is the number of lost digits (as computed by number_of_lost_digits()).
+        .. math::
 
-        This algorithm can be effective compared to compute_step()
+            0 < N(h_0) < T := \log_{10}\left(\frac{\epsilon_r^{-1 / 3}}{\beta}\right)
+        
+        where :math:`N` is the number of lost digits (as computed by 
+        `number_of_lost_digits()`), :math:`h_0` is the initial step and
+        :math:`\epsilon_r` is the relative precision of the function evaluation.
+
+        This algorithm can be effective compared to `compute_step()`
         in the cases where it is difficult to find an initial step.
-        In this case, the step returned by search_step_with_bisection()
+        In this case, the step returned by `search_step_with_bisection()`
         can be used as the initial step for compute_step().
         This can require several extra function evaluations.
 
         This algorithm can fail if the required finite difference step is
-        so large that the points x+/-h fall beyond the mathematical input
+        so large that the points :math:`x \pm h` fall beyond the mathematical input
         domain of the function.
 
         Parameters

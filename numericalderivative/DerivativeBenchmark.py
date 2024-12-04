@@ -8,40 +8,7 @@ import numpy as np
 
 
 class DerivativeBenchmarkProblem:
-    """
-    Create a benchmark problem for numerical derivatives of a function
-
-    This provides the function and the exact first derivative.
-    This makes it possible to check the approximation of the first
-    derivative using a finite difference formula.
-    This class also provides the second, third and fourth derivative.
-    This makes it possible to compute the optimal step for 
-    various finite difference formula.
-
-    Parameters
-    ----------
-    function : function
-        The function
-    first_derivative : function
-        The first derivative of the function
-    second_derivative : function
-        The second derivative of the function
-    third_derivative : function
-        The third derivative of the function
-    fourth_derivative : function
-        The fourth derivative of the function
-    x : float
-        The point where the derivative should be computed for a single test.
-    interval : list of 2 floats
-        The lower and upper bounds of the benchmark problem.
-        This can be useful for benchmarking on several points.
-        We must have interval[0] <= interval[1].
-    
-    References
-    ----------
-    - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
-    - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
-    """
+    """Create a benchmark problem for numerical derivatives of a function"""
     def __init__(
         self,
         name,
@@ -53,6 +20,40 @@ class DerivativeBenchmarkProblem:
         x,
         interval,
     ):
+        """
+        Create a benchmark problem for numerical derivatives of a function
+
+        This provides the function and the exact first derivative.
+        This makes it possible to check the approximation of the first
+        derivative using a finite difference formula.
+        This class also provides the second, third and fourth derivative.
+        This makes it possible to compute the optimal step for 
+        various finite difference formula.
+
+        Parameters
+        ----------
+        function : function
+            The function
+        first_derivative : function
+            The first derivative of the function
+        second_derivative : function
+            The second derivative of the function
+        third_derivative : function
+            The third derivative of the function
+        fourth_derivative : function
+            The fourth derivative of the function
+        x : float
+            The point where the derivative should be computed for a single test.
+        interval : list of 2 floats
+            The lower and upper bounds of the benchmark problem.
+            This can be useful for benchmarking on several points.
+            We must have interval[0] <= interval[1].
+        
+        References
+        ----------
+        - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
+        - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
+        """
         self.name = name
         self.function = function
         self.first_derivative = first_derivative

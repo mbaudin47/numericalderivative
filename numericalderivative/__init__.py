@@ -25,6 +25,7 @@ from .FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
 from .GillMurraySaundersWright import GillMurraySaundersWright
 from .SteplemanWinarsky import SteplemanWinarsky
 from .FiniteDifferenceFormula import FiniteDifferenceFormula
+from .GeneralFiniteDifference import GeneralFiniteDifference
 
 __all__ = [
     "FiniteDifferenceFormula",
@@ -50,5 +51,6 @@ __all__ = [
     "GillMurraySaundersWright",
     "SteplemanWinarsky",
     "BuildBenchmark",
+    "GeneralFiniteDifference"
 ]
 __version__ = "1.0"

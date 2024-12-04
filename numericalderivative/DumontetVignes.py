@@ -10,9 +10,8 @@ import numericalderivative as nd
 
 class DumontetVignes():
     """
-    Use Dumontet & Vignes method to compute the optimum step size.
+    Compute an approximately optimal step for the central F.D. formula for the first derivative
 
-    Uses centered finite difference for f'.
     The method is based on computing the third derivative.
     Then the optimal step for the central formula for the first derivative is computed
     from the third derivative.
@@ -148,19 +147,21 @@ class DumontetVignes():
         logscale=False,
         markdown=False,
     ):
-        """
+        r"""
         Compute an approximate third derivative of the function
 
         To do this, we must compute an approximately optimal step for the
         third derivative.
-        Hence, the main goal is to compute a step k which is supposed to be
+        Hence, the main goal is to compute a step h which is supposed to be
         optimal to compute the third derivative f'''(x) using central finite
         differences.
         The finite difference formula for the third derivative is:
 
-        f'''(x) ~ [f(x + 2 * k) - f(x - 2 * k) - 2 * f(x + k) + 2 * f(x - k)] / (2 * k**3)
+        .. math::
 
-        The method computes the optimal step k for f'''(x).
+            f'''(x) \approx \frac{f(x + 2 h) - f(x - 2 h) - 2 f(x + h) + 2 f(x - h)}{2 h^3}
+
+        The method computes the optimal step h for f'''(x).
         Then this step is used to compute an approximate value of f'''(x).
 
         Parameters
@@ -299,15 +300,17 @@ class DumontetVignes():
         logscale=False,
         markdown=False,
     ):
-        """
+        r"""
         Compute an approximate optimum step for the first derivative
 
         This step is approximately optimal for the central finite difference for f'.
         The central finite difference formula for the first derivative is:
 
-        f'(x) ~ [f(x + h) - f(x - h)] / (2 * h)
+        .. math::
 
-        The method computes the optimal step k for f'''(x).
+            f'(x) \approx \frac{f(x + h) - f(x - h)}{2 h}
+
+        The method computes the optimal step h for f'''(x).
         Then this step is used to compute an approximate value of f'''(x).
         This is used to compute the step h for f'.
 
@@ -357,12 +360,14 @@ class DumontetVignes():
         return step, number_of_iterations
 
     def compute_first_derivative(self, step):
-        """
+        r"""
         Compute first derivative using central finite difference.
 
         This is based on the central finite difference formula:
 
-        f'(x) ~ (f(x + h) - f(x - h)) / (2h)
+        .. math::
+
+            f'(x) \approx \frac{f(x + h) - f(x - h)}{2h}
 
         Parameters
         ----------

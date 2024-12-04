@@ -4,13 +4,16 @@
 
 The goal of this project is to compute the first derivative of a function
 using finite difference formulas.
-The difficulty with these formulas is that it must use a finite difference 
-step which must be neither too large (otherwise truncation error dominates 
-the error) nor too small (otherwise condition error dominates).
+The difficulty with these formulas is that it must use a 
+step which must be neither too large (otherwise the truncation error dominates 
+the error) nor too small (otherwise the condition error dominates).
 To solve this issue, the module provides algorithms to compute an approximate
 optimal finite difference step.
-
-Furthermore, this package provides benchmark problems for numerical
+For this purpose, the module provides exact methods (based on the value 
+of higher derivatives) and approximate methods (based on function values).
+Furthermore, the module provides finite difference formula for the 
+first, second and third derivative of a function.
+Furthermore, this package provides 15 benchmark problems for numerical
 differentiation.
 
 This module allows you to do this:
@@ -67,10 +70,22 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
-- Add finite_differences from menum and cite (Baudin, 2023).
-Reference : https://github.com/mbaudin47/menum_code
-https://github.com/mbaudin47/menum_code/blob/cec64dea8d205da796d1f578b42948115257b3bb/Scripts-Eleves/Py3/numdiff.py#L801
+- Structure the GeneralFiniteDifference class to make it consistent with
+  other classes.
+  Move compute_optimal_step() into FiniteDifferenceOptimalStep.
+  Fix the constant in the optimal step.
+  Make compute_indices() and compute_coefficients() as private
+  methods: create new accessor methods.
+  Initialize these attributes in the constructor.
+
+- Create an example for the DerivativeBenchmarkProblem() class.
+
+- Fix the autosummary of the "Methods" section.
+  Notice that it works for DerivativeBenchmarkProblem and fails
+  for GillMurraySaundersWright.
 
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+
+- Format the mathematical equations in FiniteDifferenceOptimalStep.

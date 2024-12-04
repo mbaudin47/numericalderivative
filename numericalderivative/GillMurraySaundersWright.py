@@ -10,7 +10,7 @@ import numericalderivative as nd
 
 class GillMurraySaundersWright():
     """
-    Compute an approximately optimal step for the forward finite difference first derivative.
+    Compute an approximately optimal step for the forward F.D. formula of the first derivative
 
     The method is based on three steps:
 
@@ -109,13 +109,15 @@ class GillMurraySaundersWright():
         self.absolute_precision = abs(relative_precision * self.y)
 
     def compute_condition(self, k):
-        """
+        r"""
         Compute the condition error for given step k.
 
         This is the condition error of the finite difference formula
         of the second derivative finite difference :
 
-        f''(x) ~ (f(x + k) - 2 f(x) + f(x - k)) / (k ** 2)
+        .. math::
+
+            f''(x) \approx \frac{f(x + k) - 2 f(x) + f(x - k)}{k^2}
 
         The condition error is a decreasing function of k.
 
@@ -289,13 +291,14 @@ class GillMurraySaundersWright():
         return step, number_of_iterations
 
     def compute_first_derivative(self, step):
-        """
+        r"""
         Compute an approximate first derivative using finite differences
 
         This method uses the formula:
 
-        f'(x) ~ (f(x + h) - f(x)) / h
+        .. math::
 
+            f'(x) \approx \frac{f(x + h) - f(x)}{h}
 
         Parameters
         ----------

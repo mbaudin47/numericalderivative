@@ -7,35 +7,10 @@ Creates a finite difference formula of arbitrary differentiation differentiation
 import numpy as np
 import sys
 import numericalderivative as nd
-
+import math
 
 class GeneralFiniteDifference:
-    """
-    Defines a general finite difference formula
-
-    Parameters
-    ----------
-    function : function
-        The function to differentiate.
-    x : float
-        The point where the derivative is to be evaluated.
-    differentiation_order : int
-        The order of the derivative.
-        For example differentiation_order = 1 is the first derivative.
-    formula_accuracy : int
-        The order of precision of the formula.
-    direction : str, optional
-        The direction of the formula.
-        The direction can be "forward", "backward" or "centered".
-        The default is "centered".
-    args : list
-        A list of optional arguments that the function takes as inputs.
-        By default, there is no extra argument and calling sequence of
-        the function must be y = function(x).
-        If there are extra arguments, then the calling sequence of
-        the function must be y = function(x, arg1, arg2, ...) where
-        arg1, arg2, ..., are the items in the args list.
-    """
+    """Create a general finite difference formula"""
 
     def __init__(
         self,
@@ -45,13 +20,41 @@ class GeneralFiniteDifference:
         formula_accuracy,
         direction="centered",
         args=None,
-    ) -> None:
+    ):
+        """
+        Create a general finite difference formula
+
+        Parameters
+        ----------
+        function : function
+            The function to differentiate.
+        x : float
+            The point where the derivative is to be evaluated.
+        differentiation_order : int
+            The order of the derivative.
+            For example differentiation_order = 1 is the first derivative.
+        formula_accuracy : int
+            The order of precision of the formula.
+            For the central F.D. formula, if the differentiation order is even,
+            then the formula accuracy is necessarily even.
+            If required increase the formula accuracy by 1 unit.
+        direction : str, optional
+            The direction of the formula.
+            The direction can be "forward", "backward" or "centered".
+            The default is "centered".
+        args : list
+            A list of optional arguments that the function takes as inputs.
+            By default, there is no extra argument and calling sequence of
+            the function must be y = function(x).
+            If there are extra arguments, then the calling sequence of
+            the function must be y = function(x, arg1, arg2, ...) where
+            arg1, arg2, ..., are the items in the args list.
+        """
         if differentiation_order <= 0:
             raise ValueError(f"Invalid differentiation order {differentiation_order}")
         self.differentiation_order = differentiation_order
         if formula_accuracy <= 0:
             raise ValueError(f"Invalid formula accuracy {formula_accuracy}")
-        self.formula_accuracy = formula_accuracy
         if (
             direction != "forward"
             and direction != "backward"
@@ -59,6 +62,14 @@ class GeneralFiniteDifference:
         ):
             raise ValueError(f"Invalid direction {direction}.")
         self.direction = direction
+        if (
+            self.direction == "centered"
+            and self.differentiation_order % 2 == 0
+            and self.formula_accuracy % 2 == 1
+        ):
+            raise ValueError(f"Invalid accuracy for a centered formula with even differentiation order."
+                             f" Please increase formula_accuracy by 1.")
+        self.formula_accuracy = formula_accuracy
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
 
@@ -154,7 +165,7 @@ class GeneralFiniteDifference:
         >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "centered").compute_coefficients()
         """
         # Compute matrix
-        imin, imax = nd.compute_indices()
+        imin, imax = self.compute_indices()
         indices = list(range(imin, imax + 1))
         A = np.vander(indices, increasing=True).T
         # Compute right-hand side
@@ -164,7 +175,32 @@ class GeneralFiniteDifference:
         c = np.linalg.solve(A, b)
         return c
 
-    def finite_differences(self, h=None):
+    def compute_optimal_step(self, absolute_precision = sys.float_info.epsilon, higher_order_derivative_value=1.0):
+        """
+        Computes the optimal step
+
+        See (Baudin, 2023) eq. (9.16) page 224.
+
+        Returns
+        -------
+        step : float
+            The finite difference step.
+        absolute_precision : float, > 0
+            The absolute precision of the function evaluation
+        higher_order_derivative_value : float
+            The value of the derivative of order differentiation_order + formula_accuracy.
+            For example, if differentiation_order = 2 and the formula_accuracy = 3, then
+            this must be the derivative of order 3 + 2 = 5.
+        
+        References
+        ----------
+        - M. Baudin (2023). Méthodes numériques. Dunod.
+        """
+        # TODO: fix the constant introduced by the Taylor formula truncation error
+        step = (self.differentiation_order * absolute_precision / (self.formula_accuracy * higher_order_derivative_value)) ** (1.0 / (self.differentiation_order + self.formula_accuracy))
+        return step
+
+    def finite_differences(self, step):
         """
         Computes the degree d derivative of f at point x.
 
@@ -176,8 +212,8 @@ class GeneralFiniteDifference:
 
         Parameters
         ----------
-        h : float
-            The step.
+        step : float
+            The finite difference step.
 
         Raises
         ------
@@ -199,34 +235,20 @@ class GeneralFiniteDifference:
         >>> y = nd.GeneralFiniteDifference(np.sin, x, differentiation_order, formula_accuracy, "forward").finite_differences()
 
         """
-        # Compute the optimal step size
-        if h is None:
-            if (
-                self.direction == "centered"
-                and self.differentiation_order % 2 == 0
-                and self.formula_accuracy % 2 == 1
-            ):
-                eps = sys.float_info.epsilon
-                h = eps ** (
-                    1.0 / (self.differentiation_order + self.formula_accuracy + 1)
-                )
-            else:
-                eps = sys.float_info.epsilon
-                h = eps ** (1.0 / (self.differentiation_order + self.formula_accuracy))
         # Compute the function values
-        imin, imax = np.compute_indices()
+        imin, imax = self.compute_indices()
         y = np.zeros((self.differentiation_order + self.formula_accuracy))
         for i in range(imin, imax + 1):
-            y[i - imin] = self.function(self.x + i * h)
+            y[i - imin] = self.function(self.x + i * step)
         # Compute the coefficients
-        c = np.compute_coefficients()
+        c = self.compute_coefficients()
         # Apply the formula
         z = 0.0
         for i in range(imin, imax + 1):
             z += c[i - imin] * y[i - imin]
         factor = (
-            np.math.factorial(self.differentiation_order)
-            / h**self.differentiation_order
+            math.factorial(self.differentiation_order)
+            / step**self.differentiation_order
         )
         z *= factor
         return z
