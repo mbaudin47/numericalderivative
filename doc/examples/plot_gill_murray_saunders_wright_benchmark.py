@@ -115,7 +115,6 @@ function_list = [
 # %%
 # Benchmark GillMurraySaundersWright
 number_of_test_points = 100
-test_points = np.linspace(0.01, 12.2, number_of_test_points)
 data = []
 number_of_functions = len(function_list)
 average_relative_error_list = []
@@ -125,7 +124,9 @@ for i in range(number_of_functions):
     function = problem.get_function()
     first_derivative = problem.get_first_derivative()
     kmin = 1.e-16 * kmax
-    name = problem.name
+    name = problem.get_name()
+    interval = problem.get_interval()
+    test_points = np.linspace(interval[0], interval[1], number_of_test_points)
     print(f"Function #{i}, {name}")
     average_relative_error, average_feval = benchmark_GMSW_method(
         function,

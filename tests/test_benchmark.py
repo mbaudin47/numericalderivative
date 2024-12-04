@@ -10,7 +10,7 @@ import numericalderivative as nd
 
 
 class ProblemChecker:
-    def __init__(self, problem, tolerance_factor=2.0) -> None:
+    def __init__(self, problem, tolerance_factor=2.0, number_of_points=50) -> None:
         self.problem = problem
         # Get fields
         self.name = problem.get_name()
@@ -20,6 +20,7 @@ class ProblemChecker:
         self.second_derivative = problem.get_second_derivative()
         self.third_derivative = problem.get_third_derivative()
         self.fourth_derivative = problem.get_fourth_derivative()
+        self.interval = problem.get_interval()
         #
         self.tolerance_factor = tolerance_factor
         self.fd_optimal_step = nd.FiniteDifferenceOptimalStep()
@@ -28,8 +29,10 @@ class ProblemChecker:
         self.check_second_derivative = True
         self.check_third_derivative = True
         self.check_fourth_derivative = True
+        self.number_of_points = number_of_points
 
     def check(self):
+        self.test_function_evaluation()
         self.test_first_derivative_from_second()
         self.test_first_derivative_from_third()
         if self.check_second_derivative:
@@ -38,6 +41,15 @@ class ProblemChecker:
             self.test_third_derivative()
         if self.check_fourth_derivative:
             self.test_fourth_derivative()
+
+    def test_function_evaluation(self):
+        # Check the function evaluation on a grid
+        x_grid = np.linspace(self.interval[0], self.interval[1], self.number_of_points)
+        _ = self.function(x_grid)
+        # This avoids to generate exceptions when evaluating the function.
+        # Check that the test point is in the interval
+        assert self.x >= self.interval[0]
+        assert self.x <= self.interval[1]
 
     def skip_second_derivative(self):
         self.check_second_derivative = False

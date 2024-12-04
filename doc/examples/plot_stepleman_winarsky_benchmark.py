@@ -213,7 +213,6 @@ function_list = [
 # %%
 # Benchmark SteplemanWinarsky
 number_of_test_points = 100
-test_points = np.linspace(0.01, 12.5, number_of_test_points)
 data = []
 number_of_functions = len(function_list)
 average_relative_error_list = []
@@ -223,6 +222,8 @@ for i in range(number_of_functions):
     name = problem.get_name()
     function = problem.get_function()
     first_derivative = problem.get_first_derivative()
+    interval = problem.get_interval()
+    test_points = np.linspace(interval[0], interval[1], number_of_test_points)
     print(f"Function #{i}, {name}")
     average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
         function, first_derivative, test_points, initial_step

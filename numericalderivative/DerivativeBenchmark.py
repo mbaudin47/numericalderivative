@@ -31,7 +31,11 @@ class DerivativeBenchmarkProblem:
     fourth_derivative : function
         The fourth derivative of the function
     x : float
-        The point where the derivative should be computed
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
     
     References
     ----------
@@ -47,6 +51,7 @@ class DerivativeBenchmarkProblem:
         third_derivative,
         fourth_derivative,
         x,
+        interval,
     ):
         self.name = name
         self.function = function
@@ -55,6 +60,10 @@ class DerivativeBenchmarkProblem:
         self.third_derivative = third_derivative
         self.fourth_derivative = fourth_derivative
         self.x = x
+        if interval[0] > interval[1]:
+            raise ValueError(f"The lower bound {interval[0]} of the interval should be "
+                             f"lower or equal to the upper bound {interval[1]}.")
+        self.interval = interval
 
     def get_name(self):
         """
@@ -77,6 +86,17 @@ class DerivativeBenchmarkProblem:
             The input point
         """
         return self.x
+
+    def get_interval(self):
+        """
+        Return the interval of the problem
+
+        Returns
+        -------
+        interval : list of 2 floats
+            The interval
+        """
+        return self.interval
 
     def get_function(self):
         """
@@ -168,6 +188,7 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
             return np.exp(x)
 
         x = 1.0
+        interval = [0.0, 12.0]
         super().__init__(
             "exp",
             my_exp,
@@ -176,6 +197,7 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
             my_exp_3d_derivative,
             my_exp_4th_derivative,
             x,
+            interval
         )
 
 
@@ -213,7 +235,7 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
             return -6.0 / x**4
 
         x = 1.0
-
+        interval = [0.01, 12.0]
         super().__init__(
             "log",
             my_log,
@@ -222,6 +244,7 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
             my_log_3d_derivative,
             my_log_4th_derivative,
             x,
+            interval
         )
 
 
@@ -237,6 +260,9 @@ class SquareRootProblem(DerivativeBenchmarkProblem):
 
     for any x >= 0.
     The test point is :math:`x = 1`.
+
+    The square root function is difficult to differentiate at x = 0:
+    its first derivative is infinite.
 
     See problem #3 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
@@ -259,6 +285,7 @@ class SquareRootProblem(DerivativeBenchmarkProblem):
             return -15.0 / (16.0 * x**3.5)
 
         x = 1.0
+        interval = [0.01, 12.0]
         super().__init__(
             "sqrt",
             my_squareroot,
@@ -267,6 +294,7 @@ class SquareRootProblem(DerivativeBenchmarkProblem):
             my_square_root_3d_derivative,
             my_square_root_4th_derivative,
             x,
+            interval
         )
 
 
@@ -304,7 +332,7 @@ class AtanProblem(DerivativeBenchmarkProblem):
             return -24.0 * x * (x**2 - 1) / (1.0 + x**2) ** 4
 
         x = 0.5
-
+        interval = [-12.0, 12.0]
         super().__init__(
             "atan",
             my_atan,
@@ -313,6 +341,7 @@ class AtanProblem(DerivativeBenchmarkProblem):
             my_atan_3d_derivative,
             my_atan_4th_derivative,
             x,
+            interval
         )
 
 
@@ -350,6 +379,7 @@ class SinProblem(DerivativeBenchmarkProblem):
             return np.sin(x)
 
         x = 1.0
+        interval = [-np.pi, np.pi]
         super().__init__(
             "sin",
             my_sin,
@@ -358,6 +388,7 @@ class SinProblem(DerivativeBenchmarkProblem):
             my_sin_3d_derivative,
             my_sin_4th_derivative,
             x,
+            interval
         )
 
 
@@ -404,6 +435,7 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
             return np.exp(-x / alpha) / (alpha**4)
 
         x = 1.0
+        interval = [0.0, 12.0]
         super().__init__(
             "scaled exp",
             scaled_exp,
@@ -412,6 +444,7 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
             scaled_exp_3d_derivative,
             scaled_exp_4th_derivative,
             x,
+            interval
         )
 
 
@@ -501,7 +534,7 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
             return y
 
         x = 1.0
-
+        interval = [0.0, 12.0]
         super().__init__(
             "GMSW",
             gms_exp,
@@ -510,6 +543,7 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
             gms_exp_3d_derivative,
             gms_exp_4th_derivative,
             x,
+            interval
         )
 
 class SXXNProblem1(DerivativeBenchmarkProblem):
@@ -561,7 +595,7 @@ class SXXNProblem1(DerivativeBenchmarkProblem):
             return y
 
         x = -8.0
-
+        interval = [-12.0, 12.0]
         super().__init__(
             "SXXN1",
             sxxn_exp1,
@@ -570,6 +604,7 @@ class SXXNProblem1(DerivativeBenchmarkProblem):
             sxxn_exp1_3d_derivative,
             sxxn_exp1_4th_derivative,
             x,
+            interval
         )
 
 class SXXNProblem2(DerivativeBenchmarkProblem):
@@ -588,7 +623,7 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
     The test point is :math:`x = 0.01`.
 
     The function is similar to ScaledExponentialProblem,
-    but the test point is different.
+    but the scaling and the test point are different.
 
     According to (Shi, Xie, Xuan & Nocedal, 2022), this problem is 
     interesting because the function has high order derivatives
@@ -630,6 +665,7 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
             return y
 
         x = 0.01
+        interval = [-1.0, 1.0]
 
         super().__init__(
             "SXXN2",
@@ -639,6 +675,7 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
             sxxn_exp2_3d_derivative,
             sxxn_exp2_4th_derivative,
             x,
+            interval
         )
 
 class SXXNProblem3(DerivativeBenchmarkProblem):
@@ -686,6 +723,7 @@ class SXXNProblem3(DerivativeBenchmarkProblem):
             return y
 
         x = 0.99999
+        interval = [-12.0, 12.0]
 
         super().__init__(
             "SXXN3",
@@ -695,6 +733,7 @@ class SXXNProblem3(DerivativeBenchmarkProblem):
             sxxn_3_3d_derivative,
             sxxn_3_4th_derivative,
             x,
+            interval
         )
 
 class SXXNProblem4(DerivativeBenchmarkProblem):
@@ -746,6 +785,7 @@ class SXXNProblem4(DerivativeBenchmarkProblem):
             return y
 
         x = 1.0e-9
+        interval = [-12.0, 12.0]
 
         super().__init__(
             "SXXN4",
@@ -755,6 +795,7 @@ class SXXNProblem4(DerivativeBenchmarkProblem):
             sxxn_4_3d_derivative,
             sxxn_4_4th_derivative,
             x,
+            interval
         )
 
 class OliverProblem1(DerivativeBenchmarkProblem):
@@ -781,6 +822,7 @@ class OliverProblem1(DerivativeBenchmarkProblem):
     def __init__(self):
         alpha = -1.0 / 4.0
         problem = ScaledExponentialProblem(alpha)
+        interval = [-12.0, 12.0]
 
         super().__init__(
             "Oliver1",
@@ -790,6 +832,7 @@ class OliverProblem1(DerivativeBenchmarkProblem):
             problem.get_third_derivative(),
             problem.get_fourth_derivative(),
             problem.get_x(),
+            interval
         )
 
 class OliverProblem2(DerivativeBenchmarkProblem):
@@ -834,6 +877,7 @@ class OliverProblem2(DerivativeBenchmarkProblem):
             return y
 
         x = 1.0
+        interval = [-12.0, 12.0]
 
         super().__init__(
             "Oliver2",
@@ -843,6 +887,7 @@ class OliverProblem2(DerivativeBenchmarkProblem):
             function_3d_derivative,
             function_4th_derivative,
             x,
+            interval
         )
 
 class OliverProblem3(DerivativeBenchmarkProblem):
@@ -887,6 +932,7 @@ class OliverProblem3(DerivativeBenchmarkProblem):
             return y
 
         x = 1.0
+        interval = [0.01, 12.0]
 
         super().__init__(
             "Oliver3",
@@ -896,6 +942,7 @@ class OliverProblem3(DerivativeBenchmarkProblem):
             function_3d_derivative,
             function_4th_derivative,
             x,
+            interval
         )
 
 class InverseProblem(DerivativeBenchmarkProblem):
@@ -940,6 +987,7 @@ class InverseProblem(DerivativeBenchmarkProblem):
             return y
 
         x = 1.0
+        interval = [0.01, 12.0]
 
         super().__init__(
             "inverse",
@@ -949,6 +997,7 @@ class InverseProblem(DerivativeBenchmarkProblem):
             function_3d_derivative,
             function_4th_derivative,
             x,
+            interval
         )
 
 def BuildBenchmark():

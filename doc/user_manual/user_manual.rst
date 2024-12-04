@@ -30,6 +30,7 @@ Benchmark problems
    :toctree: _generated/
    
        DerivativeBenchmarkProblem
+       InverseProblem
        ExponentialProblem
        LogarithmicProblem
        SquareRootProblem
@@ -38,3 +39,10 @@ Benchmark problems
        ScaledExponentialProblem
        GMSWExponentialProblem
        BuildBenchmark
+       SXXNProblem1
+       SXXNProblem2
+       SXXNProblem3
+       SXXNProblem4
+       OliverProblem1
+       OliverProblem2
+       OliverProblem3

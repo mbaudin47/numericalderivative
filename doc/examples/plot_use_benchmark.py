@@ -13,6 +13,9 @@ all the problems.
 # %%
 import tabulate
 import numericalderivative as nd
+import math
+import pylab as pl
+import numpy as np
 
 # %%
 # First, we create an use a single problem.
@@ -78,11 +81,41 @@ for i in range(number_of_problems):
     problem = benchmark[i]
     name = problem.get_name()
     x = problem.get_x()
-    data.append([f"#{i} / {number_of_problems}", f"{name}", f"{x}"])
+    interval = problem.get_interval()
+    data.append([f"#{i} / {number_of_problems}", f"{name}", f"{x}", f"{interval[0]}", f"{interval[1]}"])
 
 tabulate.tabulate(
     data,
-    headers=["Index", "Name", "x"],
+    headers=["Index", "Name", "x", "xmin", "xmax"],
     tablefmt="html",
 )
+# %%
+# Plot the benchmark problems.
+
+# %%
+benchmark = nd.BuildBenchmark()
+number_of_problems = len(benchmark)
+number_of_columns = 3
+number_of_rows = math.ceil(number_of_problems/number_of_columns)
+number_of_points = 100
+pl.figure(figsize=(8.0, 7.0))
+data = []
+index = 1
+for i in range(number_of_problems):
+    problem = benchmark[i]
+    name = problem.get_name()
+    print(f"Plot #{i}: {name}")
+    x = problem.get_x()
+    interval = problem.get_interval()
+    function = problem.get_function()
+    pl.subplot(number_of_rows, number_of_columns, index)
+    x_grid = np.linspace(interval[0], interval[1], number_of_points)
+    y_values = function(x_grid)
+    pl.title(f"{name}")
+    pl.plot(x_grid, y_values)
+    # Update index
+    index += 1
+    
+pl.subplots_adjust(wspace=0.5, hspace=1.2)
+
 # %%
