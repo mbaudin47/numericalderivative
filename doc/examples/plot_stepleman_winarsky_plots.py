@@ -65,7 +65,7 @@ pl.xscale("log")
 
 # %%
 def plot_error_vs_h_with_SW_steps(
-    name, function, function_derivative, x, h_array, bracket_step, verbose=False
+    name, function, function_derivative, x, h_array, h_min, h_max, verbose=False
 ):
     algorithm = nd.SteplemanWinarsky(function, x)
     number_of_points = len(h_array)
@@ -76,24 +76,18 @@ def plot_error_vs_h_with_SW_steps(
         error_array[i] = abs(f_prime_approx - function_derivative(x))
 
     bisection_h0_step, bisection_h0_iteration = algorithm.search_step_with_bisection(
-        bracket_step
+        h_min, h_max
     )
-    bisection_step, bisection_iterations = algorithm.compute_step(bisection_h0_step)
-    zero_h0_step, zero_h0_iteration = algorithm.search_step_with_bisection(bracket_step)
-    zero_step, zero_iteration = algorithm.compute_step(zero_h0_step)
+    step, bisection_iterations = algorithm.compute_step(bisection_h0_step)
 
     if verbose:
         print(name)
+        print(f"h_min = {h_min:.3e}, h_max = {h_max:.3e}")
         print(
             "Bisection h0 = %.3e using %d iterations"
             % (bisection_h0_step, bisection_h0_iteration)
         )
-        print(
-            "Bisection h* = %.3e using %d iterations"
-            % (bisection_step, bisection_iterations)
-        )
-        print("Zero h0 = %.3e using %d iterations" % (zero_h0_step, zero_h0_iteration))
-        print("Zero h* = %.3e using %d iterations" % (zero_step, zero_iteration))
+        print("Bisection h* = %.3e using %d iterations" % (step, bisection_iterations))
 
     minimum_error = np.nanmin(error_array)
     maximum_error = np.nanmax(error_array)
@@ -101,18 +95,24 @@ def plot_error_vs_h_with_SW_steps(
     pl.figure(figsize=(5.0, 3.0))
     pl.plot(h_array, error_array)
     pl.plot(
+        [h_min] * 2,
+        [minimum_error, maximum_error],
+        "--",
+        label=r"$h_{\min}$",
+    )
+    pl.plot(
+        [h_max] * 2,
+        [minimum_error, maximum_error],
+        "--",
+        label=r"$h_{\max}$",
+    )
+    pl.plot(
         [bisection_h0_step] * 2,
         [minimum_error, maximum_error],
         "--",
         label="$h_{0}^{(B)}$",
     )
-    pl.plot(
-        [zero_h0_step] * 2, [minimum_error, maximum_error], ":", label="$h_0^{(Z)}$"
-    )
-    pl.plot(
-        [bisection_step] * 2, [minimum_error, maximum_error], "--", label="$h^{(B)}$"
-    )
-    pl.plot([zero_step] * 2, [minimum_error, maximum_error], ":", label="$h^{(Z)}$")
+    pl.plot([step] * 2, [minimum_error, maximum_error], "--", label="$h^{*}$")
     pl.title("Finite difference : %s at point x = %.0f" % (name, x))
     pl.xlabel("h")
     pl.ylabel("Error")
@@ -124,67 +124,62 @@ def plot_error_vs_h_with_SW_steps(
 
 
 # %%
-def plot_error_vs_h_benchmark(benchmark, x, h_array, bracket_step, verbose=False):
+def plot_error_vs_h_benchmark(benchmark, x, h_array, h_min, h_max, verbose=False):
     plot_error_vs_h_with_SW_steps(
         benchmark.name,
         benchmark.function,
         benchmark.first_derivative,
         x,
         h_array,
-        bracket_step,
+        h_min,
+        h_max,
         True,
     )
 
 
 # %%
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 x = 1.0
 number_of_points = 1000
 h_array = np.logspace(-15.0, 1.0, number_of_points)
-bracket_step = [1.0e-10, 1.0e0]
-plot_error_vs_h_benchmark(benchmark, x, h_array, bracket_step, True)
+plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-10, 1.0e0, True)
 
 # %%
 x = 12.0
 h_array = np.logspace(-15.0, 1.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, bracket_step)
+plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-10, 1.0e0)
 
 if False:
-    benchmark = nd.LogarithmicDerivativeBenchmark()
+    benchmark = nd.LogarithmicProblem()
     x = 1.0
-    bracket_step = [1.0e-15, 1.0e0]
-    plot_error_vs_h_benchmark(benchmark, x, h_array, bracket_step, True)
+    plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e0, True)
 
 # %%
-benchmark = nd.LogarithmicDerivativeBenchmark()
+benchmark = nd.LogarithmicProblem()
 x = 1.1
-bracket_step = [1.0e-14, 1.0e-4]
 h_array = np.logspace(-15.0, -1.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, bracket_step, True)
+plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-14, 1.0e-1, True)
 
 # %%
-benchmark = nd.SinDerivativeBenchmark()
+benchmark = nd.SinProblem()
 x = 1.0
-bracket_step = [1.0e-15, 1.0e-3]
-h_array = np.logspace(-15.0, -1.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, bracket_step)
+h_array = np.logspace(-15.0, 0.0, number_of_points)
+plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0)
 
 # %%
-benchmark = nd.SquareRootDerivativeBenchmark()
+benchmark = nd.SquareRootProblem()
 x = 1.0
-bracket_step = [1.0e-15, 1.0e-1]
-h_array = np.logspace(-15.0, -1.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, bracket_step, True)
+h_array = np.logspace(-15.0, 0.0, number_of_points)
+plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0, True)
 
 # %%
-benchmark = nd.AtanDerivativeBenchmark()
+benchmark = nd.AtanProblem()
 x = 1.0
-bracket_step = [1.0e-15, 1.0e-2]
-h_array = np.logspace(-15.0, -1.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, bracket_step)
+h_array = np.logspace(-15.0, 0.0, number_of_points)
+plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0)
 
 # %%
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 print("+ Sensitivity of SW step depending on h0")
 print("Case 1 : exp")
 x = 1.0
@@ -209,7 +204,7 @@ print("Case 2 : Scaled exp")
 x = 1.0
 
 # %%
-benchmark = nd.ScaledExponentialDerivativeBenchmark()
+benchmark = nd.ScaledExponentialProblem()
 algorithm = nd.SteplemanWinarsky(benchmark.function, x)
 finite_difference_optimal_step = nd.FiniteDifferenceOptimalStep()
 third_derivative_value = benchmark.third_derivative(benchmark.x)

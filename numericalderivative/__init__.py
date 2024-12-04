@@ -1,16 +1,24 @@
 """numericalderivative module."""
 
-from .NumericalDerivative import NumericalDerivative
+from .FunctionWithArguments import FunctionWithArguments
 from .DerivativeBenchmark import (
-    DerivativeBenchmark,
-    ExponentialDerivativeBenchmark,
-    LogarithmicDerivativeBenchmark,
-    SquareRootDerivativeBenchmark,
-    AtanDerivativeBenchmark,
-    SinDerivativeBenchmark,
-    ScaledExponentialDerivativeBenchmark,
-    GillMurraySaundersWrightExponentialDerivativeBenchmark,
-    BuildBenchmarkList,
+    DerivativeBenchmarkProblem,
+    InverseProblem,
+    ExponentialProblem,
+    LogarithmicProblem,
+    SquareRootProblem,
+    AtanProblem,
+    SinProblem,
+    ScaledExponentialProblem,
+    GMSWExponentialProblem,
+    SXXNProblem1,
+    SXXNProblem2,
+    SXXNProblem3,
+    SXXNProblem4,
+    OliverProblem1,
+    OliverProblem2,
+    OliverProblem3,
+    BuildBenchmark,
 )
 from .DumontetVignes import DumontetVignes
 from .FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
@@ -20,19 +28,27 @@ from .FiniteDifferenceFormula import FiniteDifferenceFormula
 
 __all__ = [
     "FiniteDifferenceFormula",
-    "NumericalDerivative",
-    "DerivativeBenchmark",
-    "ExponentialDerivativeBenchmark",
-    "LogarithmicDerivativeBenchmark",
-    "SquareRootDerivativeBenchmark",
-    "AtanDerivativeBenchmark",
-    "SinDerivativeBenchmark",
-    "ScaledExponentialDerivativeBenchmark",
+    "FunctionWithArguments",
+    "DerivativeBenchmarkProblem",
+    "InverseProblem",
+    "ExponentialProblem",
+    "LogarithmicProblem",
+    "SquareRootProblem",
+    "AtanProblem",
+    "SinProblem",
+    "ScaledExponentialProblem",
+    "GMSWExponentialProblem",
+    "SXXNProblem1",
+    "SXXNProblem2",
+    "SXXNProblem3",
+    "SXXNProblem4",
+    "OliverProblem1",
+    "OliverProblem2",
+    "OliverProblem3",
     "DumontetVignes",
     "FiniteDifferenceOptimalStep",
     "GillMurraySaundersWright",
     "SteplemanWinarsky",
-    "GillMurraySaundersWrightExponentialDerivativeBenchmark",
-    "BuildBenchmarkList",
+    "BuildBenchmark",
 ]
 __version__ = "1.0"

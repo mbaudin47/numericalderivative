@@ -61,22 +61,25 @@ def compute_first_derivative_SW(
     feval : int
         The number of function evaluations.
     """
-    algorithm = nd.SteplemanWinarsky(f, x, verbose=verbose)
-    step, _ = algorithm.compute_step(
-        initial_step,
-        beta=beta,
-    )
-    f_prime_approx = algorithm.compute_first_derivative(step)
-    feval = algorithm.get_number_of_function_evaluations()
-    absolute_error = abs(f_prime_approx - f_prime(x))
+    try:
+        algorithm = nd.SteplemanWinarsky(f, x, verbose=verbose)
+        step, _ = algorithm.compute_step(
+            initial_step,
+            beta=beta,
+        )
+        f_prime_approx = algorithm.compute_first_derivative(step)
+        feval = algorithm.get_number_of_function_evaluations()
+        absolute_error = abs(f_prime_approx - f_prime(x))
+    except:
+        absolute_error = np.nan
+        feval = np.nan
     return absolute_error, feval
 
 
 # %%
 # Test
-bracket_step = [1.0e-7, 1.0e1]
 x = 1.0
-benchmark = nd.ExponentialDerivativeBenchmark()
+benchmark = nd.ExponentialProblem()
 algorithm = nd.SteplemanWinarsky(
     benchmark.function,
     x,
@@ -90,7 +93,8 @@ optimal_step, absolute_error = (
 print("Exact h* = %.3e" % (optimal_step))
 
 h0, iterations = algorithm.search_step_with_bisection(
-    bracket_step,
+    1.0e-7,
+    1.0e1,
 )
 print("Pas initial = ", h0, ", iterations = ", iterations)
 lost_digits = algorithm.number_of_lost_digits(h0)
@@ -116,7 +120,7 @@ print(
 
 
 # %%
-def benchmark_method(
+def benchmark_SteplemanWinarsky_method(
     function, derivative_function, test_points, initial_step, verbose=False
 ):
     """
@@ -182,35 +186,47 @@ print("+ Benchmark on several points")
 number_of_test_points = 100
 test_points = np.linspace(0.01, 12.2, number_of_test_points)
 initial_step = 1.0e-1
-benchmark = nd.ExponentialDerivativeBenchmark()
-average_relative_error, average_feval = benchmark_method(
+benchmark = nd.ExponentialProblem()
+average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
     benchmark.function, benchmark.first_derivative, test_points, initial_step, True
 )
 
-
 # %%
 function_list = [
-    [nd.ExponentialDerivativeBenchmark(), 1.0e-1],
-    [nd.LogarithmicDerivativeBenchmark(), 1.0e-3],  # x > 0
-    [nd.SquareRootDerivativeBenchmark(), 1.0e-3],  # x > 0
-    [nd.AtanDerivativeBenchmark(), 1.0e0],
-    [nd.SinDerivativeBenchmark(), 1.0e0],
-    [nd.ScaledExponentialDerivativeBenchmark(), 1.0e5],
+    [nd.InverseProblem(), 1.0e0],
+    [nd.ExponentialProblem(), 1.0e-1],
+    [nd.LogarithmicProblem(), 1.0e-3],  # x > 0
+    [nd.SquareRootProblem(), 1.0e-3],  # x > 0
+    [nd.AtanProblem(), 1.0e0],
+    [nd.SinProblem(), 1.0e0],
+    [nd.ScaledExponentialProblem(), 1.0e5],
+    [nd.GMSWExponentialProblem(), 1.0e0],
+    [nd.SXXNProblem1(), 1.e0],
+    [nd.SXXNProblem2(), 1.e0],  # Fails
+    [nd.SXXNProblem3(), 1.e0],
+    [nd.SXXNProblem4(), 1.e0],
+    [nd.OliverProblem1(), 1.e0],
+    [nd.OliverProblem2(), 1.e0],
+    [nd.OliverProblem3(), 1.e-3],
 ]
 
 # %%
 # Benchmark SteplemanWinarsky
 number_of_test_points = 100
-test_points = np.linspace(0.01, 12.5, number_of_test_points)
 data = []
 number_of_functions = len(function_list)
 average_relative_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
-    benchmark, initial_step = function_list[i]
-    name = benchmark.name
-    average_relative_error, average_feval = benchmark_method(
-        benchmark.function, benchmark.first_derivative, test_points, initial_step
+    problem, initial_step = function_list[i]
+    name = problem.get_name()
+    function = problem.get_function()
+    first_derivative = problem.get_first_derivative()
+    interval = problem.get_interval()
+    test_points = np.linspace(interval[0], interval[1], number_of_test_points)
+    print(f"Function #{i}, {name}")
+    average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
+        function, first_derivative, test_points, initial_step
     )
     average_relative_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)
@@ -223,7 +239,7 @@ for i in range(number_of_functions):
         )
     )
 data.append(
-    ["Average", "-", np.mean(average_relative_error_list), np.mean(average_feval_list)]
+    ["Average", "-", np.nanmean(average_relative_error_list), np.nanmean(average_feval_list)]
 )
 tabulate.tabulate(
     data,
