@@ -569,7 +569,7 @@ class SXXNProblem1(DerivativeBenchmarkProblem):
 
     References
     ----------
-    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
 
     """
     def __init__(self):
@@ -639,7 +639,7 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
 
     References
     ----------
-    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
 
     """
     def __init__(self, alpha = 1.e2):
@@ -699,7 +699,7 @@ class SXXNProblem3(DerivativeBenchmarkProblem):
 
     References
     ----------
-    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
 
     """
     def __init__(self):
@@ -761,7 +761,7 @@ class SXXNProblem4(DerivativeBenchmarkProblem):
 
     References
     ----------
-    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+    - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
 
     """
     def __init__(self):

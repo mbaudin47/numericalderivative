@@ -1,7 +1,7 @@
 """numericalderivative module."""
 
-from .FunctionWithArguments import FunctionWithArguments
-from .DerivativeBenchmark import (
+from ._FunctionWithArguments import FunctionWithArguments
+from ._DerivativeBenchmark import (
     DerivativeBenchmarkProblem,
     InverseProblem,
     ExponentialProblem,
@@ -20,12 +20,12 @@ from .DerivativeBenchmark import (
     OliverProblem3,
     BuildBenchmark,
 )
-from .DumontetVignes import DumontetVignes
-from .FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
-from .GillMurraySaundersWright import GillMurraySaundersWright
-from .SteplemanWinarsky import SteplemanWinarsky
-from .FiniteDifferenceFormula import FiniteDifferenceFormula
-from .GeneralFiniteDifference import GeneralFiniteDifference
+from ._DumontetVignes import DumontetVignes
+from ._FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
+from ._GillMurraySaundersWright import GillMurraySaundersWright
+from ._SteplemanWinarsky import SteplemanWinarsky
+from ._FiniteDifferenceFormula import FiniteDifferenceFormula
+from ._GeneralFiniteDifference import GeneralFiniteDifference
 
 __all__ = [
     "FiniteDifferenceFormula",
