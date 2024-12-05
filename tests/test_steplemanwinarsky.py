@@ -53,9 +53,8 @@ class CheckStepleman(unittest.TestCase):
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
         print("Optimum h =", step_computed)
-        fdoptimal = nd.FiniteDifferenceOptimalStep()
         third_derivative_value = my_exp_3d_derivative(x)
-        step_exact, absolute_error = fdoptimal.compute_step_first_derivative_central(
+        step_exact, absolute_error = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value
         )
         print("step_exact = ", step_exact)
@@ -81,9 +80,8 @@ class CheckStepleman(unittest.TestCase):
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
         print("Optimum h =", step_computed)
-        fdoptimal = nd.FiniteDifferenceOptimalStep()
         third_derivative_value = scaled_exp_3d_derivative(x)
-        step_exact, absolute_error = fdoptimal.compute_step_first_derivative_central(
+        step_exact, absolute_error = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value
         )
         print("step_exact = ", step_exact)
@@ -107,9 +105,8 @@ class CheckStepleman(unittest.TestCase):
         )
         print("number_of_iterations =", number_of_iterations)
         print("initial_h =", initial_h)
-        fdoptimal = nd.FiniteDifferenceOptimalStep()
         third_derivative_value = scaled_exp_3d_derivative(x)
-        step_exact, absolute_error = fdoptimal.compute_step_first_derivative_central(
+        step_exact, absolute_error = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value
         )
         print("step_exact = ", step_exact)
@@ -126,9 +123,8 @@ class CheckStepleman(unittest.TestCase):
         )
         print("number_of_iterations =", number_of_iterations)
         print("initial_h =", initial_h)
-        fdoptimal = nd.FiniteDifferenceOptimalStep()
         third_derivative_value = scaled_exp_3d_derivative(x)
-        step_exact, absolute_error = fdoptimal.compute_step_first_derivative_central(
+        step_exact, absolute_error = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value
         )
         print("step_exact = ", step_exact)

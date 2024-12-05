@@ -23,7 +23,6 @@ class ProblemChecker:
         self.interval = problem.get_interval()
         #
         self.tolerance_factor = tolerance_factor
-        self.fd_optimal_step = nd.FiniteDifferenceOptimalStep()
         self.finite_difference = nd.FiniteDifferenceFormula(self.function, self.x)
         #
         self.check_second_derivative = True
@@ -64,11 +63,11 @@ class ProblemChecker:
         print(f"Check first derivative using second derivative for {self.name}")
         second_derivative_value = self.second_derivative(self.x)
         step, absolute_error = (
-            self.fd_optimal_step.compute_step_first_derivative_forward(
+            nd.FirstDerivativeForward.compute_step(
                 second_derivative_value
             )
         )
-        f_prime_approx = self.finite_difference.compute_first_derivative_forward(step)
+        f_prime_approx = nd.FirstDerivativeForward(self.function, self.x).compute(step)
         f_prime_exact = self.first_derivative(self.x)
         print(
             f"({self.name}) "
@@ -85,11 +84,11 @@ class ProblemChecker:
         print(f"Check first derivative using third derivative for {self.name}")
         third_derivative_value = self.third_derivative(self.x)
         step, absolute_error = (
-            self.fd_optimal_step.compute_step_first_derivative_central(
+            nd.FirstDerivativeCentral.compute_step(
                 third_derivative_value
             )
         )
-        f_prime_approx = self.finite_difference.compute_first_derivative_central(step)
+        f_prime_approx = nd.FirstDerivativeCentral(self.function, self.x).compute(step)
         f_prime_exact = self.first_derivative(self.x)
         print(
             f"({self.name}) "
@@ -105,10 +104,10 @@ class ProblemChecker:
     def test_second_derivative(self):
         print(f"Check second derivative using fourth derivative for {self.name}")
         fourth_derivative_value = self.fourth_derivative(self.x)
-        step, absolute_error = self.fd_optimal_step.compute_step_second_derivative(
+        step, absolute_error = nd.SecondDerivativeCentral.compute_step(
             fourth_derivative_value
         )
-        f_second_approx = self.finite_difference.compute_second_derivative_central(step)
+        f_second_approx = nd.SecondDerivativeCentral(self.function, self.x).compute(step)
         f_second_exact = self.second_derivative(self.x)
         print(
             f"({self.name}) "
@@ -123,9 +122,10 @@ class ProblemChecker:
 
     def test_third_derivative(self):
         print(f"Check third derivative for {self.name}")
-        finite_difference = nd.FiniteDifferenceFormula(self.second_derivative, self.x)
+        # The third derivative is the first derivative of the second derivative
+        # (assuming the second derivative is OK)
         step = 1.0e-4
-        f_third_approx = finite_difference.compute_first_derivative_central(step)
+        f_third_approx = nd.FirstDerivativeCentral(self.second_derivative, self.x).compute(step)
         f_third_exact = self.third_derivative(self.x)
         print(
             f"({self.name}) step = {step:.4e}, "
@@ -138,9 +138,10 @@ class ProblemChecker:
 
     def test_fourth_derivative(self):
         print(f"Check fourth derivative for {self.name}")
-        finite_difference = nd.FiniteDifferenceFormula(self.third_derivative, self.x)
+        # The fourth derivative is the first derivative of the third derivative
+        # (assuming the third derivative is OK)
         step = 1.0e-4
-        f_fourth_approx = finite_difference.compute_first_derivative_central(step)
+        f_fourth_approx = nd.FirstDerivativeCentral(self.third_derivative, self.x).compute(step)
         f_fourth_exact = self.fourth_derivative(self.x)
         print(
             f"({self.name}) step = {step:.4e}, "

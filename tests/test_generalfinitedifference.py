@@ -24,7 +24,7 @@ class CheckGeneralFD(unittest.TestCase):
         direction = "centered"
         for formula_accuracy in [2, 4, 6]:
             formula = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, direction=direction)
-            step = formula.compute_optimal_step()
+            step = formula.compute_step()
             f_third_derivative_approx = formula.finite_differences(step)
             print(f"formula_accuracy = {formula_accuracy}, "
                   f"step = {step}, "
@@ -34,7 +34,7 @@ class CheckGeneralFD(unittest.TestCase):
         for formula_accuracy in range(3, 5):
             for direction in ["forward", "backward"]:
                 formula = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, direction=direction)
-                step = formula.compute_optimal_step()
+                step = formula.compute_step()
                 f_third_derivative_approx = formula.finite_differences(step)
                 print(f"formula_accuracy = {formula_accuracy}, "
                       f"step = {step}, "

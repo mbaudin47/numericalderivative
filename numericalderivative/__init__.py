@@ -21,14 +21,23 @@ from ._DerivativeBenchmark import (
     BuildBenchmark,
 )
 from ._DumontetVignes import DumontetVignes
-from ._FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
 from ._GillMurraySaundersWright import GillMurraySaundersWright
 from ._SteplemanWinarsky import SteplemanWinarsky
-from ._FiniteDifferenceFormula import FiniteDifferenceFormula
+from ._FiniteDifferenceFormula import (
+    FiniteDifferenceFormula,
+    FirstDerivativeForward,
+    FirstDerivativeCentral,
+    SecondDerivativeCentral,
+    ThirdDerivativeCentral,
+)
 from ._GeneralFiniteDifference import GeneralFiniteDifference
 
 __all__ = [
     "FiniteDifferenceFormula",
+    "FirstDerivativeForward",
+    "FirstDerivativeCentral",
+    "SecondDerivativeCentral",
+    "ThirdDerivativeCentral",
     "FunctionWithArguments",
     "DerivativeBenchmarkProblem",
     "InverseProblem",
@@ -47,10 +56,9 @@ __all__ = [
     "OliverProblem2",
     "OliverProblem3",
     "DumontetVignes",
-    "FiniteDifferenceOptimalStep",
     "GillMurraySaundersWright",
     "SteplemanWinarsky",
     "BuildBenchmark",
-    "GeneralFiniteDifference"
+    "GeneralFiniteDifference",
 ]
 __version__ = "1.0"

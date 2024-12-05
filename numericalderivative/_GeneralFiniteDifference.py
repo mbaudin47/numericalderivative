@@ -9,6 +9,7 @@ import sys
 import numericalderivative as nd
 import math
 
+
 class GeneralFiniteDifference:
     """Create a general finite difference formula"""
 
@@ -67,8 +68,10 @@ class GeneralFiniteDifference:
             and self.differentiation_order % 2 == 0
             and self.formula_accuracy % 2 == 1
         ):
-            raise ValueError(f"Invalid accuracy for a centered formula with even differentiation order."
-                             f" Please increase formula_accuracy by 1.")
+            raise ValueError(
+                f"Invalid accuracy for a centered formula with even differentiation order."
+                f" Please increase formula_accuracy by 1."
+            )
         self.formula_accuracy = formula_accuracy
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
@@ -175,29 +178,40 @@ class GeneralFiniteDifference:
         c = np.linalg.solve(A, b)
         return c
 
-    def compute_optimal_step(self, absolute_precision = sys.float_info.epsilon, higher_order_derivative_value=1.0):
+    def compute_step(
+        self,
+        absolute_precision=sys.float_info.epsilon,
+        higher_order_derivative_value=1.0,
+    ):
         """
         Computes the optimal step
 
         See (Baudin, 2023) eq. (9.16) page 224.
 
-        Returns
-        -------
-        step : float
-            The finite difference step.
+        Parameters
+        ----------
         absolute_precision : float, > 0
             The absolute precision of the function evaluation
         higher_order_derivative_value : float
             The value of the derivative of order differentiation_order + formula_accuracy.
             For example, if differentiation_order = 2 and the formula_accuracy = 3, then
             this must be the derivative of order 3 + 2 = 5.
-        
+
+        Returns
+        -------
+        step : float
+            The finite difference step.
+
         References
         ----------
         - M. Baudin (2023). Méthodes numériques. Dunod.
         """
         # TODO: fix the constant introduced by the Taylor formula truncation error
-        step = (self.differentiation_order * absolute_precision / (self.formula_accuracy * higher_order_derivative_value)) ** (1.0 / (self.differentiation_order + self.formula_accuracy))
+        step = (
+            self.differentiation_order
+            * absolute_precision
+            / (self.formula_accuracy * higher_order_derivative_value)
+        ) ** (1.0 / (self.differentiation_order + self.formula_accuracy))
         return step
 
     def finite_differences(self, step):

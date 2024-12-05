@@ -12,7 +12,6 @@ Algorithms for optimal step
        DumontetVignes
        GillMurraySaundersWright
        SteplemanWinarsky
-       FiniteDifferenceOptimalStep
 
 Finite Differences
 ------------------
@@ -22,6 +21,10 @@ Finite Differences
 
        FunctionWithArguments
        FiniteDifferenceFormula
+       FirstDerivativeForward
+       FirstDerivativeCentral
+       SecondDerivativeCentral
+       ThirdDerivativeCentral
        GeneralFiniteDifference
 
 Benchmark problems

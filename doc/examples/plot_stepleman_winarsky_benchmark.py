@@ -85,10 +85,9 @@ algorithm = nd.SteplemanWinarsky(
     x,
     verbose=True,
 )
-optimal_step_formula = nd.FiniteDifferenceOptimalStep()
 third_derivative_value = benchmark.third_derivative(x)
 optimal_step, absolute_error = (
-    optimal_step_formula.compute_step_first_derivative_central(third_derivative_value)
+    nd.FirstDerivativeCentral.compute_step(third_derivative_value)
 )
 print("Exact h* = %.3e" % (optimal_step))
 

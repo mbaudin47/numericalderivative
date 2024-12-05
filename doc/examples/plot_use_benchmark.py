@@ -33,9 +33,9 @@ first_derivative = problem.get_first_derivative()
 # exact derivative.
 
 # %%
-formula = nd.FiniteDifferenceFormula(function, x)
+formula = nd.FirstDerivativeForward(function, x)
 step = 1.0e-5  # This is a first guess
-approx_first_derivative = formula.compute_first_derivative_forward(step)
+approx_first_derivative = formula.compute(step)
 exact_first_derivative = first_derivative(x)
 absolute_error = abs(approx_first_derivative - exact_first_derivative)
 print(f"Approximate first derivative = {approx_first_derivative}")
@@ -50,9 +50,8 @@ print(f"Absolute error = {absolute_error}")
 # %%
 second_derivative = problem.get_second_derivative()
 second_derivative_value = second_derivative(x)
-optimal_step_formula = nd.FiniteDifferenceOptimalStep()
 optimal_step_forward_formula, absolute_error = (
-    optimal_step_formula.compute_step_first_derivative_forward(second_derivative_value)
+    nd.FirstDerivativeForward.compute_step(second_derivative_value)
 )
 print(f"Optimal step for forward derivative = {optimal_step_forward_formula}")
 print(f"Minimum absolute error = {absolute_error}")
@@ -61,7 +60,7 @@ print(f"Minimum absolute error = {absolute_error}")
 # Now use this step
 
 # %%
-approx_first_derivative = formula.compute_first_derivative_forward(
+approx_first_derivative = formula.compute(
     optimal_step_forward_formula
 )
 exact_first_derivative = first_derivative(x)

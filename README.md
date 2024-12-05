@@ -70,9 +70,11 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
+- Compute exact step of third derivative from central F.D.
 - Structure the GeneralFiniteDifference class to make it consistent with
   other classes.
-  Move compute_optimal_step() into FiniteDifferenceOptimalStep.
+  Move compute_optimal_step() into FiniteDifferenceOptimalStep or
+  move 
   Fix the constant in the optimal step.
   Make compute_indices() and compute_coefficients() as private
   methods: create new accessor methods.

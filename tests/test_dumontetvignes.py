@@ -42,9 +42,8 @@ class CheckDumontetVignes(unittest.TestCase):
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
         assert number_of_iterations > 1
-        fdoptimal = nd.FiniteDifferenceOptimalStep()
         third_derivative_value = scaled_exp_3d_derivative(x)
-        exact_step, absolute_error = fdoptimal.compute_step_first_derivative_central(
+        exact_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value
         )
         print("exact_step = ", exact_step)

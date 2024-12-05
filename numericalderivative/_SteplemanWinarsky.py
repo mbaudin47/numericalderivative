@@ -8,7 +8,7 @@ import numpy as np
 import numericalderivative as nd
 
 
-class SteplemanWinarsky():
+class SteplemanWinarsky:
     r"""
     Compute an approximately optimal step for the central F.D. formula of the first derivative
 
@@ -45,12 +45,12 @@ class SteplemanWinarsky():
 
     References
     ----------
-    - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
+    - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264
 
     Examples
     ----------
     Compute the step of a badly scaled function.
-     
+
     >>> import numericalderivative as nd
     >>>
     >>> def scaled_exp(x):
@@ -65,6 +65,7 @@ class SteplemanWinarsky():
     >>> h_optimal, number_of_iterations = algorithm.compute_step(initial_step)
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
+
     def __init__(
         self, function, x, relative_precision=1.0e-16, args=None, verbose=False
     ):
@@ -75,7 +76,7 @@ class SteplemanWinarsky():
             )
         self.relative_precision = relative_precision
         self.verbose = verbose
-        self.finite_difference = nd.FiniteDifferenceFormula(function, x, args)
+        self.first_derivative_central = nd.FirstDerivativeCentral(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
         return
@@ -126,17 +127,13 @@ class SteplemanWinarsky():
         if self.verbose:
             print(f"initial_step={initial_step:.3e}")
         h_previous = initial_step
-        f_prime_approx_previous = (
-            self.finite_difference.compute_first_derivative_central(h_previous)
-        )
+        f_prime_approx_previous = self.first_derivative_central.compute(h_previous)
         diff_previous = np.inf
         estim_step = 0.0
         found_monotony_break = False
         for number_of_iterations in range(iteration_maximum):
             h_current = h_previous / beta
-            f_prime_approx_current = (
-                self.finite_difference.compute_first_derivative_central(h_current)
-            )
+            f_prime_approx_current = self.first_derivative_central.compute(h_current)
             # eq. 2.3
             diff_current = abs(f_prime_approx_current - f_prime_approx_previous)
             if self.verbose:
@@ -185,7 +182,7 @@ class SteplemanWinarsky():
             The number of digits lost by cancellation.
 
         """
-        d = self.finite_difference.compute_first_derivative_central(h)
+        d = self.first_derivative_central.compute(h)
         function_value = self.function(self.x)
         # eq. 3.10
         if function_value == 0.0:
@@ -212,8 +209,8 @@ class SteplemanWinarsky():
         .. math::
 
             0 < N(h_0) < T := \log_{10}\left(\frac{\epsilon_r^{-1 / 3}}{\beta}\right)
-        
-        where :math:`N` is the number of lost digits (as computed by 
+
+        where :math:`N` is the number of lost digits (as computed by
         `number_of_lost_digits()`), :math:`h_0` is the initial step and
         :math:`\epsilon_r` is the relative precision of the function evaluation.
 
@@ -252,9 +249,7 @@ class SteplemanWinarsky():
         if self.verbose:
             print("+ search_step_with_bisection()")
         if h_min <= 0.0:
-            raise ValueError(
-                f"h_min  = {h_min} must be greater than zero."
-            )
+            raise ValueError(f"h_min  = {h_min} must be greater than zero.")
         if h_min >= h_max:
             raise ValueError(
                 f"h_min  = {h_min} > h_max = {h_max}." "Please update the bounds."
@@ -363,7 +358,7 @@ class SteplemanWinarsky():
         f_prime_approx : float
             The approximation of f'(x).
         """
-        f_prime_approx = self.finite_difference.compute_first_derivative_central(step)
+        f_prime_approx = self.first_derivative_central.compute(step)
         return f_prime_approx
 
     def get_number_of_function_evaluations(self):
@@ -376,10 +371,8 @@ class SteplemanWinarsky():
             The number of function evaluations.
         """
         finite_difference_feval = (
-            self.finite_difference.get_number_of_function_evaluations()
+            self.first_derivative_central.get_number_of_function_evaluations()
         )
-        function_eval = (
-            self.function.get_number_of_evaluations()
-        )
+        function_eval = self.function.get_number_of_evaluations()
         total_feval = finite_difference_feval + function_eval
         return total_feval
