@@ -73,21 +73,11 @@ pip install numericalderivative
 - Compute exact step of third derivative from central F.D.
 - Structure the GeneralFiniteDifference class to make it consistent with
   other classes.
-  Move compute_optimal_step() into FiniteDifferenceOptimalStep or
-  move 
   Fix the constant in the optimal step.
   Make compute_indices() and compute_coefficients() as private
   methods: create new accessor methods.
   Initialize these attributes in the constructor.
 
-- Create an example for the DerivativeBenchmarkProblem() class.
-
-- Fix the autosummary of the "Methods" section.
-  Notice that it works for DerivativeBenchmarkProblem and fails
-  for GillMurraySaundersWright.
-
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
-
-- Format the mathematical equations in FiniteDifferenceOptimalStep.
