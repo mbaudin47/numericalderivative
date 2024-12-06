@@ -187,10 +187,9 @@ algorithm = nd.SteplemanWinarsky(
     benchmark.function,
     x,
 )
-finite_difference_optimal_step = nd.FiniteDifferenceOptimalStep()
 third_derivative_value = benchmark.third_derivative(benchmark.x)
 optimal_step, absolute_error = (
-    finite_difference_optimal_step.compute_step_first_derivative_central(
+    nd.FirstDerivativeCentral.compute_step(
         third_derivative_value
     )
 )
@@ -206,10 +205,9 @@ x = 1.0
 # %%
 benchmark = nd.ScaledExponentialProblem()
 algorithm = nd.SteplemanWinarsky(benchmark.function, x)
-finite_difference_optimal_step = nd.FiniteDifferenceOptimalStep()
 third_derivative_value = benchmark.third_derivative(benchmark.x)
 optimal_step, absolute_error = (
-    finite_difference_optimal_step.compute_step_first_derivative_central(
+    nd.FirstDerivativeCentral.compute_step(
         third_derivative_value
     )
 )

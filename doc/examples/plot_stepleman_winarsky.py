@@ -28,9 +28,8 @@ name = benchmark.get_name()
 x = benchmark.get_x()
 third_derivative = benchmark.get_third_derivative()
 third_derivative_value = third_derivative(x)
-optimal_step_formula = nd.FiniteDifferenceOptimalStep()
 optimum_step, absolute_error = (
-    optimal_step_formula.compute_step_first_derivative_central(third_derivative_value)
+    nd.FirstDerivativeCentral.compute_step(third_derivative_value)
 )
 print(f"Name = {name}, x = {x}")
 print(f"Optimal step for central finite difference formula = {optimum_step}")
@@ -40,13 +39,13 @@ print(f"Minimum absolute error= {absolute_error}")
 # %%
 # 1. Plot the error vs h
 x = 1.0
-finite_difference = nd.FiniteDifferenceFormula(benchmark.function, x)
+finite_difference = nd.FirstDerivativeCentral(benchmark.function, x)
 number_of_points = 1000
 h_array = np.logspace(-7.0, 5.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     h = h_array[i]
-    f_prime_approx = finite_difference.compute_first_derivative_central(h)
+    f_prime_approx = finite_difference.compute(h)
     error_array[i] = abs(f_prime_approx - benchmark.first_derivative(x))
 
 # %%
@@ -78,9 +77,9 @@ print("Error = ", absolute_error)
 
 # %%
 def fd_difference(h1, h2, f, x):
-    finite_difference = nd.FiniteDifferenceFormula(f, x)
-    f_prime_approx_1 = finite_difference.compute_first_derivative_central(h1)
-    f_prime_approx_2 = finite_difference.compute_first_derivative_central(h2)
+    finite_difference = nd.FirstDerivativeCentral(f, x)
+    f_prime_approx_1 = finite_difference.compute(h1)
+    f_prime_approx_2 = finite_difference.compute(h2)
     diff_current = abs(f_prime_approx_1 - f_prime_approx_2)
     return diff_current
 

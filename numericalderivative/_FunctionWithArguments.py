@@ -52,6 +52,7 @@ class FunctionWithArguments:
     FiniteDifferenceFormula, SteplemanWinarsky, GillMurraySaundersWright, DumontetVignes
 
     """
+
     def __init__(
         self,
         function,

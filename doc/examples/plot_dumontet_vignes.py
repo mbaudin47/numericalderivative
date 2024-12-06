@@ -70,10 +70,9 @@ def perform(
     print("Exact rel. error  = %.3e" % (absolute_error / abs(function_derivative(x))))
     # Compute exact step
     absolute_precision = abs(function(x) * relative_precision)
-    fdstep = nd.FiniteDifferenceOptimalStep(absolute_precision)
     third_derivative_value = function_third_derivative(x)
-    optimal_step, optimal_error = fdstep.compute_step_first_derivative_central(
-        third_derivative_value
+    optimal_step, optimal_error = nd.FirstDerivativeCentral.compute_step(
+        third_derivative_value, absolute_precision
     )
     print("Exact step     = %.3e" % (optimal_step))
     print("Estimated step = %.3e" % (estim_step))
@@ -364,8 +363,8 @@ k = 1.0e-3
 print("x = ", x)
 print("k = ", k)
 benchmark = nd.SquareRootProblem()
-finite_difference = nd.FiniteDifferenceFormula(benchmark.function, x)
-approx_f3d = finite_difference.compute_third_derivative(k)
+finite_difference = nd.ThirdDerivativeCentral(benchmark.function, x)
+approx_f3d = finite_difference.compute(k)
 print("Approx. f''(x) = ", approx_f3d)
 exact_f3d = benchmark.third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)
@@ -382,8 +381,8 @@ number_of_points = 1000
 k_array = np.logspace(-6.0, -1.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    algorithm = nd.FiniteDifferenceFormula(benchmark.function, x)
-    f2nde_approx = algorithm.compute_third_derivative(k_array[i])
+    algorithm = nd.ThirdDerivativeCentral(benchmark.function, x)
+    f2nde_approx = algorithm.compute(k_array[i])
     error_array[i] = abs(f2nde_approx - benchmark.third_derivative(x))
 
 # %%
@@ -404,8 +403,8 @@ f3_array = np.zeros((number_of_points, 3))
 function = benchmark.get_function()
 for i in range(number_of_points):
     f3inf, f3sup = compute_f3_inf_sup(function, x, k_array[i], relative_precision)
-    algorithm = nd.FiniteDifferenceFormula(function, x)
-    f3_approx = algorithm.compute_third_derivative(k_array[i])
+    algorithm = nd.ThirdDerivativeCentral(function, x)
+    f3_approx = algorithm.compute(k_array[i])
     f3_array[i] = [f3inf, f3_approx, f3sup]
 
 pl.figure(figsize=(3.0, 2.0))
@@ -496,8 +495,8 @@ x = 1.0
 k = 1.0e-3
 print("x = ", x)
 print("k = ", k)
-algorithm = nd.FiniteDifferenceFormula(benchmark.function, x)
-approx_f3d = algorithm.compute_third_derivative(k)
+algorithm = nd.ThirdDerivativeCentral(benchmark.function, x)
+approx_f3d = algorithm.compute(k)
 print("Approx. f''(x) = ", approx_f3d)
 exact_f3d = benchmark.third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)

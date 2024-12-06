@@ -1,8 +1,9 @@
 """numericalderivative module."""
 
-from .FunctionWithArguments import FunctionWithArguments
-from .DerivativeBenchmark import (
+from ._FunctionWithArguments import FunctionWithArguments
+from ._DerivativeBenchmark import (
     DerivativeBenchmarkProblem,
+    PolynomialProblem,
     InverseProblem,
     ExponentialProblem,
     LogarithmicProblem,
@@ -20,16 +21,27 @@ from .DerivativeBenchmark import (
     OliverProblem3,
     BuildBenchmark,
 )
-from .DumontetVignes import DumontetVignes
-from .FiniteDifferenceOptimalStep import FiniteDifferenceOptimalStep
-from .GillMurraySaundersWright import GillMurraySaundersWright
-from .SteplemanWinarsky import SteplemanWinarsky
-from .FiniteDifferenceFormula import FiniteDifferenceFormula
+from ._DumontetVignes import DumontetVignes
+from ._GillMurraySaundersWright import GillMurraySaundersWright
+from ._SteplemanWinarsky import SteplemanWinarsky
+from ._FiniteDifferenceFormula import (
+    FiniteDifferenceFormula,
+    FirstDerivativeForward,
+    FirstDerivativeCentral,
+    SecondDerivativeCentral,
+    ThirdDerivativeCentral,
+)
+from ._GeneralFiniteDifference import GeneralFiniteDifference
 
 __all__ = [
     "FiniteDifferenceFormula",
+    "FirstDerivativeForward",
+    "FirstDerivativeCentral",
+    "SecondDerivativeCentral",
+    "ThirdDerivativeCentral",
     "FunctionWithArguments",
     "DerivativeBenchmarkProblem",
+    "PolynomialProblem",
     "InverseProblem",
     "ExponentialProblem",
     "LogarithmicProblem",
@@ -46,9 +58,9 @@ __all__ = [
     "OliverProblem2",
     "OliverProblem3",
     "DumontetVignes",
-    "FiniteDifferenceOptimalStep",
     "GillMurraySaundersWright",
     "SteplemanWinarsky",
     "BuildBenchmark",
+    "GeneralFiniteDifference",
 ]
 __version__ = "1.0"

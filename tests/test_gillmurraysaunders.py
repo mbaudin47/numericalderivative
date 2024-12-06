@@ -42,14 +42,14 @@ class CheckGillMurraySaunders(unittest.TestCase):
         kmin = 1.0e-2
         kmax = 1.0e7
         step, number_of_iterations = algorithm.compute_step(kmin, kmax)
+        assert number_of_iterations > 0
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Optimum h for f'=", step)
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
         # Check optimal step
-        fdoptimal = nd.FiniteDifferenceOptimalStep()
         third_derivative_value = scaled_exp_3d_derivative(x)
-        exact_step, absolute_error = fdoptimal.compute_step_first_derivative_central(
+        exact_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value
         )
         print("exact_step = ", exact_step)
@@ -75,14 +75,12 @@ class CheckGillMurraySaunders(unittest.TestCase):
         h_optimal_for_second_derivative, number_of_iterations = (
             algorithm.compute_step_for_second_derivative(kmin, kmax)
         )
+        assert number_of_iterations > 0
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Optimum h for f''=", h_optimal_for_second_derivative)
         print("Function evaluations =", number_of_function_evaluations)
-        fd_step = nd.FiniteDifferenceOptimalStep(relative_precision)
         fourth_derivative_value = scaled_exp_4th_derivative(x)
-        k_optimal, absolute_error = fd_step.compute_step_second_derivative(
-            fourth_derivative_value
-        )
+        k_optimal, _ = nd.SecondDerivativeCentral.compute_step(fourth_derivative_value)
         print("Exact h for f''=", k_optimal)
         np.testing.assert_allclose(
             h_optimal_for_second_derivative, k_optimal, atol=1.0e3
@@ -103,11 +101,8 @@ class CheckGillMurraySaunders(unittest.TestCase):
         )
         print("Optimum h for f''=", h_optimal_for_second_derivative)
         print("Number of iterations=", number_of_iterations)
-        fd_step = nd.FiniteDifferenceOptimalStep(relative_precision)
         fourth_derivative_value = scaled_exp_4th_derivative(benchmark.x)
-        k_optimal, absolute_error = fd_step.compute_step_second_derivative(
-            fourth_derivative_value
-        )
+        k_optimal, _ = nd.SecondDerivativeCentral.compute_step(fourth_derivative_value)
         print("Exact h for f''=", k_optimal)
         np.testing.assert_allclose(
             h_optimal_for_second_derivative, k_optimal, atol=1.0e3
@@ -122,14 +117,13 @@ class CheckGillMurraySaunders(unittest.TestCase):
         )
         kmin = 1.0e-10
         kmax = 1.0e0
-        step, number_of_iterations = algorithm.compute_step(kmin, kmax)
+        step, _ = algorithm.compute_step(kmin, kmax)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Optimum h for f'=", step)
         print("Function evaluations =", number_of_function_evaluations)
         # Check optimal step
-        fdoptimal = nd.FiniteDifferenceOptimalStep()
         third_derivative_value = benchmark.third_derivative(benchmark.x)
-        exact_step, absolute_error = fdoptimal.compute_step_first_derivative_central(
+        exact_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value
         )
         print("exact_step = ", exact_step)
