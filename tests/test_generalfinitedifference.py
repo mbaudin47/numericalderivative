@@ -23,23 +23,44 @@ class CheckGeneralFD(unittest.TestCase):
         # centered formula is for even accuracy
         direction = "centered"
         for formula_accuracy in [2, 4, 6]:
-            formula = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, direction=direction)
+            formula = nd.GeneralFiniteDifference(
+                function,
+                x,
+                differentiation_order,
+                formula_accuracy,
+                direction=direction,
+            )
             step = formula.compute_step()
             f_third_derivative_approx = formula.finite_differences(step)
-            print(f"formula_accuracy = {formula_accuracy}, "
-                  f"step = {step}, "
-                  f"f_third_derivative_approx = {f_third_derivative_approx}, ")
-            np.testing.assert_almost_equal(f_third_derivative_approx, f_third_derivative_exact, decimal=6)
+            print(
+                f"formula_accuracy = {formula_accuracy}, "
+                f"step = {step}, "
+                f"f_third_derivative_approx = {f_third_derivative_approx}, "
+            )
+            np.testing.assert_almost_equal(
+                f_third_derivative_approx, f_third_derivative_exact, decimal=6
+            )
         # forward and backware formula are ok for even accuracy
         for formula_accuracy in range(3, 5):
             for direction in ["forward", "backward"]:
-                formula = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, direction=direction)
+                formula = nd.GeneralFiniteDifference(
+                    function,
+                    x,
+                    differentiation_order,
+                    formula_accuracy,
+                    direction=direction,
+                )
                 step = formula.compute_step()
                 f_third_derivative_approx = formula.finite_differences(step)
-                print(f"formula_accuracy = {formula_accuracy}, "
-                      f"step = {step}, "
-                      f"f_third_derivative_approx = {f_third_derivative_approx}")
-                np.testing.assert_almost_equal(f_third_derivative_approx, f_third_derivative_exact, decimal=6)
+                print(
+                    f"formula_accuracy = {formula_accuracy}, "
+                    f"step = {step}, "
+                    f"f_third_derivative_approx = {f_third_derivative_approx}"
+                )
+                np.testing.assert_almost_equal(
+                    f_third_derivative_approx, f_third_derivative_exact, decimal=6
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

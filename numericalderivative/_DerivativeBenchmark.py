@@ -158,6 +158,68 @@ class DerivativeBenchmarkProblem:
         return self.fourth_derivative
 
 
+class PolynomialProblem(DerivativeBenchmarkProblem):
+    r"""
+    Create a polynomial derivative benchmark problem
+
+    The function is:
+
+    .. math::
+
+        f(x) = x^\alpha
+
+    for any :math:`x > 0` where :math:`\alpha \in \mathbb{R}` is a nonzero parameter.
+    The test point is :math:`x = 1`.
+
+    This test can be difficult depending on the value of :math:`\alpha`.
+    For example, if :math:`\alpha = 2`, then the third derivative is zero.
+    This produces an infinite exact step for the first derivative
+    central finite difference formula.
+
+    """
+
+    def __init__(self, alpha=2):
+
+        def function(x):
+            return x**self.alpha
+
+        def function_prime(x):
+            return self.alpha * x ** (self.alpha - 1)
+
+        def function_2nd_derivative(x):
+            return self.alpha * (self.alpha - 1) * x ** (self.alpha - 2)
+
+        def function_3d_derivative(x):
+            return (
+                self.alpha * (self.alpha - 1) * (self.alpha - 2) * x ** (self.alpha - 3)
+            )
+
+        def function_4th_derivative(x):
+            return (
+                self.alpha
+                * (self.alpha - 1)
+                * (self.alpha - 2)
+                * (self.alpha - 4)
+                * x ** (self.alpha - 4)
+            )
+
+        x = 1.0
+        interval = [-12.0, 12.0]
+        if alpha == 0.0:
+            raise ValueError(f"The parameter alpha = {alpha} must be nonzero.")
+        self.alpha = alpha
+        super().__init__(
+            "polynomial",
+            function,
+            function_prime,
+            function_2nd_derivative,
+            function_3d_derivative,
+            function_4th_derivative,
+            x,
+            interval,
+        )
+
+
 class ExponentialProblem(DerivativeBenchmarkProblem):
     r"""
     Create an exponential derivative benchmark problem
@@ -168,7 +230,7 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
 
         f(x) = \exp(x)
 
-    for any x.
+    for any :math:`x`.
     The test point is :math:`x = 1`.
 
 
@@ -178,30 +240,30 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
 
     def __init__(self):
 
-        def my_exp(x):
+        def exp(x):
             return np.exp(x)
 
-        def my_exp_prime(x):
+        def exp_prime(x):
             return np.exp(x)
 
-        def my_exp_2d_derivative(x):
+        def exp_2d_derivative(x):
             return np.exp(x)
 
-        def my_exp_3d_derivative(x):
+        def exp_3d_derivative(x):
             return np.exp(x)
 
-        def my_exp_4th_derivative(x):
+        def exp_4th_derivative(x):
             return np.exp(x)
 
         x = 1.0
         interval = [0.0, 12.0]
         super().__init__(
             "exp",
-            my_exp,
-            my_exp_prime,
-            my_exp_2d_derivative,
-            my_exp_3d_derivative,
-            my_exp_4th_derivative,
+            exp,
+            exp_prime,
+            exp_2d_derivative,
+            exp_3d_derivative,
+            exp_4th_derivative,
             x,
             interval,
         )
@@ -217,7 +279,7 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
 
         f(x) = \log(x)
 
-    for any x > 0.
+    for any :math:`x > 0`.
     The test point is :math:`x = 1`.
 
     See problem #2 in (Dumontet & Vignes, 1977) page 23.
@@ -226,30 +288,30 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
 
     def __init__(self):
 
-        def my_log(x):
+        def log(x):
             return np.log(x)
 
-        def my_log_prime(x):
+        def log_prime(x):
             return 1.0 / x
 
-        def my_log_2nd_derivative(x):
+        def log_2nd_derivative(x):
             return -1.0 / x**2
 
-        def my_log_3d_derivative(x):
+        def log_3d_derivative(x):
             return 2.0 / x**3
 
-        def my_log_4th_derivative(x):
+        def log_4th_derivative(x):
             return -6.0 / x**4
 
         x = 1.0
         interval = [0.01, 12.0]
         super().__init__(
             "log",
-            my_log,
-            my_log_prime,
-            my_log_2nd_derivative,
-            my_log_3d_derivative,
-            my_log_4th_derivative,
+            log,
+            log_prime,
+            log_2nd_derivative,
+            log_3d_derivative,
+            log_4th_derivative,
             x,
             interval,
         )
@@ -265,7 +327,7 @@ class SquareRootProblem(DerivativeBenchmarkProblem):
 
         f(x) = \sqrt{x}
 
-    for any x >= 0.
+    for any :math:`x \geq 0`.
     The test point is :math:`x = 1`.
 
     The square root function is difficult to differentiate at x = 0:
@@ -277,30 +339,30 @@ class SquareRootProblem(DerivativeBenchmarkProblem):
 
     def __init__(self):
 
-        def my_squareroot(x):
+        def squareroot(x):
             return np.sqrt(x)
 
-        def my_squareroot_prime(x):
+        def squareroot_prime(x):
             return 1.0 / (2.0 * np.sqrt(x))
 
-        def my_square_root_2nd_derivative(x):
+        def square_root_2nd_derivative(x):
             return -1.0 / (4.0 * x**1.5)
 
-        def my_square_root_3d_derivative(x):
+        def square_root_3d_derivative(x):
             return 3.0 / (8.0 * x**2.5)
 
-        def my_square_root_4th_derivative(x):
+        def square_root_4th_derivative(x):
             return -15.0 / (16.0 * x**3.5)
 
         x = 1.0
         interval = [0.01, 12.0]
         super().__init__(
             "sqrt",
-            my_squareroot,
-            my_squareroot_prime,
-            my_square_root_2nd_derivative,
-            my_square_root_3d_derivative,
-            my_square_root_4th_derivative,
+            squareroot,
+            squareroot_prime,
+            square_root_2nd_derivative,
+            square_root_3d_derivative,
+            square_root_4th_derivative,
             x,
             interval,
         )
@@ -316,7 +378,7 @@ class AtanProblem(DerivativeBenchmarkProblem):
 
         f(x) = \arctan(x)
 
-    for any x.
+    for any :math:`x`.
     The test point is :math:`x = 1/2`.
 
     See problem #4 in (Dumontet & Vignes, 1977) page 23.
@@ -325,30 +387,30 @@ class AtanProblem(DerivativeBenchmarkProblem):
 
     def __init__(self):
 
-        def my_atan(x):
+        def atan(x):
             return np.arctan(x)
 
-        def my_atan_prime(x):
+        def atan_prime(x):
             return 1.0 / (1.0 + x**2)
 
-        def my_atan_2nd_derivative(x):
+        def atan_2nd_derivative(x):
             return -2.0 * x / (1.0 + x**2) ** 2
 
-        def my_atan_3d_derivative(x):
+        def atan_3d_derivative(x):
             return (6 * x**2 - 2) / (1.0 + x**2) ** 3
 
-        def my_atan_4th_derivative(x):
+        def atan_4th_derivative(x):
             return -24.0 * x * (x**2 - 1) / (1.0 + x**2) ** 4
 
         x = 0.5
         interval = [-12.0, 12.0]
         super().__init__(
             "atan",
-            my_atan,
-            my_atan_prime,
-            my_atan_2nd_derivative,
-            my_atan_3d_derivative,
-            my_atan_4th_derivative,
+            atan,
+            atan_prime,
+            atan_2nd_derivative,
+            atan_3d_derivative,
+            atan_4th_derivative,
             x,
             interval,
         )
@@ -364,7 +426,7 @@ class SinProblem(DerivativeBenchmarkProblem):
 
         f(x) = \sin(x)
 
-    for any x.
+    for any :math:`x`.
     The test point is :math:`x = 1`.
 
     See problem #5 in (Dumontet & Vignes, 1977) page 23.
@@ -373,30 +435,30 @@ class SinProblem(DerivativeBenchmarkProblem):
 
     def __init__(self):
 
-        def my_sin(x):
+        def sin(x):
             return np.sin(x)
 
-        def my_sin_prime(x):
+        def sin_prime(x):
             return np.cos(x)
 
-        def my_sin_2nd_derivative(x):
+        def sin_2nd_derivative(x):
             return -np.sin(x)
 
-        def my_sin_3d_derivative(x):
+        def sin_3d_derivative(x):
             return -np.cos(x)
 
-        def my_sin_4th_derivative(x):
+        def sin_4th_derivative(x):
             return np.sin(x)
 
         x = 1.0
         interval = [-np.pi, np.pi]
         super().__init__(
             "sin",
-            my_sin,
-            my_sin_prime,
-            my_sin_2nd_derivative,
-            my_sin_3d_derivative,
-            my_sin_4th_derivative,
+            sin,
+            sin_prime,
+            sin_2nd_derivative,
+            sin_3d_derivative,
+            sin_4th_derivative,
             x,
             interval,
         )
@@ -412,7 +474,7 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
 
         f(x) = \exp(-x / \alpha)
 
-    for any x where :math:`\alpha` is a parameter.
+    for any :math:`x` where :math:`\alpha` is a parameter.
     The test point is :math:`x = 1`.
 
     This problem is interesting because the optimal step for the central
@@ -1039,6 +1101,7 @@ def BuildBenchmark():
         A collection of benchmark problems.
     """
     benchmark_list = [
+        PolynomialProblem(),
         InverseProblem(),
         ExponentialProblem(),
         LogarithmicProblem(),

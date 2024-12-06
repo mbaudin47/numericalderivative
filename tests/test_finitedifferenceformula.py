@@ -71,11 +71,11 @@ class CheckFiniteDifferenceFormula(unittest.TestCase):
 
     def test_third_derivative(self):
         x = 1.0
-        step = 1.e-3
+        step = 1.0e-3
         finite_difference = nd.ThirdDerivativeCentral(scaled_exp, x)
         f_third_approx = finite_difference.compute(step)
         f_third_exact = scaled_exp_3d_derivative(x)
-        absolute_error = 1.e-5
+        absolute_error = 1.0e-5
         np.testing.assert_allclose(f_third_approx, f_third_exact, atol=absolute_error)
 
 

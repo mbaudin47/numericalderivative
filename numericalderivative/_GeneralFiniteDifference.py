@@ -50,6 +50,14 @@ class GeneralFiniteDifference:
             If there are extra arguments, then the calling sequence of
             the function must be y = function(x, arg1, arg2, ...) where
             arg1, arg2, ..., are the items in the args list.
+
+        References
+        ----------
+        - David Eberly. « Derivative approximation by finite differences ». 2008.
+        - Nicholas Maxwell. « Notes on the derivation of Finite Difference kernels on regularly spaced grids, using arbitrary sample points ». 2010.
+        - Bengt Fornberg. « Classroom Note :Calculation of Weights in Finite Difference Formulas ». In : SIAM Review 40.3 (1998), p. 685-691.
+        - B. Fornberg. « Finite difference method ». In : Scholarpedia 6.10 (2011), p. 9685
+        - H.Z. Hassan, A.A. Mohamad et G.E. Atteia. « An algorithm for the finite difference approximation of derivatives with arbitrary degree and order of accuracy ». In : Journal of Computational and Applied Mathematics 236.10 (2012), p. 2622-2631. issn : 0377-0427.
         """
         if differentiation_order <= 0:
             raise ValueError(f"Invalid differentiation order {differentiation_order}")
@@ -75,6 +83,11 @@ class GeneralFiniteDifference:
         self.formula_accuracy = formula_accuracy
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
+        #
+        # Setup the formula
+        _ = self.compute_indices()
+        # Compute the coefficients
+        _ = self.compute_coefficients()
 
     def compute_indices(self):
         """
@@ -117,21 +130,21 @@ class GeneralFiniteDifference:
         >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "centered").compute_indices()
         """
         if self.direction == "forward":
-            imin = 0
-            imax = self.differentiation_order + self.formula_accuracy - 1
+            self.imin = 0
+            self.imax = self.differentiation_order + self.formula_accuracy - 1
         elif self.direction == "backward":
-            imin = -(self.differentiation_order + self.formula_accuracy - 1)
-            imax = 0
+            self.imin = -(self.differentiation_order + self.formula_accuracy - 1)
+            self.imax = 0
         elif self.direction == "centered":
             if (self.differentiation_order + self.formula_accuracy) % 2 == 0:
                 raise ValueError(
                     "d+formula_accuracy must be odd for a centered formula."
                 )
-            imax = (self.differentiation_order + self.formula_accuracy - 1) // 2
-            imin = -imax
+            self.imax = (self.differentiation_order + self.formula_accuracy - 1) // 2
+            self.imin = -self.imax
         else:
             raise ValueError(f"Invalid direction {self.direction}")
-        return (imin, imax)
+        return (self.imin, self.imax)
 
     def compute_coefficients(self):
         """
@@ -175,8 +188,8 @@ class GeneralFiniteDifference:
         b = np.zeros((self.differentiation_order + self.formula_accuracy))
         b[self.differentiation_order] = 1.0
         # Solve
-        c = np.linalg.solve(A, b)
-        return c
+        self.coefficients = np.linalg.solve(A, b)
+        return self.coefficients
 
     def compute_step(
         self,
@@ -210,7 +223,7 @@ class GeneralFiniteDifference:
         step = (
             self.differentiation_order
             * absolute_precision
-            / (self.formula_accuracy * higher_order_derivative_value)
+            / (self.formula_accuracy * abs(higher_order_derivative_value))
         ) ** (1.0 / (self.differentiation_order + self.formula_accuracy))
         return step
 
@@ -218,11 +231,9 @@ class GeneralFiniteDifference:
         """
         Computes the degree d derivative of f at point x.
 
-        Uses a finite difference formula with differentiation_order formula_accuracy.
-        If the step is not provided, uses the approximately optimal
-        step size.
-        If direction is "centered", if d is even and if formula_accuracy is odd,
-        then the differentiation_order of precision is actually formula_accuracy + 1.
+        Uses a finite difference formula.
+        If direction is "centered", if differentiation_order is even and if formula_accuracy is odd,
+        then the order of precision is actually formula_accuracy + 1.
 
         Parameters
         ----------
@@ -250,16 +261,13 @@ class GeneralFiniteDifference:
 
         """
         # Compute the function values
-        imin, imax = self.compute_indices()
         y = np.zeros((self.differentiation_order + self.formula_accuracy))
-        for i in range(imin, imax + 1):
-            y[i - imin] = self.function(self.x + i * step)
-        # Compute the coefficients
-        c = self.compute_coefficients()
+        for i in range(self.imin, self.imax + 1):
+            y[i - self.imin] = self.function(self.x + i * step)
         # Apply the formula
         z = 0.0
-        for i in range(imin, imax + 1):
-            z += c[i - imin] * y[i - imin]
+        for i in range(self.imin, self.imax + 1):
+            z += self.coefficients[i - self.imin] * y[i - self.imin]
         factor = (
             math.factorial(self.differentiation_order)
             / step**self.differentiation_order

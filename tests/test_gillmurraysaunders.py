@@ -80,9 +80,7 @@ class CheckGillMurraySaunders(unittest.TestCase):
         print("Optimum h for f''=", h_optimal_for_second_derivative)
         print("Function evaluations =", number_of_function_evaluations)
         fourth_derivative_value = scaled_exp_4th_derivative(x)
-        k_optimal, _ = nd.SecondDerivativeCentral.compute_step(
-            fourth_derivative_value
-        )
+        k_optimal, _ = nd.SecondDerivativeCentral.compute_step(fourth_derivative_value)
         print("Exact h for f''=", k_optimal)
         np.testing.assert_allclose(
             h_optimal_for_second_derivative, k_optimal, atol=1.0e3
@@ -104,9 +102,7 @@ class CheckGillMurraySaunders(unittest.TestCase):
         print("Optimum h for f''=", h_optimal_for_second_derivative)
         print("Number of iterations=", number_of_iterations)
         fourth_derivative_value = scaled_exp_4th_derivative(benchmark.x)
-        k_optimal, _ = nd.SecondDerivativeCentral.compute_step(
-            fourth_derivative_value
-        )
+        k_optimal, _ = nd.SecondDerivativeCentral.compute_step(fourth_derivative_value)
         print("Exact h for f''=", k_optimal)
         np.testing.assert_allclose(
             h_optimal_for_second_derivative, k_optimal, atol=1.0e3

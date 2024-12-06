@@ -34,6 +34,7 @@ Benchmark problems
    :toctree: _generated/
    
        DerivativeBenchmarkProblem
+       PolynomialProblem
        InverseProblem
        ExponentialProblem
        LogarithmicProblem

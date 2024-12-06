@@ -3,6 +3,7 @@
 from ._FunctionWithArguments import FunctionWithArguments
 from ._DerivativeBenchmark import (
     DerivativeBenchmarkProblem,
+    PolynomialProblem,
     InverseProblem,
     ExponentialProblem,
     LogarithmicProblem,
@@ -40,6 +41,7 @@ __all__ = [
     "ThirdDerivativeCentral",
     "FunctionWithArguments",
     "DerivativeBenchmarkProblem",
+    "PolynomialProblem",
     "InverseProblem",
     "ExponentialProblem",
     "LogarithmicProblem",
