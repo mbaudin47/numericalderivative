@@ -70,7 +70,10 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
-- Compute exact step of third derivative from central F.D.
+- Compute exact step of third derivative from central F.D..
+  Compute the exact absolute error for the optimal step.
+  Compute the total error depending on the step.
+  Leave it: the GeneralFD will do the job?
 - Structure the GeneralFiniteDifference class to make it consistent with
   other classes.
   Fix the constant in the optimal step.

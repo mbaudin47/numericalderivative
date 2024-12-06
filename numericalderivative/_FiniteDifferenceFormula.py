@@ -53,16 +53,66 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
     """Compute the first derivative using forward finite difference formula"""
 
     @staticmethod
+    def compute_error(step, second_derivative_value, absolute_precision=1.0e-16):
+        r"""
+        Compute the total error for forward finite difference for f'.
+
+        The total error is the sum of the
+        rounding error in the finite difference formula and the truncation
+        error in the Taylor expansion:
+
+        .. math::
+
+            e(h) = \frac{2 \epsilon_f}{h} + \frac{h}{2} |f''(x)|
+
+        where :math:`\epsilon_f > 0` is the absolute precision of the
+        function evaluation.
+
+        Parameters
+        ----------
+        step : float
+            The differentiation step h.
+        second_derivative_value : float
+            The value of the second derivative at point x.
+        absolute_precision : float, optional
+            The absolute error of the function f at the point x.
+            This is equal to abs(relative_precision * f(x)) where
+            relative_precision is the relative accuracy and f(x) is the function
+            value of f at point x.
+
+        Returns
+        -------
+        absolute_error : float
+            The optimal absolute error.
+
+        """
+        # Compute rounding error
+        rounding_error = 2 * absolute_precision / step
+        # Compute truncation error
+        truncation_error = step * abs(second_derivative_value) / 2.0
+        # Compute error
+        total_error = rounding_error + truncation_error
+        return total_error
+
+    @staticmethod
     def compute_step(second_derivative_value, absolute_precision=1.0e-16):
         r"""
         Compute the exact optimal step for forward finite difference for f'.
 
         This is the step which is optimal to approximate the first derivative
-        f'(x) using the forward finite difference formula :
+        f'(x) using the forward finite difference formula (see `compute()`).
+        The optimal step is (see Eq. 6 in Gill, Murray, Saunders, & Wright, 1983)):
 
         .. math::
 
-            f'(x) \approx \frac{f(x + h) - f(x)}{h}
+            h^\star = 2  \left( \frac{\epsilon_f}{|f''(x)|} \right)^{1/2}
+
+        where :math:`\epsilon_f > 0` is the absolute precision.
+        The total absolute error corresponding to the optimal step is:
+
+        .. math::
+
+            e(h^\star) = 2  \left( \epsilon_f |f''(x)| \right)^{1/2}
 
         Parameters
         ----------
@@ -82,7 +132,6 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
             The optimal absolute error.
 
         """
-        # Eq. 6 in Gill, Murray, Saunders, & Wright (1983).
         if second_derivative_value == 0.0:
             optimal_step = np.inf
         else:
@@ -123,13 +172,14 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
         r"""
         Compute an approximate first derivative using finite differences
 
-        This method uses the formula:
+        This method uses the formula (see Eq. 1, page 311 in (GMS&W, 1983)
+        and (Faires & Burden, 1998) page 164):
 
         .. math::
 
-            f'(x) \approx \frac{f(x + h) - f(x)}{h}
+            f'(x) = \frac{f(x + h) - f(x)}{h} + \frac{h}{2} f''(\xi)
 
-        where :math:`h` is the step.
+        where :math:`h > 0` is the step and :math:`\xi \in (x, x + h)`.
 
         Parameters
         ----------
@@ -144,11 +194,12 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
         References
         ----------
         - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983).  Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+        - Faires, J. D., & Burden, R. L. (1998). Numerical methods, 2d edition. Cengage Learning.
         """
         step = (self.x + step) - self.x  # Magic trick
         if step <= 0.0:
             raise ValueError("Zero computed step. Cannot perform finite difference.")
-        # Eq. 1, page 311 in (GMS&W, 1983)
+        #
         x1 = self.x + step
         first_derivative = (self.function(x1) - self.function(self.x)) / step
         return first_derivative
@@ -158,16 +209,70 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
     """Compute the first derivative using central finite difference formula"""
 
     @staticmethod
+    def compute_error(step, third_derivative_value, absolute_precision=1.0e-16):
+        r"""
+        Compute the total error for central finite difference for f'
+
+        The total error is the sum of the
+        rounding error in the finite difference formula and the truncation
+        error in the Taylor expansion:
+
+        .. math::
+
+            e(h) = \frac{\epsilon_f}{h} + \frac{h^2}{6} |f'''(x)|
+
+        where :math:`\epsilon_f > 0` is the absolute precision of the function
+        evaluation.
+
+        Parameters
+        ----------
+        step : float
+            The differentiation step h.
+        third_derivative_value : float
+            The value of the third derivative at point x.
+        absolute_precision : float, optional
+            The absolute error of the function f at the point x.
+            This is equal to abs(relative_precision * f(x)) where
+            relative_precision is the relative accuracy and f(x) is the function
+            value of f at point x.
+
+        Returns
+        -------
+        absolute_error : float
+            The optimal absolute error.
+
+        """
+        print("GeneralFD.compute_error")
+        print(f"absolute_precision = {absolute_precision}")
+        # Compute rounding error
+        rounding_error = absolute_precision / step
+        # Compute truncation error
+        truncation_error = step**2 * abs(third_derivative_value) / 6.0
+        # Compute error
+        print(
+            f"rounding_error = {rounding_error}, truncation_error = {truncation_error}"
+        )
+        total_error = rounding_error + truncation_error
+        return total_error
+
+    @staticmethod
     def compute_step(third_derivative_value, absolute_precision=1.0e-16):
         r"""
         Compute the exact optimal step for central finite difference for f'.
 
         This is the step which is optimal to approximate the first derivative
-        f'(x) using the centered finite difference formula :
+        f'(x) using the centered finite difference formula (see `compute()`).
+        The optimal step is:
 
         .. math::
 
-            f'(x) \approx \frac{f(x + h) - f(x - h)}{2 h}
+            h^\star = \left( \frac{3 \epsilon_f}{|f'''(x)|} \right)^{1/3}
+
+        The total absolute error corresponding to the optimal step is:
+
+        .. math::
+
+            e(h^\star) = \frac{3^{\frac{2}{3}}}{2} \left( \epsilon_f^2 |f'''(x)| \right)^{1/3}
 
         Parameters
         ----------
@@ -196,8 +301,7 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
         absolute_error = (
             (3.0 ** (2.0 / 3.0))
             / 2.0
-            * absolute_precision ** (2.0 / 3.0)
-            * abs(third_derivative_value) ** (1.0 / 3.0)
+            * (absolute_precision**2 * abs(third_derivative_value)) ** (1.0 / 3.0)
         )
         return optimal_step, absolute_error
 
@@ -230,13 +334,14 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
         r"""
         Compute first derivative using central finite difference.
 
-        This is based on the central finite difference formula:
+        This is based on the central finite difference formula
+        (see (Faires & Burden, 1998) page 166) :
 
         .. math::
 
-            f'(x) \approx \frac{f(x + h) - f(x - h)}{2h}
+            f'(x) = \frac{f(x + h) - f(x - h)}{2h} - \frac{h^2}{6} f''(\xi)
 
-        where :math:`h` is the step.
+        where :math:`h > 0` is the step and :math:`\xi \in (x, x + h)`.
 
         Parameters
         ----------
@@ -247,6 +352,10 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
         -------
         first_derivative : float
             The approximate first derivative at point x.
+
+        References
+        ----------
+        - Faires, J. D., & Burden, R. L. (1998). Numerical methods, 2d edition. Cengage Learning.
         """
         step = (self.x + step) - self.x  # Magic trick
         if step <= 0.0:
@@ -261,16 +370,65 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
     """Compute the second derivative using central finite difference formula"""
 
     @staticmethod
+    def compute_error(step, fourth_derivative_value, absolute_precision=1.0e-16):
+        r"""
+        Compute the total error for central finite difference for f''
+
+        The total error is the sum of the
+        rounding error in the finite difference formula and the truncation
+        error in the Taylor expansion:
+
+        .. math::
+
+            e(h) = \frac{4 \epsilon_f}{h^2} + \frac{h^2}{12} \left|f^{(4)}(x)\right|
+
+        where :math:`\epsilon_f > 0` is the absolute precision of the function
+        evaluation.
+
+        Parameters
+        ----------
+        step : float
+            The differentiation step h.
+        fourth_derivative_value : float
+            The value of the fourth derivative at point x.
+        absolute_precision : float, optional
+            The absolute error of the function f at the point x.
+            This is equal to abs(relative_precision * f(x)) where
+            relative_precision is the relative accuracy and f(x) is the function
+            value of f at point x.
+
+        Returns
+        -------
+        absolute_error : float
+            The optimal absolute error.
+
+        """
+        # Compute rounding error
+        rounding_error = 4 * absolute_precision / step**2
+        # Compute truncation error
+        truncation_error = step**2 * abs(fourth_derivative_value) / 12.0
+        # Compute error
+        total_error = rounding_error + truncation_error
+        return total_error
+
+    @staticmethod
     def compute_step(fourth_derivative_value, absolute_precision=1.0e-16):
         r"""
         Compute the optimal step for the finite difference for f''.
 
         This step minimizes the total error of the second derivative
-        central finite difference :
+        central finite difference (see `compute()`).
+        The optimal step is (see Eq. 8bis, page 314 in Gill, Murray, Saunders, & Wright, 1983)):
 
         .. math::
 
-            f''(x) \approx \frac{f(x + k) - 2 f(x) + f(x - k)}{k^2}
+            h^\star = \left(\frac{48 \epsilon_f}{|f^{(4)}(x)|} \right)^{1/4}
+
+        The total absolute error corresponding to the optimal step is:
+
+        .. math::
+
+            e(h^\star) = \frac{2 \sqrt{3}}{3} \sqrt{\epsilon_f |f^{(4)}(x)|}
 
         Parameters
         ----------
@@ -290,15 +448,18 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
             The absolute error.
 
         """
-        # Eq. 8bis, page 314 in Gill, Murray, Saunders, & Wright (1983).
+        #
         if fourth_derivative_value == 0.0:
             optimal_step = np.inf
         else:
             optimal_step = (
-                12.0 * absolute_precision / abs(fourth_derivative_value)
+                48.0 * absolute_precision / abs(fourth_derivative_value)
             ) ** (1.0 / 4.0)
-        absolute_error = 2.0 * np.sqrt(
-            absolute_precision * abs(fourth_derivative_value) / 12.0
+        absolute_error = (
+            2.0
+            * np.sqrt(3.0)
+            / 3.0
+            * np.sqrt(absolute_precision * abs(fourth_derivative_value))
         )
         return optimal_step, absolute_error
 
@@ -331,13 +492,14 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
         r"""
         Compute an approximate second derivative using finite differences.
 
-        The formula is:
+        The formula is (see (Faires & Burden, 1998) page 171):
 
         .. math::
 
-            f''(x) \approx \frac{f(x + h) - 2 f(x) + f(x - h)}{h^2}
+            f''(x) = \frac{f(x + h) - 2 f(x) + f(x - h)}{h^2}
+                     + \frac{h^2}{12} f^{(4)}(\xi)
 
-        where :math:`h` is the step.
+        where :math:`h > 0` is the step and :math:`\xi \in (x, x + h)`.
 
         This second derivative can be used to compute an
         approximate optimal step for the forward first finite difference.
@@ -356,6 +518,7 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
         References
         ----------
         - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
+        - Faires, J. D., & Burden, R. L. (1998). Numerical methods, 2d edition. Cengage Learning.
         """
         step = (self.x + step) - self.x  # Magic trick
         if step <= 0.0:
@@ -405,9 +568,9 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
 
         .. math::
 
-            f^{(3)}(x) \approx \frac{f(x + 2h) - f(x - 2h) -2 f(x + h) + 2 f(x - h)}{2h^3}
+            f^{(3)}(x) \approx \frac{- f(x - 2h)  + 2 f(x - h) - 2 f(x + h) + f(x + 2h)}{2h^3}
 
-        where :math:`h` is the step.
+        where :math:`h > 0` is the step.
 
         Parameters
         ----------
