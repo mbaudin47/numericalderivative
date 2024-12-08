@@ -39,6 +39,20 @@ class FiniteDifferenceFormula:
         -------
         None.
 
+
+        Examples
+        --------
+        >>> import numericalderivative as nd
+        >>> import numpy as np
+        >>>
+        >>> def scaled_exp(x):
+        >>>     alpha = 1.e6
+        >>>     return np.exp(-x / alpha)
+        >>>
+        >>> x = 1.0
+        >>> formula = nd.FirstDerivativeForward(scaled_exp, x)
+        >>> function = formula.get_function()
+        >>> x = formula.get_x()
         """
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
@@ -54,7 +68,6 @@ class FiniteDifferenceFormula:
         """
         return self.function
 
-
     def get_x(self):
         """
         Return the input point
@@ -66,11 +79,12 @@ class FiniteDifferenceFormula:
         """
         return self.x
 
+
 class FirstDerivativeForward(FiniteDifferenceFormula):
     """Compute the first derivative using forward finite difference formula"""
 
     @staticmethod
-    def compute_error(step, second_derivative_value, absolute_precision=1.0e-16):
+    def compute_error(step, second_derivative_value=1.0, absolute_precision=1.0e-16):
         r"""
         Compute the total error for forward finite difference for f'.
 
@@ -112,7 +126,7 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
         return total_error
 
     @staticmethod
-    def compute_step(second_derivative_value, absolute_precision=1.0e-16):
+    def compute_step(second_derivative_value=1.0, absolute_precision=1.0e-16):
         r"""
         Compute the exact optimal step for forward finite difference for f'.
 
@@ -185,19 +199,26 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
         Examples
         --------
         >>> import numericalderivative as nd
+        >>> import numpy as np
         >>>
         >>> def scaled_exp(x):
         >>>     alpha = 1.e6
         >>>     return np.exp(-x / alpha)
         >>>
         >>> x = 1.0
-        >>> formula = FirstDerivativeForward(scaled_exp, x)
+        >>> formula = nd.FirstDerivativeForward(scaled_exp, x)
         >>> step = 1.0e-3  # A first guess
-        >>> f_prime_approx = finite_difference.compute(step)
-        >>> # Compute the step using an educated guess
+        >>> f_prime_approx = formula.compute(step)
+
+        Compute the step using an educated guess.
+
         >>> second_derivative_value = 1.0  # A guess
-        >>> step, absolute_error = finite_difference.compute_step(second_derivative_value)
-        >>> f_prime_approx = finite_difference.compute(step)
+        >>> step, absolute_error = formula.compute_step(second_derivative_value)
+        >>> f_prime_approx = formula.compute(step)
+
+        Compute the absolute error from a given step.
+
+        >>> absolute_error = formula.compute_error(step, second_derivative_value)
         """
         super().__init__(function, x, args)
 
@@ -242,7 +263,7 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
     """Compute the first derivative using central finite difference formula"""
 
     @staticmethod
-    def compute_error(step, third_derivative_value, absolute_precision=1.0e-16):
+    def compute_error(step, third_derivative_value=1.0, absolute_precision=1.0e-16):
         r"""
         Compute the total error for central finite difference for f'
 
@@ -284,7 +305,7 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
         return total_error
 
     @staticmethod
-    def compute_step(third_derivative_value, absolute_precision=1.0e-16):
+    def compute_step(third_derivative_value=1.0, absolute_precision=1.0e-16):
         r"""
         Compute the exact optimal step for central finite difference for f'.
 
@@ -398,7 +419,7 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
     """Compute the second derivative using central finite difference formula"""
 
     @staticmethod
-    def compute_error(step, fourth_derivative_value, absolute_precision=1.0e-16):
+    def compute_error(step, fourth_derivative_value=1.0, absolute_precision=1.0e-16):
         r"""
         Compute the total error for central finite difference for f''
 
@@ -440,7 +461,7 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
         return total_error
 
     @staticmethod
-    def compute_step(fourth_derivative_value, absolute_precision=1.0e-16):
+    def compute_step(fourth_derivative_value=1.0, absolute_precision=1.0e-16):
         r"""
         Compute the optimal step for the finite difference for f''.
 

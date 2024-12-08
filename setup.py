@@ -19,7 +19,13 @@ with open("README.md", "r") as fh:
 
 setup(
     name="numericalderivative",
-    keywords=["Numerical Differentiation", "First Derivative", "Finite Difference", "Optimal Step Size", "Numerical Analysis"],
+    keywords=[
+        "Numerical Differentiation",
+        "First Derivative",
+        "Finite Difference",
+        "Optimal Step Size",
+        "Numerical Analysis",
+    ],
     version="0.1",
     packages=find_packages(),
     install_requires=["numpy"],

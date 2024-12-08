@@ -68,7 +68,6 @@ class CheckGeneralFD(unittest.TestCase):
                     f_third_derivative_approx, f_third_derivative_exact, rtol=1.0e-5
                 )
 
-
     def test_first_forward(self):
         print("+ test_first_forward")
         # Evaluate f'(x) with f(x)= sin(x) using forward F.D.
@@ -162,7 +161,6 @@ class CheckGeneralFD(unittest.TestCase):
             computed_absolute_error, exact_absolute_error, rtol=1.0e-5
         )
 
-
     def test_second_central_coefficients(self):
         print("+ test_second_central")
         # Evaluate f''(x) with f(x)= sin(x) using central F.D.
@@ -239,6 +237,7 @@ class CheckGeneralFD(unittest.TestCase):
         np.testing.assert_allclose(
             computed_absolute_error, exact_absolute_error, rtol=1.0e-5
         )
+
 
 if __name__ == "__main__":
     unittest.main()

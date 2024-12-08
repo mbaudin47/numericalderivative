@@ -50,6 +50,26 @@ class DerivativeBenchmarkProblem:
             This can be useful for benchmarking on several points.
             We must have interval[0] <= interval[1].
 
+        Examples
+        --------
+        The next example creates a benchmark problem.
+
+        >>> import numericalderivative as nd
+        >>> problem = nd.ExponentialProblem()
+        >>> x = problem.get_x()
+        >>> function = problem.get_function()
+        >>> first_derivative = problem.get_first_derivative()
+
+        The next example creates a benchmark experiment.
+
+        >>> import numericalderivative as nd
+        >>> benchmark = nd.BuildBenchmark()
+        >>> number_of_problems = len(benchmark)
+        >>> for i in range(number_of_problems):
+        >>>     problem = benchmark[i]
+        >>>     name = problem.get_name()
+        >>>     print(f"Problem #{i}: {name}")
+
         References
         ----------
         - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.

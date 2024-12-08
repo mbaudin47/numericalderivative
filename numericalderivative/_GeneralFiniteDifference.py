@@ -502,13 +502,55 @@ class GeneralFiniteDifference:
 
         Examples
         --------
+        The next example computes an approximate third derivative of the sin function.
+        To do so, we use a central F.D. formula of order 2.
+
+        >>> import numericalderivative as nd
         >>> import numpy as np
         >>> x = 1.0
         >>> differentiation_order = 3  # Compute f'''
-        >>> formula_accuracy = 2  # Use differentiation_order 2 precision
-        >>> y = nd.GeneralFiniteDifference(np.sin, x, differentiation_order, formula_accuracy).finite_differences()
-        >>> y = nd.GeneralFiniteDifference(np.sin, x, differentiation_order, formula_accuracy, "forward").finite_differences()
+        >>> formula_accuracy = 2  # Use order 2 precision
+        >>> formula = nd.GeneralFiniteDifference(
+        >>>     np.sin, x, differentiation_order, formula_accuracy
+        >>> )
+        >>> step = 1.0  # A first guess
+        >>> third_derivative = formula.compute(step)
 
+        We can use either forward, backward or central finite differences.
+
+        >>> formula = nd.GeneralFiniteDifference(
+        >>>     np.sin,
+        >>>     x,
+        >>>     differentiation_order,
+        >>>     formula_accuracy,
+        >>>     "forward"
+        >>> )
+
+        We can compute the step provided the derivative of order 5 is known.
+        A first guess of this value can be set, or the default value (equal to 1).
+        Then the step can be used to compute the derivative.
+
+        >>> formula = nd.GeneralFiniteDifference(
+        >>>     np.sin,
+        >>>     x,
+        >>>     differentiation_order,
+        >>>     formula_accuracy,
+        >>>     "central"
+        >>> )
+        >>> step, absolute_error = formula.compute_step()
+        >>> third_derivative = formula.compute(step)
+        >>> # Set the fifth derivative, if known
+        >>> fifth_derivative_value = 1.0  # This may work
+        >>> step, absolute_error = formula.compute_step(fifth_derivative_value)
+        >>> # Set the absolute error of the function evaluation
+        >>> absolute_precision = 1.0e-14
+        >>> step, absolute_error = formula.compute_step(
+        >>>     fifth_derivative_value, absolute_precision
+        >>> )
+
+        Given the step, we can compute the absolute error.
+
+        >>> absolute_error = formula.compute_error(step)
         """
         # Compute the function values
         y = np.zeros((self.differentiation_order + self.formula_accuracy))
