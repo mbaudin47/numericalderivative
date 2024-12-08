@@ -339,7 +339,7 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
 
         .. math::
 
-            f'(x) = \frac{f(x + h) - f(x - h)}{2h} - \frac{h^2}{6} f''(\xi)
+            f'(x) = \frac{f(x + h) - f(x - h)}{2h} - \frac{h^2}{6} f'''(\xi)
 
         where :math:`h > 0` is the step and :math:`\xi \in (x, x + h)`.
 
@@ -564,11 +564,13 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
         r"""
         Estimate the 3d derivative f'''(x) using finite differences.
 
-        This is based on the central finite difference formula:
+        This is based on the central finite difference formula 
+        (see (Betts, 2010) table 1.7 page 47 and (Dumontet & Vignes, 1977) eq. 27
+        page 19):
 
         .. math::
 
-            f^{(3)}(x) \approx \frac{- f(x - 2h)  + 2 f(x - h) - 2 f(x + h) + f(x + 2h)}{2h^3}
+            f^{(3)}(x) \approx \frac{- f(x - 2h)  + 2 f(x - h) - 2 f(x + h) + f(x + 2h)}{2h^3} + O(h^2)
 
         where :math:`h > 0` is the step.
 
@@ -585,6 +587,7 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
         References
         ----------
         - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
+        - Betts, J. T. (2010). _Practical methods for optimal control and estimation using nonlinear programming_. Society for Industrial and Applied Mathematics.
         """
         t = np.zeros(4)
         t[0] = self.function(self.x + 2 * step)

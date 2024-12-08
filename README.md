@@ -2,21 +2,19 @@
 
 ## What is it?
 
-The goal of this project is to compute the first derivative of a function
+The goal of this project is to compute the derivative of a function
 using finite difference formulas.
 The difficulty with these formulas is that it must use a 
 step which must be neither too large (otherwise the truncation error dominates 
 the error) nor too small (otherwise the condition error dominates).
-To solve this issue, the module provides algorithms to compute an approximate
-optimal finite difference step.
-For this purpose, the module provides exact methods (based on the value 
+For this purpose, it provides exact methods (based on the value 
 of higher derivatives) and approximate methods (based on function values).
-Furthermore, the module provides finite difference formula for the 
-first, second and third derivative of a function.
-Furthermore, this package provides 15 benchmark problems for numerical
+Furthermore, the module provides finite difference formulas for the 
+first, second, third or any arbitrary order derivative of a function.
+Finally, this package provides 15 benchmark problems for numerical
 differentiation.
 
-This module allows you to do this:
+This module makes it possible to do this:
 
 ```python
 import math
@@ -27,7 +25,7 @@ def scaled_exp(x):
     return math.exp(-x / alpha)
 
 
-h0 = 1.0e5
+h0 = 1.0e5  # This is the initial step size
 x = 1.0e0
 algorithm = nd.SteplemanWinarsky(scaled_exp, x)
 h_optimal, iterations = algorithm.compute_step(h0)
@@ -73,13 +71,6 @@ pip install numericalderivative
 - Compute exact step of third derivative from central F.D..
   Compute the exact absolute error for the optimal step.
   Compute the total error depending on the step.
-  Leave it: the GeneralFD will do the job?
-- Structure the GeneralFiniteDifference class to make it consistent with
-  other classes.
-  Fix the constant in the optimal step.
-  Make compute_indices() and compute_coefficients() as private
-  methods: create new accessor methods.
-  Initialize these attributes in the constructor.
 
 - Implement the method of:
 

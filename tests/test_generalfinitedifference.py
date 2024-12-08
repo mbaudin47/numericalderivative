@@ -68,8 +68,9 @@ class CheckGeneralFD(unittest.TestCase):
                     f_third_derivative_approx, f_third_derivative_exact, rtol=1.0e-5
                 )
 
-    def test_step_first_forward(self):
-        print("+ test_step_first_forward")
+
+    def test_first_forward(self):
+        print("+ test_first_forward")
         # Evaluate f'(x) with f(x)= sin(x) using forward F.D.
         problem = nd.ScaledExponentialProblem()
         function = problem.get_function()
@@ -84,6 +85,14 @@ class CheckGeneralFD(unittest.TestCase):
             formula_accuracy,
             direction="forward",
         )
+        # Check indices
+        imin, imax = formula.get_indices_min_max()
+        assert imin == 0
+        assert imax == 1
+        # Check coefficients
+        coefficients = formula.get_coefficients()
+        np.testing.assert_allclose(coefficients, [-1.0, 1.0], rtol=1.0e-5)
+        # Compute step and absolute error
         absolute_precision = 1.0e-16
         second_derivative_value = function_second_derivative(x)
         computed_step, computed_absolute_error = formula.compute_step(
@@ -107,8 +116,8 @@ class CheckGeneralFD(unittest.TestCase):
             computed_absolute_error, exact_absolute_error, rtol=1.0e-5
         )
 
-    def test_step_first_central(self):
-        print("+ test_step_first_central")
+    def test_first_central(self):
+        print("+ test_first_central")
         # Evaluate f'(x) with f(x)= sin(x) using central F.D.
         problem = nd.ScaledExponentialProblem()
         function = problem.get_function()
@@ -154,7 +163,7 @@ class CheckGeneralFD(unittest.TestCase):
         )
 
 
-    def test_second_central(self):
+    def test_second_central_coefficients(self):
         print("+ test_second_central")
         # Evaluate f''(x) with f(x)= sin(x) using central F.D.
         problem = nd.ExponentialProblem()
@@ -207,23 +216,7 @@ class CheckGeneralFD(unittest.TestCase):
         )
         print(f"computed_error = {computed_error}, exact_error = {exact_error}")
         np.testing.assert_allclose(computed_error, exact_error, rtol=1.0e-7)
-
-    def test_step_second_central(self):
-        print("+ test_step_second_central")
-        # Evaluate f''(x) with f(x)= sin(x) using central F.D.
-        problem = nd.ScaledExponentialProblem()
-        function = problem.get_function()
-        function_fourth_derivative = problem.get_fourth_derivative()
-        x = problem.get_x()
-        differentiation_order = 2
-        formula_accuracy = 2
-        formula = nd.GeneralFiniteDifference(
-            function,
-            x,
-            differentiation_order,
-            formula_accuracy,
-            direction="central",
-        )
+        # Check step
         absolute_precision = 1.0e-16
         fourth_derivative_value = function_fourth_derivative(x)
         computed_step, computed_absolute_error = formula.compute_step(
