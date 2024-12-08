@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Creates a finite difference formula of arbitrary differentiation differentiation_order or accuracy
+Creates a finite difference formula of arbitrary differentiation order or accuracy
 """
 
 import numpy as np
@@ -44,8 +44,8 @@ class GeneralFiniteDifference:
             f^{(d)}(x) = \frac{d!}{h^d} \sum_{i = i_{\min}}^{i_\max} c_i f(x + h i)
                          - \frac{d!}{(d + p)!} b_{d + p} f^{(d + p)}(\xi) h^p
 
-        where :math:`h > 0` is the step, :math:`\boldsymbol{c} \in \mathbb{R}^{d + p}` is the vector of coefficients,
-        :math:`i_\min \in \mathbb{N}` is the minimum index,
+        where :math:`h > 0` is the step, :math:`\boldsymbol{c} \in \mathbb{R}^{d + p}`
+        is the vector of coefficients, :math:`i_\min \in \mathbb{N}` is the minimum index,
         :math:`i_\max \in \mathbb{N}` is the maximum index,
         :math:`\xi \in (x, x + h)`
         and :math:`\epsilon_f > 0` is the absolute precision of the
@@ -197,10 +197,7 @@ class GeneralFiniteDifference:
         ):
             raise ValueError(f"Invalid direction {direction}.")
         self.direction = direction
-        if (
-            self.direction == "central"
-            and formula_accuracy % 2 == 1
-        ):
+        if self.direction == "central" and formula_accuracy % 2 == 1:
             raise ValueError(
                 f"Invalid accuracy for a centered formula with even differentiation order: "
                 f"direction = {direction} is central, "

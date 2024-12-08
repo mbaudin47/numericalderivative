@@ -86,8 +86,8 @@ algorithm = nd.SteplemanWinarsky(
     verbose=True,
 )
 third_derivative_value = benchmark.third_derivative(x)
-optimal_step, absolute_error = (
-    nd.FirstDerivativeCentral.compute_step(third_derivative_value)
+optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 
@@ -204,13 +204,13 @@ initial_step_map = {
     "sin": 1.0e0,
     "scaled exp": 1.0e5,
     "GMSW": 1.0e0,
-    "SXXN1": 1.e0,
-    "SXXN2": 1.e0,  # Fails
-    "SXXN3": 1.e0,
-    "SXXN4": 1.e0,
-    "Oliver1": 1.e0,
-    "Oliver2": 1.e0,
-    "Oliver3": 1.e-3,
+    "SXXN1": 1.0e0,
+    "SXXN2": 1.0e0,  # Fails
+    "SXXN3": 1.0e0,
+    "SXXN4": 1.0e0,
+    "Oliver1": 1.0e0,
+    "Oliver2": 1.0e0,
+    "Oliver3": 1.0e-3,
 }
 
 # %%
@@ -244,7 +244,12 @@ for i in range(number_of_functions):
         )
     )
 data.append(
-    ["Average", "-", np.nanmean(average_relative_error_list), np.nanmean(average_feval_list)]
+    [
+        "Average",
+        "-",
+        np.nanmean(average_relative_error_list),
+        np.nanmean(average_feval_list),
+    ]
 )
 tabulate.tabulate(
     data,

@@ -188,10 +188,8 @@ algorithm = nd.SteplemanWinarsky(
     x,
 )
 third_derivative_value = benchmark.third_derivative(benchmark.x)
-optimal_step, absolute_error = (
-    nd.FirstDerivativeCentral.compute_step(
-        third_derivative_value
-    )
+optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 print("absolute_error = %.3e" % (absolute_error))
@@ -206,10 +204,8 @@ x = 1.0
 benchmark = nd.ScaledExponentialProblem()
 algorithm = nd.SteplemanWinarsky(benchmark.function, x)
 third_derivative_value = benchmark.third_derivative(benchmark.x)
-optimal_step, absolute_error = (
-    nd.FirstDerivativeCentral.compute_step(
-        third_derivative_value
-    )
+optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 print("absolute_error = %.3e" % (absolute_error))

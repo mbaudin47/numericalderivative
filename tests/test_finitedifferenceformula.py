@@ -58,12 +58,32 @@ class CheckFiniteDifferenceFormula(unittest.TestCase):
         step, computed_absolute_error = nd.FirstDerivativeForward.compute_step(
             second_derivative_value, absolute_precision
         )
+        print(f"step = {step}, computed_absolute_error = {computed_absolute_error}")
         exact_absolute_error = nd.FirstDerivativeForward.compute_error(
             step, second_derivative_value, absolute_precision
         )
         np.testing.assert_allclose(
             computed_absolute_error, exact_absolute_error, rtol=1.0e-5
         )
+        # Check that the step actually minimises the total error
+        number_of_points = 10000
+        step_array = np.logspace(-10.0, 5.0, number_of_points)
+        model_error = [nd.FirstDerivativeForward.compute_error(
+                step, second_derivative_value, absolute_precision
+            ) for step in step_array]
+        index = np.argmin(model_error)
+        reference_optimal_step = step_array[index]
+        reference_optimal_error = model_error[index]
+        print(f"Optimal index = {index}")
+        print(f"reference_optimal_step = {reference_optimal_step}, "
+            f"reference_optimal_error = {reference_optimal_error}")
+        np.testing.assert_allclose(
+            step, reference_optimal_step, rtol=1.0e-3
+        )
+        np.testing.assert_allclose(
+            computed_absolute_error, reference_optimal_error, rtol=1.0e-3
+        )
+
 
     def test_first_derivative_central(self):
         print("+ test_first_derivative_central")
@@ -87,11 +107,30 @@ class CheckFiniteDifferenceFormula(unittest.TestCase):
         step, computed_absolute_error = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value, absolute_precision
         )
+        print(f"step = {step}, computed_absolute_error = {computed_absolute_error}")
         exact_absolute_error = nd.FirstDerivativeCentral.compute_error(
             step, third_derivative_value, absolute_precision
         )
         np.testing.assert_allclose(
             computed_absolute_error, exact_absolute_error, rtol=1.0e-5
+        )
+        # Check that the step actually minimises the total error
+        number_of_points = 10000
+        step_array = np.logspace(-10.0, 5.0, number_of_points)
+        model_error = [nd.FirstDerivativeCentral.compute_error(
+                step, third_derivative_value, absolute_precision
+            ) for step in step_array]
+        index = np.argmin(model_error)
+        reference_optimal_step = step_array[index]
+        reference_optimal_error = model_error[index]
+        print(f"Optimal index = {index}")
+        print(f"reference_optimal_step = {reference_optimal_step}, "
+            f"reference_optimal_error = {reference_optimal_error}")
+        np.testing.assert_allclose(
+            step, reference_optimal_step, rtol=2.0e-3
+        )
+        np.testing.assert_allclose(
+            computed_absolute_error, reference_optimal_error, rtol=2.0e-3
         )
 
     def test_second_derivative(self):
@@ -116,11 +155,30 @@ class CheckFiniteDifferenceFormula(unittest.TestCase):
         step, computed_absolute_error = nd.SecondDerivativeCentral.compute_step(
             fourth_derivative_value, absolute_precision
         )
+        print(f"step = {step}, computed_absolute_error = {computed_absolute_error}")
         exact_absolute_error = nd.SecondDerivativeCentral.compute_error(
             step, fourth_derivative_value, absolute_precision
         )
         np.testing.assert_allclose(
             computed_absolute_error, exact_absolute_error, rtol=1.0e-5
+        )
+        # Check that the step actually minimises the total error
+        number_of_points = 10000
+        step_array = np.logspace(-10.0, 5.0, number_of_points)
+        model_error = [nd.SecondDerivativeCentral.compute_error(
+                step, fourth_derivative_value, absolute_precision
+            ) for step in step_array]
+        index = np.argmin(model_error)
+        reference_optimal_step = step_array[index]
+        reference_optimal_error = model_error[index]
+        print(f"Optimal index = {index}")
+        print(f"reference_optimal_step = {reference_optimal_step}, "
+            f"reference_optimal_error = {reference_optimal_error}")
+        np.testing.assert_allclose(
+            step, reference_optimal_step, rtol=1.0e-3
+        )
+        np.testing.assert_allclose(
+            computed_absolute_error, reference_optimal_error, rtol=1.0e-3
         )
 
     def test_third_derivative(self):

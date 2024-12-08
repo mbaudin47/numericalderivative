@@ -394,7 +394,7 @@ class DumontetVignes:
             The number of function evaluations.
         """
         finite_difference_feval = (
-            self.first_derivative_central.get_number_of_function_evaluations()
+            self.first_derivative_central.get_function().get_number_of_evaluations()
         )
         function_eval = self.function.get_number_of_evaluations()
         total_feval = finite_difference_feval + function_eval

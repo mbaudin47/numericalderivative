@@ -76,8 +76,8 @@ kmax = 1.0e1
 x = 1.0
 benchmark = nd.ExponentialProblem()
 second_derivative_value = benchmark.second_derivative(x)
-optimal_step, absolute_error = (
-    nd.FirstDerivativeForward.compute_step(second_derivative_value)
+optimal_step, absolute_error = nd.FirstDerivativeForward.compute_step(
+    second_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 (
@@ -103,8 +103,8 @@ kmax = 1.0e8
 x = 1.0
 benchmark = nd.ScaledExponentialProblem()
 second_derivative_value = benchmark.second_derivative(x)
-optimal_step, absolute_error = (
-    nd.FirstDerivativeForward.compute_step(second_derivative_value)
+optimal_step, absolute_error = nd.FirstDerivativeForward.compute_step(
+    second_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 (

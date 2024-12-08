@@ -67,7 +67,9 @@ def benchmark_DumontetVignes_method(
             )
             step, _ = algorithm.compute_step(kmin=kmin, kmax=kmax)
             f_prime_approx = algorithm.compute_first_derivative(step)
-            number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+            number_of_function_evaluations = (
+                algorithm.get_number_of_function_evaluations()
+            )
             exact_first_derivative = derivative_function(x)
             absolute_error = abs(f_prime_approx - exact_first_derivative)
             relative_error = absolute_error / abs(exact_first_derivative)
@@ -142,15 +144,14 @@ kmax_map = {
     "sin": 1.0e0,
     "scaled exp": 1.0e5,
     "GMSW": 1.0e0,
-    "SXXN1": 1.e0,
-    "SXXN2": 1.e0,  # Fails
-    "SXXN3": 1.e0,
-    "SXXN4": 1.e0,
-    "Oliver1": 1.e0,
-    "Oliver2": 1.e0,
-    "Oliver3": 1.e-3,
+    "SXXN1": 1.0e0,
+    "SXXN2": 1.0e0,  # Fails
+    "SXXN3": 1.0e0,
+    "SXXN4": 1.0e0,
+    "Oliver1": 1.0e0,
+    "Oliver2": 1.0e0,
+    "Oliver3": 1.0e-3,
 }
-
 
 
 # %%
@@ -164,9 +165,9 @@ average_relative_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
     problem = function_list[i]
-    name= problem.get_name()
+    name = problem.get_name()
     kmax = kmax_map[name]
-    kmin = 1.e-16 * kmax
+    kmin = 1.0e-16 * kmax
     function = problem.get_function()
     first_derivative = problem.get_first_derivative()
     interval = problem.get_interval()

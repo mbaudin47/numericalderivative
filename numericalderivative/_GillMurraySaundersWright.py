@@ -326,10 +326,10 @@ class GillMurraySaundersWright:
             The number of function evaluations.
         """
         second_derivative_central_feval = (
-            self.second_derivative_central.get_number_of_function_evaluations()
+            self.second_derivative_central.get_function().get_number_of_evaluations()
         )
         first_derivative_forward = (
-            self.first_derivative_forward.get_number_of_function_evaluations()
+            self.first_derivative_forward.get_function().get_number_of_evaluations()
         )
         function_eval = self.function.get_number_of_evaluations()
         total_feval = (

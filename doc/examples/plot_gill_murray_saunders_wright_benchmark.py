@@ -59,7 +59,9 @@ def benchmark_GMSW_method(
             algorithm = nd.GillMurraySaundersWright(function, x, verbose=verbose)
             step, _ = algorithm.compute_step(kmin, kmax)
             f_prime_approx = algorithm.compute_first_derivative(step)
-            number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+            number_of_function_evaluations = (
+                algorithm.get_number_of_function_evaluations()
+            )
             absolute_error = abs(f_prime_approx - derivative_function(x))
             relative_error = absolute_error / abs(derivative_function(x))
         except:
@@ -107,13 +109,13 @@ kmax_map = {
     "sin": 1.0e0,
     "scaled exp": 1.0e5,
     "GMSW": 1.0e0,
-    "SXXN1": 1.e0,
-    "SXXN2": 1.e0,  # Fails
-    "SXXN3": 1.e0,
-    "SXXN4": 1.e0,
-    "Oliver1": 1.e0,
-    "Oliver2": 1.e0,
-    "Oliver3": 1.e-3,
+    "SXXN1": 1.0e0,
+    "SXXN2": 1.0e0,  # Fails
+    "SXXN3": 1.0e0,
+    "SXXN4": 1.0e0,
+    "Oliver1": 1.0e0,
+    "Oliver2": 1.0e0,
+    "Oliver3": 1.0e-3,
 }
 
 # %%
@@ -130,7 +132,7 @@ for i in range(number_of_functions):
     first_derivative = problem.get_first_derivative()
     name = problem.get_name()
     kmax = kmax_map[name]
-    kmin = 1.e-16 * kmax
+    kmin = 1.0e-16 * kmax
     interval = problem.get_interval()
     test_points = np.linspace(interval[0], interval[1], number_of_test_points)
     print(f"Function #{i}, {name}")

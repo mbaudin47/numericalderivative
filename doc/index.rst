@@ -29,15 +29,15 @@ User documentation
 
 .. toctree::
    :maxdepth: 3
-   
+
    user_manual/user_manual
 
 Examples 
 --------
 
 .. toctree::
-   :maxdepth: 2  
-   
+   :maxdepth: 1
+
    examples/examples
 
 References

@@ -15,6 +15,12 @@ class FiniteDifferenceFormula:
         """
         Compute a derivative of the function using finite difference formula
 
+        This class can only be used trough its children classes.
+
+        See also
+        --------
+        FirstDerivativeForward, FirstDerivativeCentral, SecondDerivativeCentral, ThirdDerivativeCentral
+
         Parameters
         ----------
         function : function
@@ -37,17 +43,28 @@ class FiniteDifferenceFormula:
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
 
-    def get_number_of_function_evaluations(self):
+    def get_function(self):
         """
-        Returns the number of function evaluations.
+        Return the function
 
         Returns
         -------
-        number_of_function_evaluations : int
-            The number of function evaluations.
+        function : function
+            The function
         """
-        return self.function.get_number_of_evaluations()
+        return self.function
 
+
+    def get_x(self):
+        """
+        Return the input point
+
+        Returns
+        -------
+        x : list
+            The point
+        """
+        return self.x
 
 class FirstDerivativeForward(FiniteDifferenceFormula):
     """Compute the first derivative using forward finite difference formula"""
@@ -165,6 +182,22 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
         -------
         None.
 
+        Examples
+        --------
+        >>> import numericalderivative as nd
+        >>>
+        >>> def scaled_exp(x):
+        >>>     alpha = 1.e6
+        >>>     return np.exp(-x / alpha)
+        >>>
+        >>> x = 1.0
+        >>> formula = FirstDerivativeForward(scaled_exp, x)
+        >>> step = 1.0e-3  # A first guess
+        >>> f_prime_approx = finite_difference.compute(step)
+        >>> # Compute the step using an educated guess
+        >>> second_derivative_value = 1.0  # A guess
+        >>> step, absolute_error = finite_difference.compute_step(second_derivative_value)
+        >>> f_prime_approx = finite_difference.compute(step)
         """
         super().__init__(function, x, args)
 
@@ -242,16 +275,11 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
             The optimal absolute error.
 
         """
-        print("GeneralFD.compute_error")
-        print(f"absolute_precision = {absolute_precision}")
         # Compute rounding error
         rounding_error = absolute_precision / step
         # Compute truncation error
         truncation_error = step**2 * abs(third_derivative_value) / 6.0
         # Compute error
-        print(
-            f"rounding_error = {rounding_error}, truncation_error = {truncation_error}"
-        )
         total_error = rounding_error + truncation_error
         return total_error
 
@@ -564,7 +592,7 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
         r"""
         Estimate the 3d derivative f'''(x) using finite differences.
 
-        This is based on the central finite difference formula 
+        This is based on the central finite difference formula
         (see (Betts, 2010) table 1.7 page 47 and (Dumontet & Vignes, 1977) eq. 27
         page 19):
 
