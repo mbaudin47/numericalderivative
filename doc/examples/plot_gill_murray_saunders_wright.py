@@ -222,7 +222,7 @@ def plot_error_vs_h_with_GMSW_steps(
     minimum_error = np.nanmin(error_array)
     maximum_error = np.nanmax(error_array)
 
-    pl.figure(figsize=(3.0, 2.0))
+    pl.figure()
     pl.plot(h_array, error_array)
     pl.plot(
         [step] * 2,
@@ -236,6 +236,7 @@ def plot_error_vs_h_with_GMSW_steps(
     pl.xscale("log")
     pl.yscale("log")
     pl.legend(bbox_to_anchor=(1.0, 1.0))
+    pl.tight_layout()
     return
 
 

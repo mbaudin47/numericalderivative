@@ -33,7 +33,7 @@ for i in range(number_of_points):
     h = h_array[i]
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
-pl.figure(figsize=(4.0, 3.0))
+pl.figure()
 pl.plot(h_array, n_digits_array)
 pl.title(r"Number of digits lost by F.D.. $f(x) = \exp(x)$")
 pl.xlabel("h")
@@ -51,7 +51,7 @@ for i in range(number_of_points):
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
 # %%
-pl.figure(figsize=(4.0, 3.0))
+pl.figure()
 pl.plot(h_array, n_digits_array)
 pl.title(r"Number of digits lost by F.D.. $f(x) = \sin(x)$")
 pl.xlabel("h")
@@ -92,7 +92,7 @@ def plot_error_vs_h_with_SW_steps(
     minimum_error = np.nanmin(error_array)
     maximum_error = np.nanmax(error_array)
 
-    pl.figure(figsize=(5.0, 3.0))
+    pl.figure()
     pl.plot(h_array, error_array)
     pl.plot(
         [h_min] * 2,

@@ -144,7 +144,7 @@ def plot_step_sensitivity(
         f_prime_approx = finite_difference.compute(step_array[i])
         error_array[i] = abs(f_prime_approx - function_derivative(x))
 
-    pl.figure(figsize=(3.0, 2.5))
+    pl.figure()
     pl.plot(step_array, error_array, label="Computed")
     pl.title(finite_difference.__class__.__name__)
     pl.xlabel("h")
