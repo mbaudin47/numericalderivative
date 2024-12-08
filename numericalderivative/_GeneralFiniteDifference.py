@@ -23,83 +23,11 @@ class GeneralFiniteDifference:
         direction="central",
         args=None,
     ):
-        """
+        r"""
         Create a general finite difference formula
 
-        Parameters
-        ----------
-        function : function
-            The function to differentiate.
-        x : float
-            The point where the derivative is to be evaluated.
-        differentiation_order : int
-            The order of the derivative.
-            For example differentiation_order = 1 is the first derivative.
-        formula_accuracy : int
-            The order of precision of the formula.
-            For the central F.D. formula, 
-            then the formula accuracy is necessarily even.
-            If required, increase the formula accuracy by 1 unit.
-        direction : str, optional
-            The direction of the formula.
-            The direction can be "forward", "backward" or "central".
-            The default is "central".
-        args : list
-            A list of optional arguments that the function takes as inputs.
-            By default, there is no extra argument and calling sequence of
-            the function must be y = function(x).
-            If there are extra arguments, then the calling sequence of
-            the function must be y = function(x, arg1, arg2, ...) where
-            arg1, arg2, ..., are the items in the args list.
-
-        References
-        ----------
-        - David Eberly. « Derivative approximation by finite differences ». 2008.
-        - Nicholas Maxwell. « Notes on the derivation of Finite Difference kernels on regularly spaced grids, using arbitrary sample points ». 2010.
-        - Bengt Fornberg. « Classroom Note :Calculation of Weights in Finite Difference Formulas ». In : SIAM Review 40.3 (1998), p. 685-691.
-        - B. Fornberg. « Finite difference method ». In : Scholarpedia 6.10 (2011), p. 9685
-        - H.Z. Hassan, A.A. Mohamad et G.E. Atteia. « An algorithm for the finite difference approximation of derivatives with arbitrary degree and order of accuracy ». In : Journal of Computational and Applied Mathematics 236.10 (2012), p. 2622-2631. issn : 0377-0427.
-        """
-        if differentiation_order <= 0:
-            raise ValueError(f"Invalid differentiation order {differentiation_order}")
-        self.differentiation_order = differentiation_order
-        if formula_accuracy <= 0:
-            raise ValueError(f"Invalid formula accuracy {formula_accuracy}")
-        if (
-            direction != "forward"
-            and direction != "backward"
-            and direction != "central"
-        ):
-            raise ValueError(f"Invalid direction {direction}.")
-        self.direction = direction
-        if (
-            self.direction == "central"
-            and formula_accuracy % 2 == 1
-        ):
-            raise ValueError(
-                f"Invalid accuracy for a centered formula with even differentiation order: "
-                f"direction = {direction} is central, "
-                f"formula_accuracy = {formula_accuracy} is odd."
-                f" Please increase formula_accuracy by 1."
-            )
-        self.formula_accuracy = formula_accuracy
-        self.function = nd.FunctionWithArguments(function, args)
-        self.x = x
-        #
-        # Setup the formula
-        _ = self._compute_indices()
-        # Compute the coefficients
-        _ = self._compute_coefficients()
-
-    def _compute_indices(self):
-        r"""
-        Computes the min and max indices for a finite difference formula.
-
-        This function is used by _compute_coefficients() to compute the
-        derivative of arbitrary order and arbitrary order of accuracy.
-
-        Let :math:`d \in \mathbb{N}` be the order of differentation and
-        :math:`p \in \mathbb{N}` be the order of precision.
+        Let :math:`d \in \mathbb{N}` be the order of differentation with :math:`d \geq 1` and
+        :math:`p \in \mathbb{N}` be the order of precision with :math:`p \geq 1`. 
         The indices are:
 
         - if the formula is "forward", then :math:`i_\min = 0` and :math:`i_\max = d + p - 1`,
@@ -108,80 +36,43 @@ class GeneralFiniteDifference:
           Then :math:`i_\max = \left\lfloor \frac{d + p - 1}{2} \right\rfloor` 
           and :math:`i_\min = -i_\max`.
 
-        Parameters
-        ----------
-        None
 
-        Returns
-        -------
-        imin : int
-            The minimum indice of the f.d. formula.
-        imax : int
-            The maximum indice of the f.d. formula.
+        Uses the finite difference formula (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 3.2 page 7):
 
-        Examples
-        --------
+        .. math::
 
-        >>> import numericalderivative as nd
-        >>>
-        >>> def scaled_exp(x):
-        >>>     alpha = 1.e6
-        >>>     return np.exp(-x / alpha)
-        >>>
-        >>> x = 1.0e-2
-        >>> differentiation_order = 3  # Compute f'''
-        >>> formula_accuracy = 6  # Use differentiation_order 6 formula
-        >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy).get_indices_min_max()
-        >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "forward").get_indices_min_max()
-        >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "backward").get_indices_min_max()
-        >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "central").get_indices_min_max()
-        """
-        if self.direction == "forward":
-            self.imin = 0
-            self.imax = self.differentiation_order + self.formula_accuracy - 1
-        elif self.direction == "backward":
-            self.imin = -(self.differentiation_order + self.formula_accuracy - 1)
-            self.imax = 0
-        elif self.direction == "central":
-            self.imax = int(
-                math.floor((self.differentiation_order + self.formula_accuracy - 1) / 2)
-            )
-            self.imin = -self.imax
-        else:
-            raise ValueError(f"Invalid direction {self.direction}")
-        return (self.imin, self.imax)
+            f^{(d)}(x) = \frac{d!}{h^d} \sum_{i = i_{\min}}^{i_\max} c_i f(x + h i)
+                         - \frac{d!}{(d + p)!} b_{d + p} f^{(d + p)}(\xi) h^p
 
-    def get_indices_min_max(self):
-        """
-        Return the indices of the finite difference formula
+        where :math:`h > 0` is the step, :math:`\boldsymbol{c} \in \mathbb{R}^{d + p}` is the vector of coefficients,
+        :math:`i_\min \in \mathbb{N}` is the minimum index,
+        :math:`i_\max \in \mathbb{N}` is the maximum index,
+        :math:`\xi \in (x, x + h)`
+        and :math:`\epsilon_f > 0` is the absolute precision of the
+        function evaluation.
+        We have :math:`i_\max \geq i_\min`.
+        The particular values of :math:`i_\min` and :math:`i_\max` depend on
+        the direction of the F.D. formula, the order of differentiation and the
+        order of precision see `_compute_indices()`.
+        The coefficient :math:`b_{d + p}` is (see (Shi, Xie, Xuan & Nocedal, 2022) eq. page 7):
 
-        Returns
-        -------
-        imin : int
-            The minimum index of the F.D. formula
-        imax : int
-            The maximum index of the F.D. formula
-        """
-        return (self.imin, self.imax)
+        .. math::
 
-    def get_coefficients(self):
-        r"""
-        Return the coefficients of the finite difference formula
+            b_{d + p} = \sum_{i = i_{\min}}^{i_\max} i^{d + p} c_i.
 
-        Returns
-        -------
-        coefficients : np.array(number_of_coefficients)
-            The coefficients of the F.D. formula
-        """
-        return self.coefficients
+        The F.D. approximation has order :math:`p`:
 
-    def _compute_coefficients(self):
-        r"""
-        Computes the coefficients of the finite difference formula.
+        .. math::
 
-        Let :math:`d \in \mathbb{N}` be the order of differentation and
-        :math:`p \in \mathbb{N}` be the order of precision. 
+            f^{(d)}(x) = \frac{d!}{h^d} \sum_{i = i_{\min}}^{i_\max} c_i f(x + h i)
+                         + O(h^p)
         
+        when :math:`h \rightarrow 0`.
+
+        If direction is "central", if :math:`p` is odd,
+        then the order of precision is actually :math:`p + 1`.
+        This implies that any central F.D. formula has an even order of precision.
+
         The number of coefficients in the system of equations is:
 
         .. math::
@@ -262,17 +153,140 @@ class GeneralFiniteDifference:
 
         Parameters
         ----------
-        None
+        function : function
+            The function to differentiate.
+        x : float
+            The point where the derivative is to be evaluated.
+        differentiation_order : int
+            The order of the derivative.
+            For example differentiation_order = 1 is the first derivative.
+        formula_accuracy : int
+            The order of precision of the formula.
+            For the central F.D. formula, 
+            then the formula accuracy is necessarily even.
+            If required, increase the formula accuracy by 1 unit.
+        direction : str, optional
+            The direction of the formula.
+            The direction can be "forward", "backward" or "central".
+            The default is "central".
+        args : list
+            A list of optional arguments that the function takes as inputs.
+            By default, there is no extra argument and calling sequence of
+            the function must be y = function(x).
+            If there are extra arguments, then the calling sequence of
+            the function must be y = function(x, arg1, arg2, ...) where
+            arg1, arg2, ..., are the items in the args list.
 
-        Raises
-        ------
-        ValueError
-            If direction is "central", differentiation_order + formula_accuracy must be odd.
+        References
+        ----------
+        - David Eberly. « Derivative approximation by finite differences ». 2008.
+        - Nicholas Maxwell. « Notes on the derivation of Finite Difference kernels on regularly spaced grids, using arbitrary sample points ». 2010.
+        - Bengt Fornberg. « Classroom Note :Calculation of Weights in Finite Difference Formulas ». In : SIAM Review 40.3 (1998), p. 685-691.
+        - B. Fornberg. « Finite difference method ». In : Scholarpedia 6.10 (2011), p. 9685
+        - H.Z. Hassan, A.A. Mohamad et G.E. Atteia. « An algorithm for the finite difference approximation of derivatives with arbitrary degree and order of accuracy ». In : Journal of Computational and Applied Mathematics 236.10 (2012), p. 2622-2631. issn : 0377-0427.
+        """
+        if differentiation_order <= 0:
+            raise ValueError(f"Invalid differentiation order {differentiation_order}")
+        self.differentiation_order = differentiation_order
+        if formula_accuracy <= 0:
+            raise ValueError(f"Invalid formula accuracy {formula_accuracy}")
+        if (
+            direction != "forward"
+            and direction != "backward"
+            and direction != "central"
+        ):
+            raise ValueError(f"Invalid direction {direction}.")
+        self.direction = direction
+        if (
+            self.direction == "central"
+            and formula_accuracy % 2 == 1
+        ):
+            raise ValueError(
+                f"Invalid accuracy for a centered formula with even differentiation order: "
+                f"direction = {direction} is central, "
+                f"formula_accuracy = {formula_accuracy} is odd."
+                f" Please increase formula_accuracy by 1."
+            )
+        self.formula_accuracy = formula_accuracy
+        self.function = nd.FunctionWithArguments(function, args)
+        self.x = x
+        #
+        # Setup the formula
+        _ = self._compute_indices()
+        # Compute the coefficients
+        _ = self._compute_coefficients()
+
+    def _compute_indices(self):
+        r"""
+        Computes the min and max indices for a finite difference formula.
+
+        This function is used by _compute_coefficients() to compute the
+        derivative of arbitrary order and arbitrary order of accuracy.
+
+        Parameters
+        ----------
+        None
 
         Returns
         -------
-        c : np.array(differentiation_order + formula_accuracy)
-            The coefficicients of the finite difference formula.
+        imin : int
+            The minimum indice of the f.d. formula.
+        imax : int
+            The maximum indice of the f.d. formula.
+        """
+        if self.direction == "forward":
+            self.imin = 0
+            self.imax = self.differentiation_order + self.formula_accuracy - 1
+        elif self.direction == "backward":
+            self.imin = -(self.differentiation_order + self.formula_accuracy - 1)
+            self.imax = 0
+        elif self.direction == "central":
+            self.imax = int(
+                math.floor((self.differentiation_order + self.formula_accuracy - 1) / 2)
+            )
+            self.imin = -self.imax
+        else:
+            raise ValueError(f"Invalid direction {self.direction}")
+        return (self.imin, self.imax)
+
+    def get_indices_min_max(self):
+        r"""
+        Return the indices of the finite difference formula
+
+        Returns
+        -------
+        imin : int
+            The minimum index of the F.D. formula
+        imax : int
+            The maximum index of the F.D. formula
+
+        Examples
+        --------
+
+        >>> import numericalderivative as nd
+        >>>
+        >>> def scaled_exp(x):
+        >>>     alpha = 1.e6
+        >>>     return np.exp(-x / alpha)
+        >>>
+        >>> x = 1.0e-2
+        >>> differentiation_order = 3  # Compute f'''
+        >>> formula_accuracy = 6  # Use differentiation_order 6 formula
+        >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy).get_indices_min_max()
+        >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "forward").get_indices_min_max()
+        >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "backward").get_indices_min_max()
+        >>> imin, imax = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "central").get_indices_min_max()
+        """
+        return (self.imin, self.imax)
+
+    def get_coefficients(self):
+        r"""
+        Return the coefficients of the finite difference formula
+
+        Returns
+        -------
+        coefficients : np.array(number_of_coefficients)
+            The coefficients of the F.D. formula
 
         Examples
         --------
@@ -285,10 +299,25 @@ class GeneralFiniteDifference:
         >>> x = 1.0e-2
         >>> differentiation_order = 3  # Compute f'''
         >>> formula_accuracy = 6  # Use differentiation_order 6 formula
-        >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy)._compute_coefficients()
-        >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "forward")._compute_coefficients()
-        >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "backward")._compute_coefficients()
-        >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "central")._compute_coefficients()
+        >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy).get_coefficients()
+        >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "forward").get_coefficients()
+        >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "backward").get_coefficients()
+        >>> c = nd.GeneralFiniteDifference(function, x, differentiation_order, formula_accuracy, "central").get_coefficients()
+        """
+        return self.coefficients
+
+    def _compute_coefficients(self):
+        r"""
+        Computes the coefficients of the finite difference formula.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        c : np.array(differentiation_order + formula_accuracy)
+            The coefficicients of the finite difference formula.
         """
         # Compute matrix
         imin, imax = self._compute_indices()
@@ -458,44 +487,6 @@ class GeneralFiniteDifference:
     def compute(self, step):
         r"""
         Computes the degree d approximate derivative of f at point x.
-
-        Let :math:`d \in \mathbb{N}` be the order of differentation and
-        :math:`p \in \mathbb{N}` be the order of precision.
-        Uses the finite difference formula (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 3.2 page 7):
-
-        .. math::
-
-            f^{(d)}(x) = \frac{d!}{h^d} \sum_{i = i_{\min}}^{i_\max} c_i f(x + h i)
-                         - \frac{d!}{(d + p)!} b_{d + p} f^{(d + p)}(\xi) h^p
-
-        where :math:`h > 0` is the step, :math:`\boldsymbol{c} \in \mathbb{R}^{d + p}` is the vector of coefficients,
-        :math:`i_\min \in \mathbb{N}` is the minimum index,
-        :math:`i_\max \in \mathbb{N}` is the maximum index,
-        :math:`\xi \in (x, x + h)`
-        and :math:`\epsilon_f > 0` is the absolute precision of the
-        function evaluation.
-        We have :math:`i_\max \geq i_\min`.
-        The particular values of :math:`i_\min` and :math:`i_\max` depend on
-        the direction of the F.D. formula, the order of differentiation and the
-        order of precision see `_compute_indices()`.
-        The coefficient :math:`b_{d + p}` is (see (Shi, Xie, Xuan & Nocedal, 2022) eq. page 7):
-
-        .. math::
-
-            b_{d + p} = \sum_{i = i_{\min}}^{i_\max} i^{d + p} c_i.
-
-        The F.D. approximation has order :math:`p`:
-
-        .. math::
-
-            f^{(d)}(x) = \frac{d!}{h^d} \sum_{i = i_{\min}}^{i_\max} c_i f(x + h i)
-                         + O(h^p)
-        
-        when :math:`h \rightarrow 0`.
-
-        If direction is "central", if :math:`p` is odd,
-        then the order of precision is actually :math:`p + 1`.
-        This implies that any central F.D. formula has an even order of precision.
 
         Parameters
         ----------
