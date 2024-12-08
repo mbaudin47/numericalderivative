@@ -3,8 +3,8 @@ User manual
 
 .. currentmodule:: numericalderivative
 
-Algorithms
-----------
+Algorithms for optimal step
+---------------------------
 
 .. autosummary::
    :toctree: _generated/
@@ -21,7 +21,11 @@ Finite Differences
 
        FunctionWithArguments
        FiniteDifferenceFormula
-       FiniteDifferenceOptimalStep
+       FirstDerivativeForward
+       FirstDerivativeCentral
+       SecondDerivativeCentral
+       ThirdDerivativeCentral
+       GeneralFiniteDifference
 
 Benchmark problems
 ------------------
@@ -30,6 +34,7 @@ Benchmark problems
    :toctree: _generated/
    
        DerivativeBenchmarkProblem
+       PolynomialProblem
        InverseProblem
        ExponentialProblem
        LogarithmicProblem

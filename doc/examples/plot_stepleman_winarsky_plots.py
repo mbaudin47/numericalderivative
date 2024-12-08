@@ -33,7 +33,7 @@ for i in range(number_of_points):
     h = h_array[i]
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
-pl.figure(figsize=(4.0, 3.0))
+pl.figure()
 pl.plot(h_array, n_digits_array)
 pl.title(r"Number of digits lost by F.D.. $f(x) = \exp(x)$")
 pl.xlabel("h")
@@ -51,7 +51,7 @@ for i in range(number_of_points):
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
 # %%
-pl.figure(figsize=(4.0, 3.0))
+pl.figure()
 pl.plot(h_array, n_digits_array)
 pl.title(r"Number of digits lost by F.D.. $f(x) = \sin(x)$")
 pl.xlabel("h")
@@ -92,7 +92,7 @@ def plot_error_vs_h_with_SW_steps(
     minimum_error = np.nanmin(error_array)
     maximum_error = np.nanmax(error_array)
 
-    pl.figure(figsize=(5.0, 3.0))
+    pl.figure()
     pl.plot(h_array, error_array)
     pl.plot(
         [h_min] * 2,
@@ -187,12 +187,9 @@ algorithm = nd.SteplemanWinarsky(
     benchmark.function,
     x,
 )
-finite_difference_optimal_step = nd.FiniteDifferenceOptimalStep()
 third_derivative_value = benchmark.third_derivative(benchmark.x)
-optimal_step, absolute_error = (
-    finite_difference_optimal_step.compute_step_first_derivative_central(
-        third_derivative_value
-    )
+optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 print("absolute_error = %.3e" % (absolute_error))
@@ -206,12 +203,9 @@ x = 1.0
 # %%
 benchmark = nd.ScaledExponentialProblem()
 algorithm = nd.SteplemanWinarsky(benchmark.function, x)
-finite_difference_optimal_step = nd.FiniteDifferenceOptimalStep()
 third_derivative_value = benchmark.third_derivative(benchmark.x)
-optimal_step, absolute_error = (
-    finite_difference_optimal_step.compute_step_first_derivative_central(
-        third_derivative_value
-    )
+optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 print("absolute_error = %.3e" % (absolute_error))

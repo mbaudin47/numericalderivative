@@ -33,9 +33,9 @@ first_derivative = problem.get_first_derivative()
 # exact derivative.
 
 # %%
-formula = nd.FiniteDifferenceFormula(function, x)
+formula = nd.FirstDerivativeForward(function, x)
 step = 1.0e-5  # This is a first guess
-approx_first_derivative = formula.compute_first_derivative_forward(step)
+approx_first_derivative = formula.compute(step)
 exact_first_derivative = first_derivative(x)
 absolute_error = abs(approx_first_derivative - exact_first_derivative)
 print(f"Approximate first derivative = {approx_first_derivative}")
@@ -50,9 +50,8 @@ print(f"Absolute error = {absolute_error}")
 # %%
 second_derivative = problem.get_second_derivative()
 second_derivative_value = second_derivative(x)
-optimal_step_formula = nd.FiniteDifferenceOptimalStep()
-optimal_step_forward_formula, absolute_error = (
-    optimal_step_formula.compute_step_first_derivative_forward(second_derivative_value)
+optimal_step_forward_formula, absolute_error = nd.FirstDerivativeForward.compute_step(
+    second_derivative_value
 )
 print(f"Optimal step for forward derivative = {optimal_step_forward_formula}")
 print(f"Minimum absolute error = {absolute_error}")
@@ -61,9 +60,7 @@ print(f"Minimum absolute error = {absolute_error}")
 # Now use this step
 
 # %%
-approx_first_derivative = formula.compute_first_derivative_forward(
-    optimal_step_forward_formula
-)
+approx_first_derivative = formula.compute(optimal_step_forward_formula)
 exact_first_derivative = first_derivative(x)
 absolute_error = abs(approx_first_derivative - exact_first_derivative)
 print(f"Approximate first derivative = {approx_first_derivative}")
@@ -82,7 +79,15 @@ for i in range(number_of_problems):
     name = problem.get_name()
     x = problem.get_x()
     interval = problem.get_interval()
-    data.append([f"#{i} / {number_of_problems}", f"{name}", f"{x}", f"{interval[0]}", f"{interval[1]}"])
+    data.append(
+        [
+            f"#{i} / {number_of_problems}",
+            f"{name}",
+            f"{x}",
+            f"{interval[0]}",
+            f"{interval[1]}",
+        ]
+    )
 
 tabulate.tabulate(
     data,
@@ -96,7 +101,7 @@ tabulate.tabulate(
 benchmark = nd.BuildBenchmark()
 number_of_problems = len(benchmark)
 number_of_columns = 3
-number_of_rows = math.ceil(number_of_problems/number_of_columns)
+number_of_rows = math.ceil(number_of_problems / number_of_columns)
 number_of_points = 100
 pl.figure(figsize=(8.0, 7.0))
 data = []
@@ -115,7 +120,7 @@ for i in range(number_of_problems):
     pl.plot(x_grid, y_values)
     # Update index
     index += 1
-    
+
 pl.subplots_adjust(wspace=0.5, hspace=1.2)
 
 # %%

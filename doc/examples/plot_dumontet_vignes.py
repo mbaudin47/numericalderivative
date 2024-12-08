@@ -30,30 +30,63 @@ def compute_f3_inf_sup(function, x, k, relative_precision):
     return f3inf, f3sup
 
 
-def perform(
+def plot_step_sensitivity(
     x,
     name,
     function,
     function_derivative,
     function_third_derivative,
-    h_array,
+    step_array,
     iteration_maximum=53,
     relative_precision=1.0e-15,
     kmin=None,
     kmax=None,
 ):
+    """
+    Compute the approximate derivative using central F.D. formula.
+    Create a plot representing the absolute error depending on step.
+    Plot the approximately optimal step computed by DumontetVignes.
+
+    Parameters
+    ----------
+    x : float
+        The input point
+    name : str
+        The name of the problem
+    function : function
+        The function.
+    function_derivative : function
+        The exact first derivative of the function.
+    function_third_derivative : function
+        The exact third derivative of the function.
+    step_array : array(n_points)
+        The array of steps to consider
+    iteration_maximum : int
+        The maximum number of iterations in DumontetVignes
+    relative_precision : float, > 0
+        The relative precision of the function evaluation
+    kmin : float, kmin > 0
+        A minimum bound for k. The default is None.
+        If no value is provided, the default is to compute the smallest
+        possible kmin using number_of_digits and x.
+    kmax : float, kmax > kmin > 0
+        A maximum bound for k. The default is None.
+        If no value is provided, the default is to compute the largest
+        possible kmax using number_of_digits and x.
+    """
     print("+ ", name)
     # 1. Plot the error vs h
     algorithm = nd.DumontetVignes(function, x, verbose=True)
+    number_of_points = len(step_array)
     error_array = np.zeros((number_of_points))
     for i in range(number_of_points):
-        f_prime_approx = algorithm.compute_first_derivative(h_array[i])
+        f_prime_approx = algorithm.compute_first_derivative(step_array[i])
         error_array[i] = abs(f_prime_approx - function_derivative(x))
 
     # 2. Algorithm to detect h*
     algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
     print("Exact f'''(x) = %.3e" % (function_third_derivative(x)))
-    estim_step, number_of_iterations = algorithm.compute_step(
+    estim_step, _ = algorithm.compute_step(
         iteration_maximum=iteration_maximum,
         markdown=False,
         kmin=kmin,
@@ -70,10 +103,9 @@ def perform(
     print("Exact rel. error  = %.3e" % (absolute_error / abs(function_derivative(x))))
     # Compute exact step
     absolute_precision = abs(function(x) * relative_precision)
-    fdstep = nd.FiniteDifferenceOptimalStep(absolute_precision)
     third_derivative_value = function_third_derivative(x)
-    optimal_step, optimal_error = fdstep.compute_step_first_derivative_central(
-        third_derivative_value
+    optimal_step, optimal_error = nd.FirstDerivativeCentral.compute_step(
+        third_derivative_value, absolute_precision
     )
     print("Exact step     = %.3e" % (optimal_step))
     print("Estimated step = %.3e" % (estim_step))
@@ -83,8 +115,8 @@ def perform(
     minimum_error = np.nanmin(error_array)
     maximum_error = np.nanmax(error_array)
 
-    pl.figure(figsize=(3.0, 2.0))
-    pl.plot(h_array, error_array)
+    pl.figure()
+    pl.plot(step_array, error_array)
     pl.plot(
         [estim_step] * 2, [minimum_error, maximum_error], "--", label=r"$\tilde{h}$"
     )
@@ -93,8 +125,9 @@ def perform(
     pl.xlabel("h")
     pl.ylabel("Error")
     pl.xscale("log")
-    pl.legend(bbox_to_anchor=(1.1, 1.0))
     pl.yscale("log")
+    pl.legend(bbox_to_anchor=(1.1, 1.0))
+    pl.tight_layout()
     return
 
 
@@ -111,6 +144,9 @@ def plot_ell_ratio(
     y_logscale=False,
     plot_L_constants=False,
 ):
+    """Plot the ell ratio depending on the step size.
+
+    This ell ratio is used in DumontetVignes."""
     ell_1 = 1.0 / 15.0  # Eq. 34, fixed
     ell_2 = 1.0 / 2.0
     ell_3 = 1.0 / ell_2
@@ -129,7 +165,7 @@ def plot_ell_ratio(
             function, x, k_array[i], relative_precision
         )
 
-    pl.figure(figsize=(4.0, 3.0))
+    pl.figure()
     pl.plot(k_array, ell_array)
     if plot_L_constants:
         indices = np.isfinite(ell_array)
@@ -142,12 +178,14 @@ def plot_ell_ratio(
             pl.plot(k_array, [ell_3] * number_of_points, ":", label="$L_3$")
             pl.plot(k_array, [ell_4] * number_of_points, "--", label="$L_4$")
         pl.legend()
-    pl.title("%s, x = %.3e, p = %.3e" % (name, x, relative_precision))
+    pl.title(f"{name}, x = {x:.2e}, p = {relative_precision:.2e}")
     pl.xlabel("k")
     pl.ylabel("L")
     pl.xscale("log")
     if y_logscale:
         pl.yscale("log")
+    #
+    pl.tight_layout()
     return
 
 
@@ -271,16 +309,16 @@ name = "exp"
 function_derivative = benchmark.get_first_derivative()
 function_third_derivative = benchmark.get_third_derivative()
 number_of_points = 1000
-h_array = np.logspace(-15.0, 0.0, number_of_points)
+step_array = np.logspace(-15.0, 0.0, number_of_points)
 kmin = 1.0e-5
 kmax = 1.0e-2
-perform(
+plot_step_sensitivity(
     x,
     name,
     function,
     function_derivative,
     function_third_derivative,
-    h_array,
+    step_array,
     iteration_maximum=20,
     relative_precision=1.0e-15,
     kmin=kmin,
@@ -317,17 +355,17 @@ function = benchmark.function
 function_derivative = benchmark.first_derivative
 function_third_derivative = benchmark.third_derivative
 number_of_points = 1000
-h_array = np.logspace(-7.0, 6.0, number_of_points)
+step_array = np.logspace(-7.0, 6.0, number_of_points)
 kmin = 1.0e-2
 kmax = 1.0e2
 relative_precision = 1.0e-15
-perform(
+plot_step_sensitivity(
     x,
     name,
     function,
     function_derivative,
     function_third_derivative,
-    h_array,
+    step_array,
     relative_precision=relative_precision,
     kmin=kmin,
     kmax=kmax,
@@ -340,7 +378,7 @@ print("+ 3. Square root")
 x = 1.0
 relative_precision = 1.0e-14
 function = nd.SquareRootProblem().get_function()
-name = "square root"
+name = "sqrt"
 number_of_digits = 53
 kmin = 4.3e-5
 kmax = 1.0e-4
@@ -364,8 +402,8 @@ k = 1.0e-3
 print("x = ", x)
 print("k = ", k)
 benchmark = nd.SquareRootProblem()
-finite_difference = nd.FiniteDifferenceFormula(benchmark.function, x)
-approx_f3d = finite_difference.compute_third_derivative(k)
+finite_difference = nd.ThirdDerivativeCentral(benchmark.function, x)
+approx_f3d = finite_difference.compute(k)
 print("Approx. f''(x) = ", approx_f3d)
 exact_f3d = benchmark.third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)
@@ -382,48 +420,51 @@ number_of_points = 1000
 k_array = np.logspace(-6.0, -1.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    algorithm = nd.FiniteDifferenceFormula(benchmark.function, x)
-    f2nde_approx = algorithm.compute_third_derivative(k_array[i])
+    algorithm = nd.ThirdDerivativeCentral(benchmark.function, x)
+    f2nde_approx = algorithm.compute(k_array[i])
     error_array[i] = abs(f2nde_approx - benchmark.third_derivative(x))
 
 # %%
-pl.figure(figsize=(3.0, 2.0))
+pl.figure()
 pl.plot(k_array, error_array)
-pl.title("Finite difference of 3de derivative for %s" % (name))
+pl.title("F. D. of 3de derivative for %s" % (name))
 pl.xlabel("k")
 pl.ylabel("Error")
 pl.xscale("log")
 pl.yscale("log")
+#
+pl.tight_layout()
 
 
 # %%
 number_of_points = 1000
 relative_precision = 1.0e-16
-k_array = np.logspace(-4.9, -4.0, number_of_points)
+k_array = np.logspace(-5.0, -4.0, number_of_points)
 f3_array = np.zeros((number_of_points, 3))
 function = benchmark.get_function()
 for i in range(number_of_points):
     f3inf, f3sup = compute_f3_inf_sup(function, x, k_array[i], relative_precision)
-    algorithm = nd.FiniteDifferenceFormula(function, x)
-    f3_approx = algorithm.compute_third_derivative(k_array[i])
+    algorithm = nd.ThirdDerivativeCentral(function, x)
+    f3_approx = algorithm.compute(k_array[i])
     f3_array[i] = [f3inf, f3_approx, f3sup]
 
-pl.figure(figsize=(3.0, 2.0))
+pl.figure()
 pl.plot(k_array, f3_array[:, 0], ":", label="f3inf")
 pl.plot(k_array, f3_array[:, 1], "-", label="$D^{(3)}_f$")
 pl.plot(k_array, f3_array[:, 2], ":", label="f3sup")
-pl.title("Finite difference of 3de derivative for %s" % (name))
+pl.title("F.D. of 3de derivative for %s" % (name))
 pl.xlabel("k")
 pl.xscale("log")
 pl.yscale("log")
-pl.legend()
+pl.legend(bbox_to_anchor=(1.0, 1.0))
+pl.tight_layout(pad=1.2)
 
 
 # %%
 x = 1.0e-2
 relative_precision = 1.0e-14
 function = benchmark.get_function()
-name = "square root"
+name = "sqrt"
 number_of_digits = 53
 kmin = 4.4e-7
 kmax = 1.0e-4
@@ -496,8 +537,8 @@ x = 1.0
 k = 1.0e-3
 print("x = ", x)
 print("k = ", k)
-algorithm = nd.FiniteDifferenceFormula(benchmark.function, x)
-approx_f3d = algorithm.compute_third_derivative(k)
+algorithm = nd.ThirdDerivativeCentral(benchmark.function, x)
+approx_f3d = algorithm.compute(k)
 print("Approx. f''(x) = ", approx_f3d)
 exact_f3d = benchmark.third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)

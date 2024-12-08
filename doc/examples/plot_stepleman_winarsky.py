@@ -28,9 +28,8 @@ name = benchmark.get_name()
 x = benchmark.get_x()
 third_derivative = benchmark.get_third_derivative()
 third_derivative_value = third_derivative(x)
-optimal_step_formula = nd.FiniteDifferenceOptimalStep()
-optimum_step, absolute_error = (
-    optimal_step_formula.compute_step_first_derivative_central(third_derivative_value)
+optimum_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value
 )
 print(f"Name = {name}, x = {x}")
 print(f"Optimal step for central finite difference formula = {optimum_step}")
@@ -40,17 +39,17 @@ print(f"Minimum absolute error= {absolute_error}")
 # %%
 # 1. Plot the error vs h
 x = 1.0
-finite_difference = nd.FiniteDifferenceFormula(benchmark.function, x)
+finite_difference = nd.FirstDerivativeCentral(benchmark.function, x)
 number_of_points = 1000
 h_array = np.logspace(-7.0, 5.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     h = h_array[i]
-    f_prime_approx = finite_difference.compute_first_derivative_central(h)
+    f_prime_approx = finite_difference.compute(h)
     error_array[i] = abs(f_prime_approx - benchmark.first_derivative(x))
 
 # %%
-pl.figure(figsize=(3.0, 2.0))
+pl.figure()
 pl.plot(h_array, error_array)
 pl.plot([optimum_step] * 2, [min(error_array), max(error_array)], label=r"$h^*$")
 pl.title("Central finite difference")
@@ -59,6 +58,7 @@ pl.ylabel("Error")
 pl.xscale("log")
 pl.yscale("log")
 pl.legend(bbox_to_anchor=(1, 1))
+pl.tight_layout()
 
 
 # %%
@@ -78,9 +78,9 @@ print("Error = ", absolute_error)
 
 # %%
 def fd_difference(h1, h2, f, x):
-    finite_difference = nd.FiniteDifferenceFormula(f, x)
-    f_prime_approx_1 = finite_difference.compute_first_derivative_central(h1)
-    f_prime_approx_2 = finite_difference.compute_first_derivative_central(h2)
+    finite_difference = nd.FirstDerivativeCentral(f, x)
+    f_prime_approx_1 = finite_difference.compute(h1)
+    f_prime_approx_2 = finite_difference.compute(h2)
     diff_current = abs(f_prime_approx_1 - f_prime_approx_2)
     return diff_current
 
@@ -95,17 +95,18 @@ for i in range(number_of_points):
     diff_array[i] = fd_difference(h, h / 2, benchmark.function, x)
 
 # %%
-pl.figure(figsize=(3.0, 2.0))
+pl.figure()
 pl.plot(h_array, diff_array)
 pl.title("F.D. difference")
 pl.xlabel("h")
 pl.ylabel(r"$|\operatorname{FD}(h) - \operatorname{FD}(h / 2) |$")
 pl.xscale("log")
 pl.yscale("log")
+pl.tight_layout()
 
 
 # %%
-# 3. Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
+# 4. Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
 number_of_points = 20
 h_initial = 1.0e5
 beta = 4.0
@@ -120,23 +121,24 @@ for i in range(number_of_points):
         diff_array[i] = fd_difference(h_array[i], h_array[i - 1], benchmark.function, x)
 
 # %%
-pl.figure(figsize=(3.0, 2.0))
+pl.figure()
 pl.plot(h_array, diff_array, "o")
 pl.title("F.D. difference")
 pl.xlabel("h")
 pl.ylabel(r"$|\operatorname{FD}(h) - \operatorname{FD}(h / 2) |$")
 pl.xscale("log")
 pl.yscale("log")
+pl.tight_layout()
 
 # %%
-# 4. Compute suggested step
+# 5. Compute suggested step
 p = 1.0e-16
 beta = 4.0
 h_reference = beta * p ** (1 / 3) * x
 print("Suggested h0 = ", h_reference)
 
 # %%
-# 5. Plot number of lost digits vs h
+# 6. Plot number of lost digits vs h
 h = 1.0e4
 print("Starting h = ", h)
 n_digits = algorithm.number_of_lost_digits(h)
@@ -165,7 +167,7 @@ for i in range(number_of_points):
 
 # %%
 y_max = algorithm.number_of_lost_digits(h_reference)
-pl.figure(figsize=(3.0, 2.0))
+pl.figure()
 pl.plot(h_array, n_digits_array, label="$N(h)$")
 pl.plot([h_reference] * 2, [0.0, y_max], "--", label=r"$h_{ref}$")
 pl.plot([step_zero] * 2, [0.0, y_max], "--", label=r"$h^{(0)}$")
@@ -180,11 +182,12 @@ pl.title("Number of digits lost by F.D.")
 pl.xlabel("h")
 pl.ylabel("$N(h)$")
 pl.xscale("log")
-_ = pl.legend(bbox_to_anchor=(1.1, 1.0))
+_ = pl.legend(bbox_to_anchor=(1.0, 1.0))
+pl.tight_layout()
 
 
 # %%
-pl.figure(figsize=(3.0, 2.0))
+pl.figure()
 pl.plot(h_array, error_array)
 pl.plot([step_zero] * 2, [0.0, 1.0e-9], "--", label=r"$h^{(0)}$")
 pl.plot([estim_step] * 2, [0.0, 1.0e-9], "--", label=r"$h^\star$")
@@ -192,11 +195,12 @@ pl.title("Finite difference")
 pl.xlabel("h")
 pl.ylabel("Error")
 pl.xscale("log")
-pl.legend(bbox_to_anchor=(1.1, 1.0))
+pl.legend(bbox_to_anchor=(1.0, 1.0))
 pl.yscale("log")
+pl.tight_layout()
 
 # %%
-# 6. Benchmark
+# 7. Benchmark
 # Test with single point
 x = 1.0
 f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(

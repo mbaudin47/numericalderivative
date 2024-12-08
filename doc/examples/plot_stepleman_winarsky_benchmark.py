@@ -85,10 +85,9 @@ algorithm = nd.SteplemanWinarsky(
     x,
     verbose=True,
 )
-optimal_step_formula = nd.FiniteDifferenceOptimalStep()
 third_derivative_value = benchmark.third_derivative(x)
-optimal_step, absolute_error = (
-    optimal_step_formula.compute_step_first_derivative_central(third_derivative_value)
+optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 
@@ -192,34 +191,40 @@ average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
 )
 
 # %%
-function_list = [
-    [nd.InverseProblem(), 1.0e0],
-    [nd.ExponentialProblem(), 1.0e-1],
-    [nd.LogarithmicProblem(), 1.0e-3],  # x > 0
-    [nd.SquareRootProblem(), 1.0e-3],  # x > 0
-    [nd.AtanProblem(), 1.0e0],
-    [nd.SinProblem(), 1.0e0],
-    [nd.ScaledExponentialProblem(), 1.0e5],
-    [nd.GMSWExponentialProblem(), 1.0e0],
-    [nd.SXXNProblem1(), 1.e0],
-    [nd.SXXNProblem2(), 1.e0],  # Fails
-    [nd.SXXNProblem3(), 1.e0],
-    [nd.SXXNProblem4(), 1.e0],
-    [nd.OliverProblem1(), 1.e0],
-    [nd.OliverProblem2(), 1.e0],
-    [nd.OliverProblem3(), 1.e-3],
-]
+# Map from the problem name to the initial step
+
+# %%
+initial_step_map = {
+    "polynomial": 1.0,
+    "inverse": 1.0e0,
+    "exp": 1.0e-1,
+    "log": 1.0e-3,  # x > 0
+    "sqrt": 1.0e-3,  # x > 0
+    "atan": 1.0e0,
+    "sin": 1.0e0,
+    "scaled exp": 1.0e5,
+    "GMSW": 1.0e0,
+    "SXXN1": 1.0e0,
+    "SXXN2": 1.0e0,  # Fails
+    "SXXN3": 1.0e0,
+    "SXXN4": 1.0e0,
+    "Oliver1": 1.0e0,
+    "Oliver2": 1.0e0,
+    "Oliver3": 1.0e-3,
+}
 
 # %%
 # Benchmark SteplemanWinarsky
 number_of_test_points = 100
 data = []
+function_list = nd.BuildBenchmark()
 number_of_functions = len(function_list)
 average_relative_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
-    problem, initial_step = function_list[i]
+    problem = function_list[i]
     name = problem.get_name()
+    initial_step = initial_step_map[name]
     function = problem.get_function()
     first_derivative = problem.get_first_derivative()
     interval = problem.get_interval()
@@ -239,7 +244,12 @@ for i in range(number_of_functions):
         )
     )
 data.append(
-    ["Average", "-", np.nanmean(average_relative_error_list), np.nanmean(average_feval_list)]
+    [
+        "Average",
+        "-",
+        np.nanmean(average_relative_error_list),
+        np.nanmean(average_feval_list),
+    ]
 )
 tabulate.tabulate(
     data,
