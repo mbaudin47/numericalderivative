@@ -23,6 +23,7 @@ class ProblemChecker:
         self.second_derivative = problem.get_second_derivative()
         self.third_derivative = problem.get_third_derivative()
         self.fourth_derivative = problem.get_fourth_derivative()
+        self.fifth_derivative = problem.get_fifth_derivative()
         self.interval = problem.get_interval()
         #
         self.tolerance_factor = tolerance_factor
@@ -30,8 +31,10 @@ class ProblemChecker:
         #
         self.is_first_derivative_from_third_enabled = True
         self.is_second_derivative_enabled = True
+        self.is_second_derivative_from_first_enabled = True
         self.is_third_derivative_enabled = True
         self.is_fourth_derivative_enabled = True
+        self.is_fifth_derivative_enabled = True
         self.number_of_points = number_of_points
 
     def check(self):
@@ -41,6 +44,8 @@ class ProblemChecker:
         self.test_second_derivative()
         self.test_third_derivative()
         self.test_fourth_derivative()
+        self.test_fifth_derivative()
+        self.test_second_derivative_from_first()
 
     def test_function_evaluation(self):
         # Check the function evaluation on a grid
@@ -59,6 +64,10 @@ class ProblemChecker:
         print("Skip second derivative test")
         self.is_second_derivative_enabled = False
 
+    def skip_second_derivative_from_first(self):
+        print("Skip second derivative from first test")
+        self.is_second_derivative_from_first_enabled = False
+
     def skip_third_derivative(self):
         print("Skip third derivative test")
         self.is_third_derivative_enabled = False
@@ -66,6 +75,10 @@ class ProblemChecker:
     def skip_fourth_derivative(self):
         print("Skip fourth derivative test")
         self.is_fourth_derivative_enabled = False
+
+    def skip_fifth_derivative(self):
+        print("Skip fifth derivative test")
+        self.is_fifth_derivative_enabled = False
 
     def test_first_derivative_from_second(self):
         print(f'Check first derivative using second derivative for "{self.name}"')
@@ -136,6 +149,28 @@ class ProblemChecker:
                 atol=self.tolerance_factor * absolute_error,
             )
 
+    def test_second_derivative_from_first(self):
+        # The second derivative is the first derivative of the first derivative
+        # (assuming the first derivative is OK)
+        print(f'Check second derivative using first derivative for "{self.name}"')
+        step = 1.0e-4
+        f_second_approx = nd.FirstDerivativeCentral(
+            self.first_derivative, self.x
+        ).compute(step)
+        f_second_exact = self.second_derivative(self.x)
+        print(
+            f"({self.name}) "
+            f"Step = {step:.4e}, "
+            f"f_second_approx = {f_second_approx}, "
+            f"f_second_exact = {f_second_exact}"
+        )
+        if self.is_second_derivative_from_first_enabled:
+            np.testing.assert_allclose(
+                f_second_approx,
+                f_second_exact,
+                rtol=1.0e-3,
+            )
+
     def test_third_derivative(self):
         print(f'Check third derivative for "{self.name}"')
         # The third derivative is the first derivative of the second derivative
@@ -174,6 +209,25 @@ class ProblemChecker:
                 f_fourth_approx, f_fourth_exact, rtol=self.tolerance_factor * 1.0e-4
             )
 
+    def test_fifth_derivative(self):
+        print(f'Check fifth derivative for "{self.name}"')
+        # The fifth derivative is the second derivative of the third derivative
+        # (assuming the third derivative is OK)
+        step = 1.0e-4
+        f_fifth_approx = nd.SecondDerivativeCentral(
+            self.third_derivative, self.x
+        ).compute(step)
+        f_fifth_exact = self.fifth_derivative(self.x)
+        print(
+            f"({self.name}) step = {step:.4e}, "
+            f"f_fifth_approx = {f_fifth_approx}, "
+            f"f_fifth_exact = {f_fifth_exact}"
+        )
+        if self.is_fifth_derivative_enabled:
+            np.testing.assert_allclose(
+                f_fifth_approx, f_fifth_exact, rtol=self.tolerance_factor * 1.0e-4
+            )
+
 
 class CheckDerivativeBenchmark(unittest.TestCase):
     def test_Exponential(self):
@@ -189,18 +243,22 @@ class CheckDerivativeBenchmark(unittest.TestCase):
             print(f"#{i}/{len(collection)}, checking {name}")
             checker = ProblemChecker(problem)
             if name == "SXXN4":
-                # This test cannot pass the second derivative test:
-                # the fourth derivative
-                # is zero, which produces an infinite optimal second derivative step
-                # for central finite difference formula.
+                # This test cannot pass the second derivative test: the fourth
+                # derivative is zero, which produces an infinite optimal second
+                # derivative step for central finite difference formula.
                 checker.skip_second_derivative()
             elif name == "polynomial":
                 # This test cannot pass the first derivative from third test:
-                # the third derivative
-                # is zero, which produces an infinite optimal first derivative step
-                # for central finite difference formula.
+                # the third derivative is zero, which produces an infinite
+                # optimal first derivative step for central finite difference formula.
                 checker.skip_first_derivative_from_third()
                 checker.skip_second_derivative()
+            elif name == "scaled exp":
+                # Skip the fifth derivative test: it is too close to zero.
+                checker.skip_fifth_derivative()
+            elif name == "GMSW":
+                # Skip the fifth derivative test: not implemented
+                checker.skip_fifth_derivative()
 
             checker.check()
         print(f"Total = {len(collection)} problems.")

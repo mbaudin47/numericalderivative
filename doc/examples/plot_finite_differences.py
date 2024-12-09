@@ -150,7 +150,7 @@ def plot_step_sensitivity(
     pl.xlabel("h")
     pl.ylabel("Error")
     pl.xscale("log")
-    pl.legend(bbox_to_anchor=(1.1, 1.0))
+    pl.legend(bbox_to_anchor=(1.0, 1.0))
     pl.yscale("log")
 
     # Compute the error using the model
@@ -240,6 +240,32 @@ finite_difference = nd.SecondDerivativeCentral(scaled_exp, x)
 fourth_derivative_value = scaled_exp_4th_derivative(x)
 plot_step_sensitivity(
     finite_difference, x, scaled_exp_2nd_derivative, step_array, fourth_derivative_value
+)
+
+# %%
+# Central F.D. formula for third derivative
+# -----------------------------------------
+
+
+# %%
+# Let us see how this behaves with central F.D. for the third derivative.
+
+
+# %%
+# For the central F.D. formula of the third derivative, the exact step depends on the
+# fifth derivative
+def scaled_exp_5th_derivative(x):
+    alpha = 1.0e6
+    return np.exp(-x / alpha) / (alpha**5)
+
+
+# %%
+number_of_points = 1000
+step_array = np.logspace(-5.0, 7.0, number_of_points)
+finite_difference = nd.ThirdDerivativeCentral(scaled_exp, x)
+fifth_derivative_value = scaled_exp_5th_derivative(x)
+plot_step_sensitivity(
+    finite_difference, x, scaled_exp_3d_derivative, step_array, fifth_derivative_value
 )
 
 # %%

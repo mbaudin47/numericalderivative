@@ -18,6 +18,7 @@ class DerivativeBenchmarkProblem:
         second_derivative,
         third_derivative,
         fourth_derivative,
+        fifth_derivative,
         x,
         interval,
     ):
@@ -27,7 +28,7 @@ class DerivativeBenchmarkProblem:
         This provides the function and the exact first derivative.
         This makes it possible to check the approximation of the first
         derivative using a finite difference formula.
-        This class also provides the second, third and fourth derivative.
+        This class also provides the second, third, fourth and fifth derivative.
         This makes it possible to compute the optimal step for
         various finite difference formula.
 
@@ -43,6 +44,8 @@ class DerivativeBenchmarkProblem:
             The third derivative of the function
         fourth_derivative : function
             The fourth derivative of the function
+        fifth_derivative : function
+            The fifth derivative of the function
         x : float
             The point where the derivative should be computed for a single test.
         interval : list of 2 floats
@@ -81,6 +84,7 @@ class DerivativeBenchmarkProblem:
         self.second_derivative = second_derivative
         self.third_derivative = third_derivative
         self.fourth_derivative = fourth_derivative
+        self.fifth_derivative = fifth_derivative
         self.x = x
         if interval[0] > interval[1]:
             raise ValueError(
@@ -177,6 +181,17 @@ class DerivativeBenchmarkProblem:
         """
         return self.fourth_derivative
 
+    def get_fifth_derivative(self):
+        """
+        Return the fifth derivative of the function of the problem
+
+        Returns
+        -------
+        fifth_derivative : function
+            The fifth derivative of the function
+        """
+        return self.fifth_derivative
+
 
 class PolynomialProblem(DerivativeBenchmarkProblem):
     r"""
@@ -219,8 +234,18 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
                 self.alpha
                 * (self.alpha - 1)
                 * (self.alpha - 2)
-                * (self.alpha - 4)
+                * (self.alpha - 3)
                 * x ** (self.alpha - 4)
+            )
+
+        def function_5th_derivative(x):
+            return (
+                self.alpha
+                * (self.alpha - 1)
+                * (self.alpha - 2)
+                * (self.alpha - 3)
+                * (self.alpha - 4)
+                * x ** (self.alpha - 5)
             )
 
         x = 1.0
@@ -235,6 +260,7 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
             function_2nd_derivative,
             function_3d_derivative,
             function_4th_derivative,
+            function_5th_derivative,
             x,
             interval,
         )
@@ -275,6 +301,9 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
         def exp_4th_derivative(x):
             return np.exp(x)
 
+        def function_5th_derivative(x):
+            return np.exp(x)
+
         x = 1.0
         interval = [0.0, 12.0]
         super().__init__(
@@ -284,6 +313,7 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
             exp_2d_derivative,
             exp_3d_derivative,
             exp_4th_derivative,
+            function_5th_derivative,
             x,
             interval,
         )
@@ -323,6 +353,9 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
         def log_4th_derivative(x):
             return -6.0 / x**4
 
+        def log_5th_derivative(x):
+            return 24 / x**5
+
         x = 1.0
         interval = [0.01, 12.0]
         super().__init__(
@@ -332,6 +365,7 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
             log_2nd_derivative,
             log_3d_derivative,
             log_4th_derivative,
+            log_5th_derivative,
             x,
             interval,
         )
@@ -359,30 +393,17 @@ class SquareRootProblem(DerivativeBenchmarkProblem):
 
     def __init__(self):
 
-        def squareroot(x):
-            return np.sqrt(x)
-
-        def squareroot_prime(x):
-            return 1.0 / (2.0 * np.sqrt(x))
-
-        def square_root_2nd_derivative(x):
-            return -1.0 / (4.0 * x**1.5)
-
-        def square_root_3d_derivative(x):
-            return 3.0 / (8.0 * x**2.5)
-
-        def square_root_4th_derivative(x):
-            return -15.0 / (16.0 * x**3.5)
-
         x = 1.0
         interval = [0.01, 12.0]
+        problem = PolynomialProblem(0.5)
         super().__init__(
             "sqrt",
-            squareroot,
-            squareroot_prime,
-            square_root_2nd_derivative,
-            square_root_3d_derivative,
-            square_root_4th_derivative,
+            problem.get_function(),
+            problem.get_first_derivative(),
+            problem.get_second_derivative(),
+            problem.get_third_derivative(),
+            problem.get_fourth_derivative(),
+            problem.get_fifth_derivative(),
             x,
             interval,
         )
@@ -422,6 +443,9 @@ class AtanProblem(DerivativeBenchmarkProblem):
         def atan_4th_derivative(x):
             return -24.0 * x * (x**2 - 1) / (1.0 + x**2) ** 4
 
+        def atan_5th_derivative(x):
+            return 24.0 * (5 * x**4 - 10 * x**2 + 1) / (1.0 + x**2) ** 5
+
         x = 0.5
         interval = [-12.0, 12.0]
         super().__init__(
@@ -431,6 +455,7 @@ class AtanProblem(DerivativeBenchmarkProblem):
             atan_2nd_derivative,
             atan_3d_derivative,
             atan_4th_derivative,
+            atan_5th_derivative,
             x,
             interval,
         )
@@ -470,6 +495,9 @@ class SinProblem(DerivativeBenchmarkProblem):
         def sin_4th_derivative(x):
             return np.sin(x)
 
+        def sin_5th_derivative(x):
+            return np.cos(x)
+
         x = 1.0
         interval = [-np.pi, np.pi]
         super().__init__(
@@ -479,6 +507,7 @@ class SinProblem(DerivativeBenchmarkProblem):
             sin_2nd_derivative,
             sin_3d_derivative,
             sin_4th_derivative,
+            sin_5th_derivative,
             x,
             interval,
         )
@@ -512,30 +541,18 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
             raise ValueError(f"alpha = {alpha} should be nonzero")
         self.alpha = alpha
 
-        def scaled_exp(x):
-            return np.exp(-x / alpha)
-
-        def scaled_exp_prime(x):
-            return -np.exp(-x / alpha) / alpha
-
-        def scaled_exp_2nd_derivative(x):
-            return np.exp(-x / alpha) / (alpha**2)
-
-        def scaled_exp_3d_derivative(x):
-            return -np.exp(-x / alpha) / (alpha**3)
-
-        def scaled_exp_4th_derivative(x):
-            return np.exp(-x / alpha) / (alpha**4)
-
         x = 1.0
         interval = [0.0, 12.0]
+        new_alpha = -1.0 / alpha
+        problem = SXXNProblem2(new_alpha)
         super().__init__(
             "scaled exp",
-            scaled_exp,
-            scaled_exp_prime,
-            scaled_exp_2nd_derivative,
-            scaled_exp_3d_derivative,
-            scaled_exp_4th_derivative,
+            problem.get_function(),
+            problem.get_first_derivative(),
+            problem.get_second_derivative(),
+            problem.get_third_derivative(),
+            problem.get_fourth_derivative(),
+            problem.get_fifth_derivative(),
             x,
             interval,
         )
@@ -570,72 +587,95 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
 
     def __init__(self):
 
-        def gms_exp(x):
+        sxxn1 = SXXNProblem1()
+        sxxn1_function = sxxn1.get_function()
+        sxxn1_1st_derivative = sxxn1.get_first_derivative()
+        sxxn1_2nd_derivative = sxxn1.get_second_derivative()
+        sxxn1_3d_derivative = sxxn1.get_third_derivative()
+        sxxn1_4th_derivative = sxxn1.get_fourth_derivative()
+        sxxn1_5th_derivative = sxxn1.get_fifth_derivative()
+
+        def gmsw_exp(x):
+            y1 = sxxn1_function(x)
             s = 1 + x**2
             t = 1.0 / np.sqrt(s) - 1
-            expm1 = np.expm1(x)  # np.exp(x) - 1
-            y = expm1**2 + t**2
+            y2 = t**2
+            y = y1 + y2
             return y
 
-        def gms_exp_prime(x):
+        def gmsw_exp_prime(x):
+            y1 = sxxn1_1st_derivative(x)
             s = 1 + x**2
             t = 1.0 / np.sqrt(s) - 1
-            expm1 = np.expm1(x)  # np.exp(x) - 1
-            y = 2 * np.exp(x) * expm1 - 2 * x * t / s**1.5
+            y2 = - 2 * x * t / s**1.5
+            y = y1 + y2
             return y
 
-        def gms_exp_2nd_derivative(x):
+        def gmsw_exp_2nd_derivative(x):
+            y1 = sxxn1_2nd_derivative(x)
             s = 1 + x**2
             t = 1.0 / np.sqrt(s) - 1
-            expm1 = np.expm1(x)  # np.exp(x) - 1
-            y = (
+            y2 = (
                 6.0 * t * x**2 / s**2.5
                 + 2 * x**2 / s**3
                 - 2 * t / s**1.5
-                + 2 * np.exp(2 * x)
-                + 2 * np.exp(x) * expm1
             )
+            y = y1 + y2
             return y
 
-        def gms_exp_3d_derivative(x):
+        def gmsw_exp_3d_derivative(x):
+            y1 = sxxn1_3d_derivative(x)
             s = 1 + x**2
             t = 1.0 / np.sqrt(s) - 1
-            expm1 = np.expm1(x)  # np.exp(x) - 1
-            y = 2 * (
+            y2 = 2 * (
                 -15 * x**3 * t / s ** (7 / 2)
                 - 9 * x**3 / s**4
                 + 9 * x * t / s ** (5 / 2)
                 + 3 * x / s**3
-                + expm1 * np.exp(x)
-                + 3 * np.exp(2 * x)
             )
+            y = y1 + y2
             return y
 
-        def gms_exp_4th_derivative(x):
+        def gmsw_exp_4th_derivative(x):
+            y1 = sxxn1_4th_derivative(x)
             s = 1 + x**2
             t = 1.0 / np.sqrt(s) - 1
-            expm1 = np.expm1(x)  # np.exp(x) - 1
-            y = 2 * (
+            y2 = 2 * (
                 105 * x**4 * t / s ** (9 / 2)
                 + 87 * x**4 / s**5
                 - 90 * x**2 * t / s ** (7 / 2)
                 - 54 * x**2 / s**4
                 + 9 * t / s ** (5 / 2)
-                + expm1 * np.exp(x)
-                + 7 * np.exp(2 * x)
                 + 3 / s**3
             )
+            y = y1 + y2
+            return y
+
+        def gmsw_exp_5th_derivative(x):
+            y1 = sxxn1_5th_derivative(x)
+            s = 1 + x**2
+            t = 1.0 / np.sqrt(s) - 1
+            y2 = (
+                450 * t * x / s ** (7 / 2)
+                - 270 * x / s**4
+                - 1890 * t * x**5 / s ** (11 / 2)
+                - 1950 * x**5 / s**6
+                + 2100 * t * x**3 / s ** (9 / 2)
+                + 1740 * x**3 / s**5
+            )
+            y = y1 + y2
             return y
 
         x = 1.0
         interval = [0.0, 12.0]
         super().__init__(
             "GMSW",
-            gms_exp,
-            gms_exp_prime,
-            gms_exp_2nd_derivative,
-            gms_exp_3d_derivative,
-            gms_exp_4th_derivative,
+            gmsw_exp,
+            gmsw_exp_prime,
+            gmsw_exp_2nd_derivative,
+            gmsw_exp_3d_derivative,
+            gmsw_exp_4th_derivative,
+            gmsw_exp_5th_derivative,
             x,
             interval,
         )
@@ -668,37 +708,42 @@ class SXXNProblem1(DerivativeBenchmarkProblem):
     """
 
     def __init__(self):
-        def sxxn_exp1(x):
+        def sxxn1(x):
             expm1 = np.expm1(x)  # np.exp(x) - 1
             y = expm1**2
             return y
 
-        def sxxn_exp1_prime(x):
+        def sxxn1_prime(x):
             expm1 = np.expm1(x)  # np.exp(x) - 1
             y = 2 * np.exp(x) * expm1
             return y
 
-        def sxxn_exp1_2nd_derivative(x):
+        def sxxn1_2nd_derivative(x):
             y = 2 * np.exp(x) * (2 * np.exp(x) - 1)
             return y
 
-        def sxxn_exp1_3d_derivative(x):
+        def sxxn1_3d_derivative(x):
             y = 2 * np.exp(x) * (4 * np.exp(x) - 1)
             return y
 
-        def sxxn_exp1_4th_derivative(x):
+        def sxxn1_4th_derivative(x):
             y = 2 * np.exp(x) * (8 * np.exp(x) - 1)
+            return y
+
+        def sxxn1_5th_derivative(x):
+            y = 2 * np.exp(x) * (16 * np.exp(x) - 1)
             return y
 
         x = -8.0
         interval = [-12.0, 12.0]
         super().__init__(
             "SXXN1",
-            sxxn_exp1,
-            sxxn_exp1_prime,
-            sxxn_exp1_2nd_derivative,
-            sxxn_exp1_3d_derivative,
-            sxxn_exp1_4th_derivative,
+            sxxn1,
+            sxxn1_prime,
+            sxxn1_2nd_derivative,
+            sxxn1_3d_derivative,
+            sxxn1_4th_derivative,
+            sxxn1_5th_derivative,
             x,
             interval,
         )
@@ -742,24 +787,28 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
     def __init__(self, alpha=1.0e2):
         self.alpha = alpha
 
-        def sxxn_exp2(x):
+        def sxxn2(x):
             y = np.exp(self.alpha * x)
             return y
 
-        def sxxn_exp2_prime(x):
+        def sxxn2_prime(x):
             y = self.alpha * np.exp(self.alpha * x)
             return y
 
-        def sxxn_exp2_2nd_derivative(x):
+        def sxxn2_2nd_derivative(x):
             y = self.alpha**2 * np.exp(self.alpha * x)
             return y
 
-        def sxxn_exp2_3d_derivative(x):
+        def sxxn2_3d_derivative(x):
             y = self.alpha**3 * np.exp(self.alpha * x)
             return y
 
-        def sxxn_exp2_4th_derivative(x):
+        def sxxn2_4th_derivative(x):
             y = self.alpha**4 * np.exp(self.alpha * x)
+            return y
+
+        def sxxn2_5th_derivative(x):
+            y = self.alpha**5 * np.exp(self.alpha * x)
             return y
 
         x = 0.01
@@ -767,11 +816,12 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
 
         super().__init__(
             "SXXN2",
-            sxxn_exp2,
-            sxxn_exp2_prime,
-            sxxn_exp2_2nd_derivative,
-            sxxn_exp2_3d_derivative,
-            sxxn_exp2_4th_derivative,
+            sxxn2,
+            sxxn2_prime,
+            sxxn2_2nd_derivative,
+            sxxn2_3d_derivative,
+            sxxn2_4th_derivative,
+            sxxn2_5th_derivative,
             x,
             interval,
         )
@@ -802,24 +852,28 @@ class SXXNProblem3(DerivativeBenchmarkProblem):
     """
 
     def __init__(self):
-        def sxxn_3(x):
+        def sxxn3(x):
             y = x**4 + 3 * x**2 - 10 * x
             return y
 
-        def sxxn_3_prime(x):
+        def sxxn3_prime(x):
             y = 4 * x**3 + 6 * x - 10
             return y
 
-        def sxxn_3_2nd_derivative(x):
+        def sxxn3_2nd_derivative(x):
             y = 12 * x**2 + 6
             return y
 
-        def sxxn_3_3d_derivative(x):
+        def sxxn3_3d_derivative(x):
             y = 24 * x
             return y
 
-        def sxxn_3_4th_derivative(x):
+        def sxxn3_4th_derivative(x):
             y = 24
+            return y
+
+        def sxxn3_5th_derivative(x):
+            y = 0.0
             return y
 
         x = 0.99999
@@ -827,11 +881,12 @@ class SXXNProblem3(DerivativeBenchmarkProblem):
 
         super().__init__(
             "SXXN3",
-            sxxn_3,
-            sxxn_3_prime,
-            sxxn_3_2nd_derivative,
-            sxxn_3_3d_derivative,
-            sxxn_3_4th_derivative,
+            sxxn3,
+            sxxn3_prime,
+            sxxn3_2nd_derivative,
+            sxxn3_3d_derivative,
+            sxxn3_4th_derivative,
+            sxxn3_5th_derivative,
             x,
             interval,
         )
@@ -870,19 +925,23 @@ class SXXNProblem4(DerivativeBenchmarkProblem):
             y = 1.0e4 * x**3 + 0.01 * x**2 + 5 * x
             return y
 
-        def sxxn_4_prime(x):
+        def sxxn4_prime(x):
             y = 3.0e4 * x**2 + 0.02 * x + 5
             return y
 
-        def sxxn_4_2nd_derivative(x):
+        def sxxn4_2nd_derivative(x):
             y = 6.0e4 * x + 0.02
             return y
 
-        def sxxn_4_3d_derivative(x):
+        def sxxn4_3d_derivative(x):
             y = 6.0e4
             return y
 
-        def sxxn_4_4th_derivative(x):
+        def sxxn4_4th_derivative(x):
+            y = 0
+            return y
+
+        def sxxn4_5th_derivative(x):
             y = 0
             return y
 
@@ -892,10 +951,11 @@ class SXXNProblem4(DerivativeBenchmarkProblem):
         super().__init__(
             "SXXN4",
             sxxn_4,
-            sxxn_4_prime,
-            sxxn_4_2nd_derivative,
-            sxxn_4_3d_derivative,
-            sxxn_4_4th_derivative,
+            sxxn4_prime,
+            sxxn4_2nd_derivative,
+            sxxn4_3d_derivative,
+            sxxn4_4th_derivative,
+            sxxn4_5th_derivative,
             x,
             interval,
         )
@@ -935,6 +995,7 @@ class OliverProblem1(DerivativeBenchmarkProblem):
             problem.get_second_derivative(),
             problem.get_third_derivative(),
             problem.get_fourth_derivative(),
+            problem.get_fifth_derivative(),
             problem.get_x(),
             interval,
         )
@@ -982,6 +1043,10 @@ class OliverProblem2(DerivativeBenchmarkProblem):
             y = 4.0 * np.exp(x**2) * (4 * x**4 + 12 * x**2 + 3)
             return y
 
+        def function_5th_derivative(x):
+            y = 8.0 * np.exp(x**2) * (4 * x**4 + 20 * x**2 + 15)
+            return y
+
         x = 1.0
         interval = [-12.0, 12.0]
 
@@ -992,6 +1057,7 @@ class OliverProblem2(DerivativeBenchmarkProblem):
             function_2nd_derivative,
             function_3d_derivative,
             function_4th_derivative,
+            function_5th_derivative,
             x,
             interval,
         )
@@ -1039,6 +1105,10 @@ class OliverProblem3(DerivativeBenchmarkProblem):
             y = -2.0 / x**2
             return y
 
+        def function_5th_derivative(x):
+            y = 4.0 / x**3
+            return y
+
         x = 1.0
         interval = [0.01, 12.0]
 
@@ -1049,6 +1119,7 @@ class OliverProblem3(DerivativeBenchmarkProblem):
             function_2nd_derivative,
             function_3d_derivative,
             function_4th_derivative,
+            function_5th_derivative,
             x,
             interval,
         )
@@ -1096,6 +1167,10 @@ class InverseProblem(DerivativeBenchmarkProblem):
             y = 24.0 / x**5
             return y
 
+        def function_5th_derivative(x):
+            y = -120.0 / x**6
+            return y
+
         x = 1.0
         interval = [0.01, 12.0]
 
@@ -1106,6 +1181,7 @@ class InverseProblem(DerivativeBenchmarkProblem):
             function_2nd_derivative,
             function_3d_derivative,
             function_4th_derivative,
+            function_5th_derivative,
             x,
             interval,
         )

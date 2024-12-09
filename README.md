@@ -68,10 +68,6 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
-- Compute exact step of third derivative from central F.D..
-  Compute the exact absolute error for the optimal step.
-  Compute the total error depending on the step.
-
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.

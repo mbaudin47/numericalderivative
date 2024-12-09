@@ -463,7 +463,7 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
     @staticmethod
     def compute_step(fourth_derivative_value=1.0, absolute_precision=1.0e-16):
         r"""
-        Compute the optimal step for the finite difference for f''.
+        Compute the optimal step for the central finite difference for f''.
 
         This step minimizes the total error of the second derivative
         central finite difference (see `compute()`).
@@ -584,9 +584,101 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
 class ThirdDerivativeCentral(FiniteDifferenceFormula):
     """Compute the third derivative using central finite difference formula"""
 
+    @staticmethod
+    def compute_error(step, fifth_derivative_value=1.0, absolute_precision=1.0e-16):
+        r"""
+        Compute the total error for central finite difference for f'''
+
+        The total error is the sum of the
+        rounding error in the finite difference formula and the truncation
+        error in the Taylor expansion:
+
+        .. math::
+
+            e(h) = \frac{3 \epsilon_f}{h^3} + \frac{h^2}{4} \left|f^{(5)}(x)\right|
+
+        where :math:`\epsilon_f > 0` is the absolute precision of the function
+        evaluation.
+
+        Parameters
+        ----------
+        step : float
+            The differentiation step h.
+        fifth_derivative_value : float
+            The value of the fifth derivative at point x.
+        absolute_precision : float, optional
+            The absolute error of the function f at the point x.
+            This is equal to abs(relative_precision * f(x)) where
+            relative_precision is the relative accuracy and f(x) is the function
+            value of f at point x.
+
+        Returns
+        -------
+        absolute_error : float
+            The optimal absolute error.
+
+        """
+        # Compute rounding error
+        rounding_error = 3 * absolute_precision / step**3
+        # Compute truncation error
+        truncation_error = step**2 * abs(fifth_derivative_value) / 4
+        # Compute error
+        total_error = rounding_error + truncation_error
+        return total_error
+
+    @staticmethod
+    def compute_step(fifth_derivative_value=1.0, absolute_precision=1.0e-16):
+        r"""
+        Compute the optimal step for the central finite difference for f'''.
+
+        This step minimizes the total error of the second derivative
+        central finite difference (see `compute()`).
+        The optimal step is:
+
+        .. math::
+
+            h^\star = \left(\frac{18 \epsilon_f}{|f^{(5)}(x)|} \right)^{1/5}
+
+        The total absolute error corresponding to the optimal step is:
+
+        .. math::
+
+            e(h^\star) = \frac{5}{12} 2^{2/5} 3^{4/5} \epsilon_f^{2/5} \left|f^{(5)}(x)\right|^{3/5}
+
+        Parameters
+        ----------
+        fifth_derivative_value : float
+            The fourth derivative f^(4) at point x.
+        absolute_precision : float, optional
+            The absolute error of the function f at the point x.
+            This is equal to abs(relative_precision * f(x)) where
+            relative_precision is the relative accuracy and f(x) is the function
+            value of f at point x.
+
+        Returns
+        -------
+        optimal_step : float
+            The finite difference step.
+        absolute_error : float
+            The absolute error.
+
+        """
+        #
+        if fifth_derivative_value == 0.0:
+            optimal_step = np.inf
+        else:
+            optimal_step = (
+                18.0 * absolute_precision / abs(fifth_derivative_value)
+            ) ** (1.0 / 5.0)
+        absolute_error = (
+            5 * 2**(2/5) * 3**(4/5) / 12
+            * absolute_precision ** (2/5) * abs(fifth_derivative_value) ** (3/5)
+        )
+        return optimal_step, absolute_error
+
     def __init__(self, function, x, args=None):
         """
-        Compute the second derivative using central finite difference formula
+        Compute the third derivative using central finite difference formula
 
         Parameters
         ----------
@@ -619,7 +711,8 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
 
         .. math::
 
-            f^{(3)}(x) \approx \frac{- f(x - 2h)  + 2 f(x - h) - 2 f(x + h) + f(x + 2h)}{2h^3} + O(h^2)
+            f^{(3)}(x) = &\frac{- f(x - 2h)  + 2 f(x - h) - 2 f(x + h) + f(x + 2h)}{2h^3} \\
+                         &- \frac{h^2}{4} f^{(5)}(x) + O(h^3)
 
         where :math:`h > 0` is the step.
 
