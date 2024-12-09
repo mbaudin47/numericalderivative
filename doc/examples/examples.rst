@@ -8,6 +8,8 @@ This section illustrates how to use the numericalderivative algorithms.
    ../auto_example/plot_numericalderivative
    ../auto_example/plot_openturns
    ../auto_example/plot_use_benchmark
+   ../auto_example/plot_finite_differences
+   ../auto_example/plot_general_fd
 
 Dumontet & Vignes
 -----------------

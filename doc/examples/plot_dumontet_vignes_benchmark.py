@@ -67,7 +67,9 @@ def benchmark_DumontetVignes_method(
             )
             step, _ = algorithm.compute_step(kmin=kmin, kmax=kmax)
             f_prime_approx = algorithm.compute_first_derivative(step)
-            number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+            number_of_function_evaluations = (
+                algorithm.get_number_of_function_evaluations()
+            )
             exact_first_derivative = derivative_function(x)
             absolute_error = abs(f_prime_approx - exact_first_derivative)
             relative_error = absolute_error / abs(exact_first_derivative)
@@ -129,25 +131,27 @@ average_relative_error, average_feval = benchmark_DumontetVignes_method(
 )
 
 # %%
-# Define a collection of benchmark problems
-# function_list = nd.BuildBenchmark()
-function_list = [
-    [nd.InverseProblem(), 1.0e0],
-    [nd.ExponentialProblem(), 1.0e-1],
-    [nd.LogarithmicProblem(), 1.0e-3],
-    [nd.SquareRootProblem(), 1.0e-3],
-    [nd.AtanProblem(), 1.0e0],
-    [nd.SinProblem(), 1.0e0],
-    [nd.ScaledExponentialProblem(), 1.0e5],
-    [nd.GMSWExponentialProblem(), 1.0e0],
-    [nd.SXXNProblem1(), 1.e0],
-    [nd.SXXNProblem2(), 1.e0],  # Fails
-    [nd.SXXNProblem3(), 1.e0],
-    [nd.SXXNProblem4(), 1.e0],
-    [nd.OliverProblem1(), 1.e0],
-    [nd.OliverProblem2(), 1.e0],
-    [nd.OliverProblem3(), 1.e-3],
-]
+# Map from the problem name to kmax
+
+# %%
+kmax_map = {
+    "polynomial": 1.0,
+    "inverse": 1.0e0,
+    "exp": 1.0e-1,
+    "log": 1.0e-3,  # x > 0
+    "sqrt": 1.0e-3,  # x > 0
+    "atan": 1.0e0,
+    "sin": 1.0e0,
+    "scaled exp": 1.0e5,
+    "GMSW": 1.0e0,
+    "SXXN1": 1.0e0,
+    "SXXN2": 1.0e0,  # Fails
+    "SXXN3": 1.0e0,
+    "SXXN4": 1.0e0,
+    "Oliver1": 1.0e0,
+    "Oliver2": 1.0e0,
+    "Oliver3": 1.0e-3,
+}
 
 
 # %%
@@ -155,13 +159,15 @@ function_list = [
 number_of_test_points = 100
 relative_precision = 1.0e-14
 data = []
+function_list = nd.BuildBenchmark()
 number_of_functions = len(function_list)
 average_relative_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
-    problem, kmax = function_list[i]
-    kmin = 1.e-16 * kmax
-    name= problem.get_name()
+    problem = function_list[i]
+    name = problem.get_name()
+    kmax = kmax_map[name]
+    kmin = 1.0e-16 * kmax
     function = problem.get_function()
     first_derivative = problem.get_first_derivative()
     interval = problem.get_interval()

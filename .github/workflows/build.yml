@@ -12,7 +12,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda install -y openturns pytest sphinx sphinx-gallery numpydoc pandoc
-          conda install -c conda-forge sphinx_rtd_theme setuptools matplotlib
+          conda install -c conda-forge sphinx_rtd_theme setuptools matplotlib scipy
           python setup.py install
           pytest
           sudo apt install -y texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra

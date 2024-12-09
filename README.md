@@ -2,18 +2,19 @@
 
 ## What is it?
 
-The goal of this project is to compute the first derivative of a function
+The goal of this project is to compute the derivative of a function
 using finite difference formulas.
-The difficulty with these formulas is that it must use a finite difference 
-step which must be neither too large (otherwise truncation error dominates 
-the error) nor too small (otherwise condition error dominates).
-To solve this issue, the module provides algorithms to compute an approximate
-optimal finite difference step.
-
-Furthermore, this package provides benchmark problems for numerical
+The difficulty with these formulas is that it must use a 
+step which must be neither too large (otherwise the truncation error dominates 
+the error) nor too small (otherwise the condition error dominates).
+For this purpose, it provides exact methods (based on the value 
+of higher derivatives) and approximate methods (based on function values).
+Furthermore, the module provides finite difference formulas for the 
+first, second, third or any arbitrary order derivative of a function.
+Finally, this package provides 15 benchmark problems for numerical
 differentiation.
 
-This module allows you to do this:
+This module makes it possible to do this:
 
 ```python
 import math
@@ -24,7 +25,7 @@ def scaled_exp(x):
     return math.exp(-x / alpha)
 
 
-h0 = 1.0e5
+h0 = 1.0e5  # This is the initial step size
 x = 1.0e0
 algorithm = nd.SteplemanWinarsky(scaled_exp, x)
 h_optimal, iterations = algorithm.compute_step(h0)
@@ -67,10 +68,6 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
-- Add finite_differences from menum and cite (Baudin, 2023).
-Reference : https://github.com/mbaudin47/menum_code
-https://github.com/mbaudin47/menum_code/blob/cec64dea8d205da796d1f578b42948115257b3bb/Scripts-Eleves/Py3/numdiff.py#L801
-
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.

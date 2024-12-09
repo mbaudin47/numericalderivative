@@ -8,9 +8,9 @@ import numpy as np
 import numericalderivative as nd
 
 
-class GillMurraySaundersWright():
+class GillMurraySaundersWright:
     """
-    Compute an approximately optimal step for the forward finite difference first derivative.
+    Compute an approximately optimal step for the forward F.D. formula of the first derivative
 
     The method is based on three steps:
 
@@ -78,6 +78,7 @@ class GillMurraySaundersWright():
     >>> h_optimal, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
+
     def __init__(
         self,
         function,
@@ -103,19 +104,22 @@ class GillMurraySaundersWright():
         self.c_threshold_max = c_threshold_max
         self.verbose = verbose
         self.x = x
-        self.finite_difference = nd.FiniteDifferenceFormula(function, x, args)
+        self.second_derivative_central = nd.SecondDerivativeCentral(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
         self.y = self.function(self.x)
         self.absolute_precision = abs(relative_precision * self.y)
+        self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
 
     def compute_condition(self, k):
-        """
+        r"""
         Compute the condition error for given step k.
 
         This is the condition error of the finite difference formula
         of the second derivative finite difference :
 
-        f''(x) ~ (f(x + k) - 2 f(x) + f(x - k)) / (k ** 2)
+        .. math::
+
+            f''(x) \approx \frac{f(x + k) - 2 f(x) + f(x - k)}{k^2}
 
         The condition error is a decreasing function of k.
 
@@ -134,9 +138,9 @@ class GillMurraySaundersWright():
         # Eq. 8 page 314
         # We do not use compute_2nd_derivative because y=f(x) is known.
         # This way, we compute it only once.
-        phi = (
-            self.function(self.x + k) - 2 * self.y + self.function(self.x - k)
-        ) / (k**2)
+        phi = (self.function(self.x + k) - 2 * self.y + self.function(self.x - k)) / (
+            k**2
+        )
         # Eq. 11 page 315
         if phi == 0.0:
             c = np.inf
@@ -214,16 +218,18 @@ class GillMurraySaundersWright():
                 step_second_derivative = (kmin + kmax) / 2.0
             c = self.compute_condition(step_second_derivative)
             if self.verbose:
-                print(f"Iter #{number_of_iterations}, "
-                      f"kmin = {kmin:.3e}, "
-                      f"kmax = {kmax:.3e}, "
-                      f"k = {step_second_derivative:.3e}, "
-                      f"c(k) = {c:.3e}"
-                      )
+                print(
+                    f"Iter #{number_of_iterations}, "
+                    f"kmin = {kmin:.3e}, "
+                    f"kmax = {kmax:.3e}, "
+                    f"k = {step_second_derivative:.3e}, "
+                    f"c(k) = {c:.3e}"
+                )
             if c > self.c_threshold_min and c <= self.c_threshold_max:
                 if self.verbose:
-                    print(f"  c in [{self.c_threshold_min}, {self.c_threshold_max}]: stop!"
-                        )
+                    print(
+                        f"  c in [{self.c_threshold_min}, {self.c_threshold_max}]: stop!"
+                    )
                 found = True
                 break
             elif c < self.c_threshold_min:
@@ -277,25 +283,25 @@ class GillMurraySaundersWright():
             )
         )
         # Compute an approximate 2nd derivative from the approximately optimal step
-        second_derivative_value = (
-            self.finite_difference.compute_second_derivative_central(
-                step_second_derivative
-            )
+        second_derivative_value = self.second_derivative_central.compute(
+            step_second_derivative
         )
         # Plug the step for second derivative, evaluate the second derivative,
         # and plug it into the formula.
-        fd_step = nd.FiniteDifferenceOptimalStep(self.absolute_precision)
-        step, _ = fd_step.compute_step_first_derivative_forward(second_derivative_value)
+        step, _ = nd.FirstDerivativeForward.compute_step(
+            second_derivative_value, self.absolute_precision
+        )
         return step, number_of_iterations
 
     def compute_first_derivative(self, step):
-        """
+        r"""
         Compute an approximate first derivative using finite differences
 
         This method uses the formula:
 
-        f'(x) ~ (f(x + h) - f(x)) / h
+        .. math::
 
+            f'(x) \approx \frac{f(x + h) - f(x)}{h}
 
         Parameters
         ----------
@@ -307,7 +313,7 @@ class GillMurraySaundersWright():
         f_prime_approx : float
             The approximation of f'(x).
         """
-        f_prime_approx = self.finite_difference.compute_first_derivative_forward(step)
+        f_prime_approx = self.first_derivative_forward.compute(step)
         return f_prime_approx
 
     def get_number_of_function_evaluations(self):
@@ -319,11 +325,14 @@ class GillMurraySaundersWright():
         number_of_function_evaluations : int
             The number of function evaluations.
         """
-        finite_difference_feval = (
-            self.finite_difference.get_number_of_function_evaluations()
+        second_derivative_central_feval = (
+            self.second_derivative_central.get_function().get_number_of_evaluations()
         )
-        function_eval = (
-            self.function.get_number_of_evaluations()
+        first_derivative_forward = (
+            self.first_derivative_forward.get_function().get_number_of_evaluations()
         )
-        total_feval = finite_difference_feval + function_eval
+        function_eval = self.function.get_number_of_evaluations()
+        total_feval = (
+            second_derivative_central_feval + first_derivative_forward + function_eval
+        )
         return total_feval

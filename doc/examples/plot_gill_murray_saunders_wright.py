@@ -75,10 +75,9 @@ kmin = 1.0e-15
 kmax = 1.0e1
 x = 1.0
 benchmark = nd.ExponentialProblem()
-optimal_step_formula = nd.FiniteDifferenceOptimalStep()
 second_derivative_value = benchmark.second_derivative(x)
-optimal_step, absolute_error = (
-    optimal_step_formula.compute_step_first_derivative_forward(second_derivative_value)
+optimal_step, absolute_error = nd.FirstDerivativeForward.compute_step(
+    second_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 (
@@ -103,10 +102,9 @@ kmin = 1.0e-9
 kmax = 1.0e8
 x = 1.0
 benchmark = nd.ScaledExponentialProblem()
-optimal_step_formula = nd.FiniteDifferenceOptimalStep()
 second_derivative_value = benchmark.second_derivative(x)
-optimal_step, absolute_error = (
-    optimal_step_formula.compute_step_first_derivative_forward(second_derivative_value)
+optimal_step, absolute_error = nd.FirstDerivativeForward.compute_step(
+    second_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 (
@@ -224,7 +222,7 @@ def plot_error_vs_h_with_GMSW_steps(
     minimum_error = np.nanmin(error_array)
     maximum_error = np.nanmax(error_array)
 
-    pl.figure(figsize=(3.0, 2.0))
+    pl.figure()
     pl.plot(h_array, error_array)
     pl.plot(
         [step] * 2,
@@ -238,6 +236,7 @@ def plot_error_vs_h_with_GMSW_steps(
     pl.xscale("log")
     pl.yscale("log")
     pl.legend(bbox_to_anchor=(1.0, 1.0))
+    pl.tight_layout()
     return
 
 

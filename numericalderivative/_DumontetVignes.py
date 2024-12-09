@@ -8,11 +8,10 @@ import numpy as np
 import numericalderivative as nd
 
 
-class DumontetVignes():
+class DumontetVignes:
     """
-    Use Dumontet & Vignes method to compute the optimum step size.
+    Compute an approximately optimal step for the central F.D. formula for the first derivative
 
-    Uses centered finite difference for f'.
     The method is based on computing the third derivative.
     Then the optimal step for the central formula for the first derivative is computed
     from the third derivative.
@@ -59,11 +58,12 @@ class DumontetVignes():
     >>> kmin = 1.0e-10
     >>> kmax = 1.0e+8
     >>> algorithm = nd.DumontetVignes(
-    >>>     scaled_exp, x, 
+    >>>     scaled_exp, x,
     >>> )
     >>> h_optimal, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
+
     def __init__(
         self,
         function,
@@ -83,14 +83,16 @@ class DumontetVignes():
         self.relative_precision = relative_precision
         self.number_of_digits = number_of_digits
         if ell_2 <= ell_1:
-            raise ValueError(f"We must have ell_2 > ell_1, but ell_1 = {ell_1} and ell_2 = {ell_2}")
+            raise ValueError(
+                f"We must have ell_2 > ell_1, but ell_1 = {ell_1} and ell_2 = {ell_2}"
+            )
         # Eq. 34, fixed
         self.ell_1 = ell_1
         self.ell_2 = ell_2
         self.ell_3 = 1.0 / ell_2
         self.ell_4 = 1.0 / ell_1
         self.verbose = verbose
-        self.finite_difference = nd.FiniteDifferenceFormula(function, x, args)
+        self.first_derivative_central = nd.FirstDerivativeCentral(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
 
@@ -148,19 +150,21 @@ class DumontetVignes():
         logscale=False,
         markdown=False,
     ):
-        """
+        r"""
         Compute an approximate third derivative of the function
 
         To do this, we must compute an approximately optimal step for the
         third derivative.
-        Hence, the main goal is to compute a step k which is supposed to be
+        Hence, the main goal is to compute a step h which is supposed to be
         optimal to compute the third derivative f'''(x) using central finite
         differences.
         The finite difference formula for the third derivative is:
 
-        f'''(x) ~ [f(x + 2 * k) - f(x - 2 * k) - 2 * f(x + k) + 2 * f(x - k)] / (2 * k**3)
+        .. math::
 
-        The method computes the optimal step k for f'''(x).
+            f'''(x) \approx \frac{f(x + 2 h) - f(x - 2 h) - 2 f(x + h) + 2 f(x - h)}{2 h^3}
+
+        The method computes the optimal step h for f'''(x).
         Then this step is used to compute an approximate value of f'''(x).
 
         Parameters
@@ -299,15 +303,17 @@ class DumontetVignes():
         logscale=False,
         markdown=False,
     ):
-        """
+        r"""
         Compute an approximate optimum step for the first derivative
 
         This step is approximately optimal for the central finite difference for f'.
         The central finite difference formula for the first derivative is:
 
-        f'(x) ~ [f(x + h) - f(x - h)] / (2 * h)
+        .. math::
 
-        The method computes the optimal step k for f'''(x).
+            f'(x) \approx \frac{f(x + h) - f(x - h)}{2 h}
+
+        The method computes the optimal step h for f'''(x).
         Then this step is used to compute an approximate value of f'''(x).
         This is used to compute the step h for f'.
 
@@ -350,19 +356,20 @@ class DumontetVignes():
         # Compute the approximate optimal step for the first derivative
         function_value = self.function(self.x)
         absolute_precision = self.relative_precision * abs(function_value)
-        fd_optimal_step = nd.FiniteDifferenceOptimalStep(absolute_precision)
-        step, _ = fd_optimal_step.compute_step_first_derivative_central(
-            third_derivative_value
+        step, _ = nd.FirstDerivativeCentral.compute_step(
+            third_derivative_value, absolute_precision
         )
         return step, number_of_iterations
 
     def compute_first_derivative(self, step):
-        """
+        r"""
         Compute first derivative using central finite difference.
 
         This is based on the central finite difference formula:
 
-        f'(x) ~ (f(x + h) - f(x - h)) / (2h)
+        .. math::
+
+            f'(x) \approx \frac{f(x + h) - f(x - h)}{2h}
 
         Parameters
         ----------
@@ -374,7 +381,7 @@ class DumontetVignes():
         f_prime_approx : float
             The approximate first derivative at point x.
         """
-        f_prime_approx = self.finite_difference.compute_first_derivative_central(step)
+        f_prime_approx = self.first_derivative_central.compute(step)
         return f_prime_approx
 
     def get_number_of_function_evaluations(self):
@@ -387,10 +394,8 @@ class DumontetVignes():
             The number of function evaluations.
         """
         finite_difference_feval = (
-            self.finite_difference.get_number_of_function_evaluations()
+            self.first_derivative_central.get_function().get_number_of_evaluations()
         )
-        function_eval = (
-            self.function.get_number_of_evaluations()
-        )
+        function_eval = self.function.get_number_of_evaluations()
         total_feval = finite_difference_feval + function_eval
         return total_feval
