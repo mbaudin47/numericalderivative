@@ -254,5 +254,6 @@ class CheckFiniteDifferenceFormula(unittest.TestCase):
             computed_absolute_error, reference_optimal_error, rtol=1.0e-3
         )
 
+
 if __name__ == "__main__":
     unittest.main()

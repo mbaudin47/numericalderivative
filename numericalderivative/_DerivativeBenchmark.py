@@ -607,7 +607,7 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
             y1 = sxxn1_1st_derivative(x)
             s = 1 + x**2
             t = 1.0 / np.sqrt(s) - 1
-            y2 = - 2 * x * t / s**1.5
+            y2 = -2 * x * t / s**1.5
             y = y1 + y2
             return y
 
@@ -615,11 +615,7 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
             y1 = sxxn1_2nd_derivative(x)
             s = 1 + x**2
             t = 1.0 / np.sqrt(s) - 1
-            y2 = (
-                6.0 * t * x**2 / s**2.5
-                + 2 * x**2 / s**3
-                - 2 * t / s**1.5
-            )
+            y2 = 6.0 * t * x**2 / s**2.5 + 2 * x**2 / s**3 - 2 * t / s**1.5
             y = y1 + y2
             return y
 

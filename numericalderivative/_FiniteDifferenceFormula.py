@@ -671,8 +671,12 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
                 18.0 * absolute_precision / abs(fifth_derivative_value)
             ) ** (1.0 / 5.0)
         absolute_error = (
-            5 * 2**(2/5) * 3**(4/5) / 12
-            * absolute_precision ** (2/5) * abs(fifth_derivative_value) ** (3/5)
+            5
+            * 2 ** (2 / 5)
+            * 3 ** (4 / 5)
+            / 12
+            * absolute_precision ** (2 / 5)
+            * abs(fifth_derivative_value) ** (3 / 5)
         )
         return optimal_step, absolute_error
 
@@ -729,7 +733,7 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
         References
         ----------
         - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
-        - Betts, J. T. (2010). _Practical methods for optimal control and estimation using nonlinear programming_. Society for Industrial and Applied Mathematics.
+        - Betts, J. T. (2010). Practical methods for optimal control and estimation using nonlinear programming. Society for Industrial and Applied Mathematics.
         """
         t = np.zeros(4)
         t[0] = self.function(self.x + 2 * step)

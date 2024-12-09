@@ -11,4 +11,5 @@ python3 plot_stepleman_winarsky_plots.py
 python3 plot_stepleman_winarsky.py
 python3 plot_use_benchmark.py
 python3 plot_finite_differences.py
+python3 plot_general_fd.py
 
