@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "numericalderivative"
-version = "0.1"
+version = "0.2"
 description = "Numerical differentiation"
 readme = "README.md"
 keywords = [
@@ -30,7 +30,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "numpy"
+    "numpy",
+    "scipy",
 ]
 
 [project.optional-dependencies]
