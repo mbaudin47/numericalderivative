@@ -68,6 +68,10 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
+- Evaluate and plot the criteria c(hphi) for Gill, Murray, Saunders & Wright.
+- Evaluate and plot the criteria ell(h) for Dumontet & Vignes.
+- See why the Dumontet & Vignes method fails on the polynomial function.
+- See why the Gill, Murray, Saunders & Wright method fails on the sin function.
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.

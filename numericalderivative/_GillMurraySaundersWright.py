@@ -9,17 +9,65 @@ import numericalderivative as nd
 
 
 class GillMurraySaundersWright:
-    """
+    r"""
     Compute an approximately optimal step for the forward F.D. formula of the first derivative
 
     The method is based on three steps:
 
-    - compute an approximate optimal step for the second derivative using central finite difference formula,
-    - compute the approximate second derivative using central finite difference formula,
-    - compute the approximate optimal step for the first derivative using the forward finite difference formula.
+    - compute an approximate optimal step :math:`h_\Phi` for the second
+      derivative using central finite difference formula,
+    - compute the approximate second derivative using central finite
+      difference formula,
+    - compute the approximate optimal step for the first derivative using the
+      forward finite difference formula.
 
     Finally, this approximately optimal step can be use to compute the
     first derivative using the forward finite difference formula.
+
+    The goal of the method is to compute the approximation of :math:`f'(x)`
+    using the forward finite difference formula (see (G, M, S & W, 1983) eq. 1 page 311):
+
+    .. math::
+
+        f'(x) \approx \frac{f(x + h) - f(x)}{h}
+
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the
+    input point and :math:`h > 0` is the step.
+    If :math:`f''(x) \neq 0`, then the step which minimizes the total error is:
+
+    .. math::
+
+        h^\star = 2 \sqrt{\frac{\epsilon_f}{\left|f''(x)\right|}}
+
+    where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
+    The goal of the method is to compute :math:`h^\star` using
+    function evaluations only.
+    An approximate value of the second derivative can be computed from the
+    central finite difference formula (see (G, M, S & W, 1983) eq. 8 page 314):
+
+    .. math::
+
+        f''(x) \approx \Phi(h_\Phi)
+        = \frac{f(x + h_\Phi) - 2 f(x) + f(x - h_\Phi)}{h_\Phi^2}.
+
+    where :math:`\Phi` is the approximation of :math:`f''(x)` from the
+    central finite difference formula and :math:`h_\Phi > 0` is the step of
+    the second derivative finite difference formula.
+    The method is based on the condition error (see (G, M, S & W, 1983) eq. 1 page 315):
+
+    .. math::
+
+        c(h_\Phi) = \frac{4 \epsilon_f}{h_\Phi^2 |\Phi|}.
+
+    The condition error is a decreasing function of :math:`h_\Phi`.
+    The algorithm searches for a step :math:`h_\Phi` such that:
+
+    .. math::
+
+        c_{\min} \leq c(h_\Phi) \leq c_{\max}
+
+    where :math:`c_{\min}` and :math:`c_{\max}` are thresholds defined by the
+    user.
 
     This algorithm is a simplified version of the algorithm published in
     (Gill, Murray, Saunders & Wright, 1983) section 3.2 page 316.
@@ -110,18 +158,30 @@ class GillMurraySaundersWright:
         self.absolute_precision = abs(relative_precision * self.y)
         self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
 
+    def get_threshold_min_max(self):
+        """
+        Return the threshold min and max of the condition error
+
+        Returns
+        -------
+        c_threshold_min : float, > 0
+            The minimum value of the threshold of the condition error.
+        c_threshold_max : float, > 0
+            The maxiimum value of the threshold of the condition error.
+        """
+        return [self.c_threshold_min, self.c_threshold_max]
+
     def compute_condition(self, k):
         r"""
         Compute the condition error for given step k.
 
-        This is the condition error of the finite difference formula
-        of the second derivative finite difference :
+        This function evaluates the condition error :math:`c(h_\Phi)` of the
+        finite difference formula of the second derivative finite difference
+        depending on the step :math:`h_\Phi`:
 
         .. math::
 
-            f''(x) \approx \frac{f(x + k) - 2 f(x) + f(x - k)}{k^2}
-
-        The condition error is a decreasing function of k.
+            c(h_\Phi) = \frac{4 \epsilon_f}{h_\Phi^2 |\Phi|}.
 
         Parameters
         ----------

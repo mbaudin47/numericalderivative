@@ -21,6 +21,43 @@ class SteplemanWinarsky:
 
         f'(x) \approx \frac{f(x + h) - f(x - h)}{2 h}
 
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the
+    input point and :math:`h > 0` is the step.
+    The goal of the method is to compute an approximately optimal
+    :math:`h^\star` for the central F.D. formula using function evaluations
+    only.
+
+    The method introduces the function :math:`g` defined by:
+
+    .. math::
+
+        g(t) = f(x + t) - f(x - t)
+
+    for any :math:`t \in \mathbb{R}`.
+    We introduce the monotic sequence of step sizes :math:`\{h_i\}_{i \geq 0}` defined
+    by the equation:
+
+    .. math::
+
+        h_{i + 1} = \frac{h_i}{\beta}, \quad i=0,1,2,...
+
+    Therefore, under some smoothness hypotheses on :math:`g`,
+    there exists :math:`N \in \mathbb{N}` such that for any
+    :math:`i \geq N`, we have:
+
+    .. math::
+
+        \left|d(h_{i + 1}) - d(h_i)\right|
+        \leq \left|d(h_{i}) - d(h_{i - 1})\right|.
+
+    The previous theorem states that the sequence
+    :math:`\left\{\left|d(h_{i}) - d(h_{i - 1})\right|\right\}_{i \geq 0}`
+    is monotonic in exact arithmetic.
+
+    The method starts from an initial step :math:`h_0 > 0`.
+    It then reduces this step iteratively until the monotonicity property
+    is broken.
+
     Parameters
     ----------
     function : function

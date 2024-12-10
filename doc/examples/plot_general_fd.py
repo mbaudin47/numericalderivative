@@ -23,6 +23,7 @@ import tabulate
 # Compute the first derivative using forward F.D. formula
 # -------------------------------------------------------
 
+
 # %%
 # This is the function we want to compute the derivative of.
 def scaled_exp(x):

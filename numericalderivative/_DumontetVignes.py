@@ -9,13 +9,102 @@ import numericalderivative as nd
 
 
 class DumontetVignes:
-    """
+    r"""
     Compute an approximately optimal step for the central F.D. formula for the first derivative
 
     The method is based on computing the third derivative.
     Then the optimal step for the central formula for the first derivative is computed
     from the third derivative.
 
+    The goal of the method is to compute the step of the central finite 
+    difference approximation of the first derivative (see 
+    (Dumontet & Vignes, 1977) eq. 2 page 13):
+
+    .. math::
+
+        f'(x) \approx \frac{f(x + h) - f(x - h)}{2h}
+
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the 
+    input point and :math:`h > 0` is the step.
+    The optimal step is (see (Dumontet & Vignes, 1977) eq. 24 page 18):
+
+    .. math::
+
+        h^\star 
+        = \left( \frac{3 \epsilon_f \left|f(x)\right|}{\left|f^{(3)}(x)\right|} \right)^{1/3}
+
+    where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
+    The goal of the method is to compute :math:`h^\star` using 
+    function evaluations only.
+
+    The third derivative is approximated using the central finite difference formula 
+    (see (Dumontet & Vignes, 1977) eq. 25 page 18):
+
+    .. math::
+
+        f^{(3)}_k(x) 
+        = \frac{f(x + 2k) - f(x - 2k) - 2 (f(x + k) - f(x - k))}{2k^3}
+
+    where :math:`k > 0` is the step used for the third derivative.
+    The method introduces :math:`f^{(3)}_{inf}(x)` and :math:`f^{(3)}_{sup}(x)`
+    such that:
+
+    .. math::
+    
+        f^{(3)}_{inf}(x) \leq f^{(3)}_k(x_0) \leq f^{(3)}_{sup}(x).
+
+    We evaluate the function on 4 points (see (Dumontet & Vignes, 1977) eq. 28 
+    page 19, with 2 errors corrected with respect to the original paper):
+
+    .. math::
+    
+        & T_1 = f(x + 2k), \qquad T_2 = -f(x - 2k), \\
+        & T_3 = -2f(x + k) , \qquad T_4 = 2f(x - k).
+
+    Let :math:`A` and :math:`B` defined by (see (Dumontet & Vignes, 1977) page 19):
+
+    .. math::
+    
+        A = \sum_{i = 1}^4 \max(T_i, 0),  \quad
+        B = \sum_{i = 1}^4 \min(T_i, 0). \tag{16}
+
+    The lower and upper bounds of :math:`f^{(3)}_k(x)` are computed 
+    from (see (Dumontet & Vignes, 1977) eq. 30 page 20):
+
+    .. math::
+    
+        f^{(3)}_{inf}(x_0)
+        = \frac{\frac{A}{1 + \epsilon_f} + \frac{B}{1 - \epsilon_f}}{2 k^3}, \qquad
+        f^{(3)}_{sup}(x_0)
+        = \frac{\frac{A}{1 - \epsilon_f} + \frac{B}{1 + \epsilon_f}}{2 k^3}. 
+
+    We introduce the ratio (see (Dumontet & Vignes, 1977) eq. 32 page 20):
+
+    .. math::
+    
+        L(k) = \frac{f^{(3)}_{sup}(x)}{f^{(3)}_{inf}(x)} \geq 1.
+
+    We search for :math:`k` such that the ratio :math:`L` is:
+
+    - neither too close to 1 because it would mean that :math:`k` is too large
+      meaning that the truncation error dominates,
+    - nor too far away from 1 because it would mean that :math:`k` is too small
+      meaning that the rounding error dominates.
+    
+    Let :math:`k_{inf}` and :math:`k_{sup}` two real numbers representing the 
+    minimum and maximum bounds for :math:`k`.
+    We search for :math:`k \in [k_{inf}, k_{sup}]` such that (see 
+    (Dumontet & Vignes, 1977) eq. 33 page 20):
+
+    .. math::
+    
+        \ell(k) \in [L_1, L_2] \cup [L_3, L_4]
+
+    where:
+
+    - :math:`L_3 = 2` and :math:`L_2 = \frac{1}{L_3}`,
+    - :math:`L_4 = 15` and :math:`L_1 = \frac{1}{L_4}`.
+     
     Parameters
     ----------
     function : function
@@ -26,9 +115,9 @@ class DumontetVignes:
         The relative precision of evaluation of f.
     number_of_digits : int
         The maximum number of digits of the floating point system.
-    ell_1 : float
+    ell_3 : float
         The minimum bound of the L ratio.
-    ell_2 : float, > ell_1
+    ell_4 : float, > ell_1
         The maximum bound of the L ratio.
     args : list
         A list of optional arguments that the function takes as inputs.
@@ -70,8 +159,8 @@ class DumontetVignes:
         x,
         relative_precision=1.0e-14,
         number_of_digits=53,
-        ell_1=1.0 / 15.0,
-        ell_2=1.0 / 2.0,
+        ell_3=2.0,
+        ell_4=15.0,
         args=None,
         verbose=False,
     ):
@@ -82,19 +171,38 @@ class DumontetVignes:
             )
         self.relative_precision = relative_precision
         self.number_of_digits = number_of_digits
-        if ell_2 <= ell_1:
+        if ell_4 <= ell_3:
             raise ValueError(
-                f"We must have ell_2 > ell_1, but ell_1 = {ell_1} and ell_2 = {ell_2}"
+                f"We must have ell_4 > ell_3, but ell_4 = {ell_4} and ell_3 = {ell_3}"
             )
         # Eq. 34, fixed
-        self.ell_1 = ell_1
-        self.ell_2 = ell_2
-        self.ell_3 = 1.0 / ell_2
-        self.ell_4 = 1.0 / ell_1
+        self.ell_3 = ell_3
+        self.ell_4 = ell_4
+        self.ell_1 = 1.0 / ell_4
+        self.ell_2 = 1.0 / ell_3
         self.verbose = verbose
         self.first_derivative_central = nd.FirstDerivativeCentral(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
+
+    def get_ell_min_max(self):
+        """
+        Return the minimum and maximum of the L ratio
+
+        The parameters L1 and L2 can be computed from the equations:
+
+        .. math::
+
+            L_2 = \frac{1}{L_3}, \qquad L_1 = \frac{1}{L_4}.
+
+        Returns
+        -------
+        ell_3 : float, > 0
+            The lower bound of the L ratio.
+        ell_4 : float, > 0
+            The upper bound of the L ratio.
+        """
+        return [self.ell_3, self.ell_4]
 
     def compute_ell(self, k):
         """

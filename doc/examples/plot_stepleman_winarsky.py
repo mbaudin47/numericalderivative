@@ -41,16 +41,16 @@ print(f"Minimum absolute error= {absolute_error}")
 x = 1.0
 finite_difference = nd.FirstDerivativeCentral(benchmark.function, x)
 number_of_points = 1000
-h_array = np.logspace(-7.0, 5.0, number_of_points)
+step_array = np.logspace(-7.0, 5.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    h = h_array[i]
+    h = step_array[i]
     f_prime_approx = finite_difference.compute(h)
     error_array[i] = abs(f_prime_approx - benchmark.first_derivative(x))
 
 # %%
 pl.figure()
-pl.plot(h_array, error_array)
+pl.plot(step_array, error_array)
 pl.plot([optimum_step] * 2, [min(error_array), max(error_array)], label=r"$h^*$")
 pl.title("Central finite difference")
 pl.xlabel("h")
@@ -77,8 +77,30 @@ print("Error = ", absolute_error)
 
 
 # %%
-def fd_difference(h1, h2, f, x):
-    finite_difference = nd.FirstDerivativeCentral(f, x)
+def fd_difference(h1, h2, function, x):
+    """
+    Compute the difference of central difference approx. for different step sizes
+
+    This function computes the absolute value of the difference of approximations
+    evaluated at two different steps h1 and h2:
+
+        d = abs(FD(h1) - FD(h2))
+
+    where FD(h) is the approximation from the finite difference formula
+    evaluated from the step h.
+
+    Parameters
+    ----------
+    h1 : float, > 0
+        The first step
+    h2 : float, > 0
+        The second step
+    function : function
+        The function
+    x : float
+        The input point where the derivative is approximated.
+    """
+    finite_difference = nd.FirstDerivativeCentral(function, x)
     f_prime_approx_1 = finite_difference.compute(h1)
     f_prime_approx_2 = finite_difference.compute(h2)
     diff_current = abs(f_prime_approx_1 - f_prime_approx_2)
@@ -88,15 +110,15 @@ def fd_difference(h1, h2, f, x):
 # %%
 # 3. Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
 number_of_points = 1000
-h_array = np.logspace(-7.0, 5.0, number_of_points)
+step_array = np.logspace(-7.0, 5.0, number_of_points)
 diff_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    h = h_array[i]
+    h = step_array[i]
     diff_array[i] = fd_difference(h, h / 2, benchmark.function, x)
 
 # %%
 pl.figure()
-pl.plot(h_array, diff_array)
+pl.plot(step_array, diff_array)
 pl.title("F.D. difference")
 pl.xlabel("h")
 pl.ylabel(r"$|\operatorname{FD}(h) - \operatorname{FD}(h / 2) |$")
@@ -110,19 +132,21 @@ pl.tight_layout()
 number_of_points = 20
 h_initial = 1.0e5
 beta = 4.0
-h_array = np.zeros((number_of_points))
+step_array = np.zeros((number_of_points))
 diff_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     if i == 0:
-        h_array[i] = h_initial / beta
-        diff_array[i] = fd_difference(h_array[i], h_initial, benchmark.function, x)
+        step_array[i] = h_initial / beta
+        diff_array[i] = fd_difference(step_array[i], h_initial, benchmark.function, x)
     else:
-        h_array[i] = h_array[i - 1] / beta
-        diff_array[i] = fd_difference(h_array[i], h_array[i - 1], benchmark.function, x)
+        step_array[i] = step_array[i - 1] / beta
+        diff_array[i] = fd_difference(
+            step_array[i], step_array[i - 1], benchmark.function, x
+        )
 
 # %%
 pl.figure()
-pl.plot(h_array, diff_array, "o")
+pl.plot(step_array, diff_array, "o")
 pl.title("F.D. difference")
 pl.xlabel("h")
 pl.ylabel(r"$|\operatorname{FD}(h) - \operatorname{FD}(h / 2) |$")
@@ -159,21 +183,21 @@ print("iterations = ", iterations)
 
 # %%
 number_of_points = 1000
-h_array = np.logspace(-7.0, 7.0, number_of_points)
+step_array = np.logspace(-7.0, 7.0, number_of_points)
 n_digits_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    h = h_array[i]
+    h = step_array[i]
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
 # %%
 y_max = algorithm.number_of_lost_digits(h_reference)
 pl.figure()
-pl.plot(h_array, n_digits_array, label="$N(h)$")
+pl.plot(step_array, n_digits_array, label="$N(h)$")
 pl.plot([h_reference] * 2, [0.0, y_max], "--", label=r"$h_{ref}$")
 pl.plot([step_zero] * 2, [0.0, y_max], "--", label=r"$h^{(0)}$")
 pl.plot([estim_step] * 2, [0.0, y_max], "--", label=r"$h^\star$")
 pl.plot(
-    h_array,
+    step_array,
     np.array([threshold] * number_of_points),
     ":",
     label=r"$T$",
@@ -188,7 +212,7 @@ pl.tight_layout()
 
 # %%
 pl.figure()
-pl.plot(h_array, error_array)
+pl.plot(step_array, error_array)
 pl.plot([step_zero] * 2, [0.0, 1.0e-9], "--", label=r"$h^{(0)}$")
 pl.plot([estim_step] * 2, [0.0, 1.0e-9], "--", label=r"$h^\star$")
 pl.title("Finite difference")
