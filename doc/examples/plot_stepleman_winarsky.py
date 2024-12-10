@@ -20,6 +20,31 @@ import pylab as pl
 import numericalderivative as nd
 
 # %%
+# Use the method on a simple problem
+# ----------------------------------
+
+# %%
+# In the next example, we use the algorithm on the exponential function.
+
+# %%
+x = 1.0
+algorithm = nd.SteplemanWinarsky(np.exp, x, verbose=True)
+initial_step = 1.0e0
+step, number_of_iterations = algorithm.compute_step(initial_step)
+f_prime_approx = algorithm.compute_first_derivative(step)
+feval = algorithm.get_number_of_function_evaluations()
+f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
+print(f"Computed step = {step:.3e}")
+print(f"Number of iterations = {number_of_iterations}")
+print(f"f_prime_approx = {f_prime_approx}")
+print(f"f_prime_exact = {f_prime_exact}")
+absolute_error = abs(f_prime_approx - f_prime_exact)
+
+# %%
+# Use the method on the ScaledExponentialProblem
+# ----------------------------------------------
+
+# %%
 # Consider this problem.
 
 # %%
@@ -37,7 +62,10 @@ print(f"Minimum absolute error= {absolute_error}")
 
 
 # %%
-# 1. Plot the error vs h
+# Plot the error vs h
+# -------------------
+
+# %%
 x = 1.0
 finite_difference = nd.FirstDerivativeCentral(benchmark.function, x)
 number_of_points = 1000
@@ -62,7 +90,9 @@ pl.tight_layout()
 
 
 # %%
-# 2. Algorithm to detect h*
+# Use the algorithm to detect h*
+
+# %%
 algorithm = nd.SteplemanWinarsky(benchmark.function, x, verbose=True)
 initial_step = 1.0e8
 x = 1.0e0
@@ -74,6 +104,11 @@ print("Function evaluations =", number_of_function_evaluations)
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
 print("Error = ", absolute_error)
+
+
+# %%
+# Plot the absolute difference depending on the step
+# --------------------------------------------------
 
 
 # %%
@@ -108,7 +143,7 @@ def fd_difference(h1, h2, function, x):
 
 
 # %%
-# 3. Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
+# Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
 number_of_points = 1000
 step_array = np.logspace(-7.0, 5.0, number_of_points)
 diff_array = np.zeros((number_of_points))
@@ -128,7 +163,11 @@ pl.tight_layout()
 
 
 # %%
-# 4. Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
+# Plot the criterion depending on the step
+# ----------------------------------------
+
+# %%
+# Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
 number_of_points = 20
 h_initial = 1.0e5
 beta = 4.0
@@ -155,14 +194,20 @@ pl.yscale("log")
 pl.tight_layout()
 
 # %%
-# 5. Compute suggested step
+# Compute reference step
+# ----------------------
+
+# %%
 p = 1.0e-16
 beta = 4.0
 h_reference = beta * p ** (1 / 3) * x
 print("Suggested h0 = ", h_reference)
 
 # %%
-# 6. Plot number of lost digits vs h
+# Plot number of lost digits vs h
+# -------------------------------
+
+# %%
 h = 1.0e4
 print("Starting h = ", h)
 n_digits = algorithm.number_of_lost_digits(h)
@@ -224,8 +269,19 @@ pl.yscale("log")
 pl.tight_layout()
 
 # %%
-# 7. Benchmark
-# Test with single point
+# Use the bisection search
+# ------------------------
+
+
+# %%
+# In some cases, it is difficult to find the initial step.
+# In this case, we can use the bisection algorithm, which can produce
+# an initial guess for the step.
+
+# %%
+# Test with single point and default parameters.
+
+# %%
 x = 1.0
 f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(
     1.0e-7,
@@ -237,10 +293,12 @@ print("number_of_iterations = ", number_of_iterations)
 print("Func. eval = ", feval)
 
 # %%
-# Algorithme de dichotomie pour le pas initial
+# Do not use the log scale (this can be slower).
+
+# %%
 x = 1.0
 maximum_bisection = 53
-log_scale = False
+print("+ No log scale.")
 h0, iterations = algorithm.search_step_with_bisection(
     1.0e-7,
     1.0e1,
@@ -248,6 +306,7 @@ h0, iterations = algorithm.search_step_with_bisection(
     log_scale=False,
 )
 print("Pas initial = ", h0, ", iterations = ", iterations)
+print("+ Log scale.")
 h0, iterations = algorithm.search_step_with_bisection(
     1.0e-7,
     1.0e1,
@@ -261,11 +320,13 @@ print("Pas initial = ", h0, ", iterations = ", iterations)
 benchmark = nd.ExponentialProblem()
 x = 1.0
 algorithm = nd.SteplemanWinarsky(benchmark.function, x, verbose=True)
-f_prime_approx, estim_relative_error = algorithm.search_step_with_bisection(
+initial_step, estim_relative_error = algorithm.search_step_with_bisection(
     1.0e-6,
     100.0 * x,
     beta=4.0,
 )
+step, number_of_iterations = algorithm.compute_step(initial_step)
+f_prime_approx = algorithm.compute_first_derivative(step)
 absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
 feval = algorithm.get_number_of_function_evaluations()
 print(

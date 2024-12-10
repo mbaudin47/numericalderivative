@@ -77,6 +77,18 @@ class GillMurraySaundersWright:
     this algorithm only searches for the optimal step for the central
     formula for the second derivative.
 
+    The algorithm can fail in the case where the function is odd
+    or approximately linear.
+    For example, the function :math:`\sin` is linear at point :math:`x = -\pi`.
+    In this case, the second derivative is zero, which produces a
+    value of :math:`\Phi` zero or close to zero.
+    This produces an infinite value of the condition error.
+
+    In this algorithm fails to produce a consistent step, can compute
+    an approximately optimal step using `FirstDerivativeForward.compute_step`.
+    Since the value of the second derivative is unknown, we can make the
+    hypothesis that :math:`f''(x) \approx 1`.
+
     Parameters
     ----------
     function : function
@@ -304,7 +316,8 @@ class GillMurraySaundersWright:
             raise ValueError(
                 f"Unable to find satisfactory step_second_derivative "
                 f"after {iteration_maximum} iterations."
-                "Please increase iteration_maximum"
+                f"The function might be odd or approximately linear. "
+                f"Please increase iteration_maximum = {iteration_maximum}."
             )
         return step_second_derivative, number_of_iterations
 

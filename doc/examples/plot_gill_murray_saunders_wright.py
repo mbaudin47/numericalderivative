@@ -18,6 +18,31 @@ import numpy as np
 import pylab as pl
 import numericalderivative as nd
 
+# %%
+# Use the method on a simple problem
+# ----------------------------------
+
+# %%
+# In the next example, we use the algorithm on the exponential function.
+x = 1.0
+algorithm = nd.GillMurraySaundersWright(np.exp, x, verbose=True)
+kmin = 1.0e-10
+kmax = 1.0e0
+step, number_of_iterations = algorithm.compute_step(kmin, kmax)
+f_prime_approx = algorithm.compute_first_derivative(step)
+feval = algorithm.get_number_of_function_evaluations()
+f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
+print(f"Computed step = {step:.3e}")
+print(f"Number of iterations = {number_of_iterations}")
+print(f"f_prime_approx = {f_prime_approx}")
+print(f"f_prime_exact = {f_prime_exact}")
+absolute_error = abs(f_prime_approx - f_prime_exact)
+
+
+# %%
+# Test the method on the exponential problem
+# ------------------------------------------
+
 
 # %%
 def compute_first_derivative_GMSW(
@@ -70,7 +95,7 @@ def compute_first_derivative_GMSW(
 
 
 # %%
-print("+ Test on ExponentialDerivativeBenchmark")
+print("+ Test on ExponentialProblem")
 kmin = 1.0e-15
 kmax = 1.0e1
 x = 1.0
@@ -124,6 +149,10 @@ print(
     % (x, absolute_error, number_of_function_evaluations)
 )
 
+# %%
+# Benchmark the method on a collection of test points
+# ---------------------------------------------------
+
 
 # %%
 def benchmark_method(
@@ -163,6 +192,8 @@ def benchmark_method(
     feval_array = np.zeros(number_of_test_points)
     for i in range(number_of_test_points):
         x = test_points[i]
+        if verbose:
+            print(f"i = {i}, x = {x:.3f}")
         (
             absolute_error,
             number_of_function_evaluations,
@@ -172,8 +203,9 @@ def benchmark_method(
         relative_error = absolute_error / abs(first_derivative(x))
         if verbose:
             print(
-                "x = %.3f, abs. error = %.3e, rel. error = %.3e, Func. eval. = %d"
-                % (x, absolute_error, relative_error, number_of_function_evaluations)
+                f"x = {x:.3f}, abs. error = {absolute_error:.3e}, "
+                f"rel. error = {relative_error:.3e}, "
+                f"Func. eval. = {number_of_function_evaluations}"
             )
         relative_error_array[i] = relative_error
         feval_array[i] = number_of_function_evaluations
@@ -187,9 +219,9 @@ def benchmark_method(
 
 
 # %%
-print("+ Benchmark on several points")
+print("+ Benchmark on several points on ScaledExponentialProblem")
 number_of_test_points = 100
-problem = nd.ExponentialProblem()
+problem = nd.ScaledExponentialProblem()
 interval = problem.get_interval()
 test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 kmin = 1.0e-12
@@ -204,20 +236,34 @@ average_error, average_feval = benchmark_method(
 )
 
 # %%
-# Plot the condition error depending on k.
-number_of_points = 1000
-problem = nd.ScaledExponentialProblem()
-x = problem.get_x()
-name = problem.get_name()
-function = problem.get_function()
-kmin = 1.0e-10
-kmax = 1.0e5
-k_array = np.logspace(np.log10(kmin), np.log10(kmax), number_of_points)
-algorithm = nd.GillMurraySaundersWright(function, x)
-c_min, c_max = algorithm.get_threshold_min_max()
-condition_array = np.zeros((number_of_points))
-for i in range(number_of_points):
-    condition_array[i] = algorithm.compute_condition(k_array[i])
+# Plot the condition error depending on the step
+# ----------------------------------------------
+
+
+# %%
+def plot_condition_error(name, function, x, kmin, kmax, number_of_points=1000):
+    # Plot the condition error depending on k.
+    k_array = np.logspace(np.log10(kmin), np.log10(kmax), number_of_points)
+    algorithm = nd.GillMurraySaundersWright(function, x)
+    c_min, c_max = algorithm.get_threshold_min_max()
+    condition_array = np.zeros((number_of_points))
+    for i in range(number_of_points):
+        condition_array[i] = algorithm.compute_condition(k_array[i])
+
+    #
+    pl.figure(figsize=(4.0, 3.0))
+    pl.title(f"Condition error of {name} at x = {x}")
+    pl.plot(k_array, condition_array)
+    pl.plot([kmin, kmax], [c_min] * 2, label=r"$c_{min}$")
+    pl.plot([kmin, kmax], [c_max] * 2, label=r"$c_{max}$")
+    pl.xlabel(r"$h_\Phi$")
+    pl.ylabel(r"$c(h_\Phi$)")
+    pl.xscale("log")
+    pl.yscale("log")
+    pl.legend(bbox_to_anchor=(1.0, 1.0))
+    pl.tight_layout()
+    return
+
 
 # %%
 # The next plot presents the condition error :math:`c(h_\Phi)` depending
@@ -228,21 +274,64 @@ for i in range(number_of_points):
 # error is between these two limits.
 
 # %%
-pl.figure(figsize=(4.0, 3.0))
-pl.title(f"Condition error of {name} at x = {x}")
-pl.plot(k_array, condition_array)
-pl.plot([kmin, kmax], [c_min] * 2, label=r"$c_{min}$")
-pl.plot([kmin, kmax], [c_max] * 2, label=r"$c_{max}$")
-pl.xlabel(r"$h_\Phi$")
-pl.ylabel(r"$c(h_\Phi$)")
-pl.xscale("log")
-pl.yscale("log")
-pl.legend(bbox_to_anchor=(1.0, 1.0))
-pl.tight_layout()
+number_of_points = 1000
+problem = nd.ScaledExponentialProblem()
+x = problem.get_x()
+name = problem.get_name()
+function = problem.get_function()
+kmin = 1.0e-10
+kmax = 1.0e5
+plot_condition_error(name, function, x, kmin, kmax)
 
 # %%
 # The previous plot shows that the condition error is a decreasing function
 # of :math:`h_\Phi`.
+
+# %%
+# Remove the end points :math:`x = \pm \pi`, because sin has a zero
+# second derivative at these points.
+# This makes the algorithm fail.
+
+# %%
+print("+ Benchmark on several points on SinProblem")
+number_of_test_points = 100
+problem = nd.SinProblem()
+interval = problem.get_interval()
+epsilon = 1.0e-3
+test_points = np.linspace(
+    interval[0] + epsilon, interval[1] - epsilon, number_of_test_points
+)
+kmin = 1.0e-12
+kmax = 1.0e1
+average_error, average_feval = benchmark_method(
+    problem.get_function(),
+    problem.get_fifth_derivative(),
+    test_points,
+    kmin,
+    kmax,
+    True,
+)
+
+
+# %%
+# Plot the condition error depending on k.
+number_of_points = 1000
+problem = nd.SinProblem()
+x = -np.pi
+name = problem.get_name()
+function = problem.get_function()
+kmin = 1.0e-20
+kmax = 1.0e-10
+plot_condition_error(name, function, x, kmin, kmax)
+
+# %%
+# In the previous plot, we see that there is no satisfactory
+# value of :math:`h_\Phi` for the sin function
+# at point :math:`x = -\pi`.
+
+# %%
+# Plot the error depending on the step
+# ------------------------------------
 
 # %%
 # For each function, at point x = 1, plot the error vs the step computed

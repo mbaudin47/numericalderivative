@@ -18,6 +18,33 @@ import sys
 
 
 # %%
+# Use the method on a simple problem
+# ----------------------------------
+
+# %%
+# In the next example, we use the algorithm on the exponential function.
+
+# %%
+x = 1.0
+kmin = 1.0e-10
+kmax = 1.0e0
+algorithm = nd.DumontetVignes(np.exp, x, verbose=True)
+step, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+f_prime_approx = algorithm.compute_first_derivative(step)
+feval = algorithm.get_number_of_function_evaluations()
+f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
+print(f"Computed step = {step:.3e}")
+print(f"Number of iterations = {number_of_iterations}")
+print(f"f_prime_approx = {f_prime_approx}")
+print(f"f_prime_exact = {f_prime_exact}")
+absolute_error = abs(f_prime_approx - f_prime_exact)
+
+# %%
+# Useful functions
+# ----------------
+
+
+# %%
 def compute_ell(function, x, k, relative_precision):
     algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
     ell = algorithm.compute_ell(k)
@@ -190,7 +217,11 @@ def plot_ell_ratio(
 
 
 # %%
-# 1. Exponential
+# Plot the L ratio for various problems
+# -------------------------------------
+
+# %%
+# 1. Consider the Exponential function.
 
 number_of_points = 1000
 relative_precision = 1.0e-15
@@ -211,6 +242,9 @@ plot_ell_ratio(
     kmax=kmax,
     plot_L_constants=True,
 )
+
+# %%
+# Consider a larger interval of K.
 
 # %%
 relative_precision = 1.0e-10
@@ -235,6 +269,10 @@ plot_ell_ratio(
 pl.ylim(-20.0, 20.0)
 
 # %%
+# See how the figure changes when the relative precision is
+# decreased: use 1.e-14 (instead of 1.e-10 in the previous example).
+
+# %%
 relative_precision = 1.0e-14
 x = 1.0
 function = nd.ExponentialProblem().get_function()
@@ -254,6 +292,9 @@ plot_ell_ratio(
 )
 
 # %%
+# See what happens at x = 4 (instead of x = 1 in the previous example).
+
+# %%
 relative_precision = 1.0e-16
 x = 4.0
 function = nd.ExponentialProblem().get_function()
@@ -271,6 +312,9 @@ plot_ell_ratio(
     kmin=kmin,
     kmax=kmax,
 )
+
+# %%
+# Consider a larger interval of k.
 
 # %%
 relative_precision = 1.0e-14
@@ -293,6 +337,10 @@ plot_ell_ratio(
     plot_L_constants=True,
 )
 pl.ylim(-20.0, 20.0)
+
+# %%
+# Plot the error depending on the step
+# ------------------------------------
 
 # %%
 x = 4.0
@@ -435,6 +483,9 @@ pl.yscale("log")
 #
 pl.tight_layout()
 
+# %%
+# Plot the lower and upper bounds of the third derivative
+# -------------------------------------------------------
 
 # %%
 number_of_points = 1000
