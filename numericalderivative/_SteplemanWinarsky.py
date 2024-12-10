@@ -51,7 +51,7 @@ class SteplemanWinarsky:
         \leq \left|d(h_{i}) - d(h_{i - 1})\right|.
 
     The previous theorem states that the sequence
-    :math:`\left\{\left|d(h_{i}) - d(h_{i - 1})\right|\right\}_{i \geq 0}`
+    :math:`\left(\left|d(h_{i}) - d(h_{i - 1})\right|\right)_{i \geq 0}`
     is monotonic in exact arithmetic.
 
     The method starts from an initial step :math:`h_0 > 0`.
