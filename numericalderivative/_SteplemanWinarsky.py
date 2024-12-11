@@ -19,10 +19,12 @@ class SteplemanWinarsky:
 
     .. math::
 
-        f'(x) \approx \frac{f(x + h) - f(x - h)}{2 h}
+        f'(x) \approx d(h) := \frac{f(x + h) - f(x - h)}{2 h}
 
     where :math:`f` is the function, :math:`x \in \mathbb{R}` is the
     input point and :math:`h > 0` is the step.
+    In the previous equation, the function :math:`d` is the central finite difference 
+    formula which is considered in this method.
     The goal of the method is to compute an approximately optimal
     :math:`h^\star` for the central F.D. formula using function evaluations
     only.
@@ -119,7 +121,7 @@ class SteplemanWinarsky:
         return
 
     def compute_step(self, initial_step=None, iteration_maximum=53, beta=4.0):
-        """
+        r"""
         Compute an approximate optimum step for central derivative using monotony properties.
 
         This function computes an approximate optimal step h for the central
@@ -129,7 +131,13 @@ class SteplemanWinarsky:
         ----------
         initial_step : float, > 0.0
             The initial value of the differentiation step.
-            The default initial step is beta * relative_error**(1/3) * abs(x)
+            The default initial step is :math:`\beta \epsilon_r^{1/3} |x|` 
+            where :math:`\beta > 0` is the reduction factor, 
+            :math:`\epsilon_r` is the relative error and :math:`x` is the 
+            current point.
+            The algorithm produces a sequence of decreasing steps.
+            Hence, the initial step should be an upper bound of the true
+            optimal step.
         iteration_maximum : int, optional
             The number of iterations. The default is 53.
         beta : float, > 1.0
@@ -205,8 +213,26 @@ class SteplemanWinarsky:
         return estim_step, number_of_iterations
 
     def number_of_lost_digits(self, h):
-        """
+        r"""
         Compute the number of (base 10) lost digits.
+
+        The loss of figures produced by the substraction in the finite 
+        difference formula is (see (Stepleman & Winarsky, 1979), eq. 3.10 page 1261):
+
+        .. math::
+
+            \delta(h) = \left|\frac{2hd(h)}{f(x)}\right|
+        
+        where :math:`h > 0` is the step and :math:`d(h)` is the central 
+        finite difference formula.
+        The number of decimal digits losts in the substraction is
+        (see (Stepleman & Winarsky, 1979), eq. 3.11 page 1261):
+
+        .. math::
+
+            N(h) = -\log_{10}(\delta(h))
+        
+        where :math:`\log_{10}` is the base-10 decimal digit.
 
         Parameters
         ----------
@@ -221,7 +247,7 @@ class SteplemanWinarsky:
         """
         d = self.first_derivative_central.compute(h)
         function_value = self.function(self.x)
-        # eq. 3.10
+        # eq. 3.10 page 1261
         if function_value == 0.0:
             delta = abs(2 * h * d)
         else:
@@ -248,12 +274,12 @@ class SteplemanWinarsky:
             0 < N(h_0) < T := \log_{10}\left(\frac{\epsilon_r^{-1 / 3}}{\beta}\right)
 
         where :math:`N` is the number of lost digits (as computed by
-        `number_of_lost_digits()`), :math:`h_0` is the initial step and
+        :meth:`number_of_lost_digits()`), :math:`h_0` is the initial step and
         :math:`\epsilon_r` is the relative precision of the function evaluation.
 
-        This algorithm can be effective compared to `compute_step()`
+        This algorithm can be effective compared to :meth:`compute_step()`
         in the cases where it is difficult to find an initial step.
-        In this case, the step returned by `search_step_with_bisection()`
+        In this case, the step returned by :meth:`search_step_with_bisection()`
         can be used as the initial step for compute_step().
         This can require several extra function evaluations.
 

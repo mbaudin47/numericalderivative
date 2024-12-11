@@ -23,6 +23,13 @@ import sys
 
 # %%
 # In the next example, we use the algorithm on the exponential function.
+# We create the :class:`~numericalderivative.DumontetVignes` algorithm using the function and the point x.
+# Then we use the :meth:`~numericalderivative.DumontetVignes.compute_step()` method to compute the step,
+# using an upper bound of the step as an initial point of the algorithm.
+# Finally, use the :meth:`~numericalderivative.DumontetVignes.compute_first_derivative()` method to compute
+# an approximate value of the first derivative using finite differences.
+# The :meth:`~numericalderivative.DumontetVignes.get_number_of_function_evaluations()` method
+# can be used to get the number of function evaluations.
 
 # %%
 x = 1.0
@@ -43,17 +50,26 @@ absolute_error = abs(f_prime_approx - f_prime_exact)
 # Useful functions
 # ----------------
 
+# %%
+# These functions will be used later in this example.
+
 
 # %%
 def compute_ell(function, x, k, relative_precision):
+    """
+    Compute the L ratio for a given value of the step k.
+    """
     algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
     ell = algorithm.compute_ell(k)
     return ell
 
 
 def compute_f3_inf_sup(function, x, k, relative_precision):
+    """
+    Compute the upper and lower bounds of the third derivative for a given value of k.
+    """
     algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
-    ell, f3inf, f3sup = algorithm.compute_ell(k)
+    _, f3inf, f3sup = algorithm.compute_ell(k)
     return f3inf, f3sup
 
 
@@ -70,8 +86,9 @@ def plot_step_sensitivity(
     kmax=None,
 ):
     """
-    Compute the approximate derivative using central F.D. formula.
     Create a plot representing the absolute error depending on step.
+
+    Compute the approximate derivative using central F.D. formula.
     Plot the approximately optimal step computed by DumontetVignes.
 
     Parameters
@@ -145,7 +162,7 @@ def plot_step_sensitivity(
     pl.figure()
     pl.plot(step_array, error_array)
     pl.plot(
-        [estim_step] * 2, [minimum_error, maximum_error], "--", label=r"$\tilde{h}$"
+        [estim_step] * 2, [minimum_error, maximum_error], "--", label=r"$\widetilde{h}$"
     )
     pl.plot(optimal_step, optimal_error, "o", label=r"$h^\star$")
     pl.title("Finite difference for %s" % (name))
@@ -188,9 +205,7 @@ def plot_ell_ratio(
     k_array = np.logspace(np.log10(kmin), np.log10(kmax), number_of_points)
     ell_array = np.zeros((number_of_points))
     for i in range(number_of_points):
-        ell_array[i], f3inf, f3sup = compute_ell(
-            function, x, k_array[i], relative_precision
-        )
+        ell_array[i], _, _ = compute_ell(function, x, k_array[i], relative_precision)
 
     pl.figure()
     pl.plot(k_array, ell_array)
@@ -221,7 +236,17 @@ def plot_ell_ratio(
 # -------------------------------------
 
 # %%
-# 1. Consider the Exponential function.
+# The L ratio is the criterion used in (Dumontet & Vignes, 1977) algorithm
+# to find a satisfactory step k.
+# The algorithm searches for a step k so that the L ratio is inside
+# an interval.
+# This is computed by the :meth:`~numericalderivative.DumontetVignes.compute_ell`
+# method.
+# In the next examples, we plot the L ratio depending on k
+# for different functions.
+
+# %%
+# 1. Consider the :class:`~numericalderivative.ExponentialProblem` function.
 
 number_of_points = 1000
 relative_precision = 1.0e-15
@@ -343,19 +368,24 @@ pl.ylim(-20.0, 20.0)
 # ------------------------------------
 
 # %%
+# In the next examples, we plot the error of the approximation of the
+# first derivative by the finite difference formula depending
+# on the step size.
+
+# %%
 x = 4.0
-benchmark = nd.ExponentialProblem()
-function = benchmark.get_function()
+problem = nd.ExponentialProblem()
+function = problem.get_function()
 absolute_precision = sys.float_info.epsilon * function(x)
 print("absolute_precision = %.3e" % (absolute_precision))
 
 # %%
 x = 4.1
-function = benchmark.get_function()
+function = problem.get_function()
 relative_precision = sys.float_info.epsilon
 name = "exp"
-function_derivative = benchmark.get_first_derivative()
-function_third_derivative = benchmark.get_third_derivative()
+function_derivative = problem.get_first_derivative()
+function_third_derivative = problem.get_third_derivative()
 number_of_points = 1000
 step_array = np.logspace(-15.0, 0.0, number_of_points)
 kmin = 1.0e-5
@@ -374,7 +404,16 @@ plot_step_sensitivity(
 )
 
 # %%
-# 2. Scaled exponential
+# In the previous figure, we see that the error reaches
+# a minimum, which is indicated by the green point labeled :math:`h^\star`.
+# The vertical dotted line represents the approximately optimal step :math:`\widetilde{h}`
+# returned by the :meth:`~numericalderivative.DumontetVignes.compute_step` method.
+# We see that the method correctly computes an approximation of the the optimal step.
+
+
+# %%
+# Consider the :class:`~numericalderivative.ScaledExponentialProblem`.
+# First, we plot the L ratio.
 
 x = 1.0
 relative_precision = 1.0e-14
@@ -396,12 +435,15 @@ plot_ell_ratio(
 )
 
 # %%
+# Then plot the error depending on the step size.
+
+# %%
 x = 1.0
 name = "scaled exp"
-benchmark = nd.ScaledExponentialProblem()
-function = benchmark.function
-function_derivative = benchmark.first_derivative
-function_third_derivative = benchmark.third_derivative
+problem = nd.ScaledExponentialProblem()
+function = problem.function
+function_derivative = problem.first_derivative
+function_third_derivative = problem.third_derivative
 number_of_points = 1000
 step_array = np.logspace(-7.0, 6.0, number_of_points)
 kmin = 1.0e-2
@@ -420,8 +462,12 @@ plot_step_sensitivity(
 )
 
 # %%
-#
-print("+ 3. Square root")
+# The previous figure shows that the optimal step is close to
+# :math:`10^1`, which may be larger than what we may typically expect
+# as a step size for a finite difference formula.
+
+# %%
+# Consider the :class:`~numericalderivative.SquareRootProblem`.
 
 x = 1.0
 relative_precision = 1.0e-14
@@ -443,34 +489,67 @@ plot_ell_ratio(
 )
 pl.ylim(-20.0, 20.0)
 
+# %%
+# Compute the lower and upper bounds of the third derivative
+# ----------------------------------------------------------
+
+# %%
+# The algorithm is based on bounds of the third derivative, which is
+# computed by the :meth:`~numericalderivative.DumontetVignes.compute_ell` method.
+# These bounds are used to find a step which is approximately
+# optimal to compute the step of the finite difference formula
+# used for the first derivative.
+# Hence, it is interesting to compare the bounds computed
+# by the (Dumontet & Vignes, 1977) algorithm and the
+# actual value of the third derivative.
+# To compute the true value of the third derivative,
+# we use two different methods:
+#
+# - a finite difference formula, using :class:`~numericalderivative.ThirdDerivativeCentral`,
+# - the exact third derivative, using :meth:`~numericalderivative.SquareRootProblem.get_third_derivative`.
 
 # %%
 x = 1.0
-k = 1.0e-3
+k = 1.0e-3  # A first guess
 print("x = ", x)
 print("k = ", k)
-benchmark = nd.SquareRootProblem()
-finite_difference = nd.ThirdDerivativeCentral(benchmark.function, x)
+problem = nd.SquareRootProblem()
+function = problem.get_function()
+finite_difference = nd.ThirdDerivativeCentral(function, x)
 approx_f3d = finite_difference.compute(k)
 print("Approx. f''(x) = ", approx_f3d)
-exact_f3d = benchmark.third_derivative(x)
+third_derivative = problem.get_third_derivative()
+exact_f3d = third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)
 
 # %%
 relative_precision = 1.0e-14
 print("relative_precision = ", relative_precision)
-f3inf, f3sup = compute_f3_inf_sup(benchmark.function, x, k, relative_precision)
+function = problem.get_function()
+f3inf, f3sup = compute_f3_inf_sup(function, x, k, relative_precision)
 print("f3inf = ", f3inf)
 print("f3sup = ", f3sup)
 
 # %%
+# The previous outputs shows that the lower and upper bounds
+# computed by the algorithm contain, indeed, the true value of the
+# third derivative in this case.
+
+# %%
+# The algorithm is based on finding an approximatly optimal
+# step k to compute the third derivative.
+# The next script computes the error of the central formula for the
+# finite difference formula depending on the step k.
+
+# %%
 number_of_points = 1000
+third_derivative = problem.get_third_derivative()
 k_array = np.logspace(-6.0, -1.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    algorithm = nd.ThirdDerivativeCentral(benchmark.function, x)
+    algorithm = nd.ThirdDerivativeCentral(problem.function, x)
     f2nde_approx = algorithm.compute(k_array[i])
-    error_array[i] = abs(f2nde_approx - benchmark.third_derivative(x))
+    error_array[i] = abs(f2nde_approx - third_derivative(x))
 
 # %%
 pl.figure()
@@ -488,11 +567,20 @@ pl.tight_layout()
 # -------------------------------------------------------
 
 # %%
+# The next figure presents the sensitivity of the
+# lower and upper bounds of the third derivative to the step k.
+# Moreover, it presents the approximation of the third derivative
+# using the central finite difference formula.
+# This makes it possible to check that the lower and upper bounds
+# actually contain the approximation produced by the F.D. formula.
+
+# %%
+problem = nd.SquareRootProblem()
 number_of_points = 1000
 relative_precision = 1.0e-16
 k_array = np.logspace(-5.0, -4.0, number_of_points)
 f3_array = np.zeros((number_of_points, 3))
-function = benchmark.get_function()
+function = problem.get_function()
 for i in range(number_of_points):
     f3inf, f3sup = compute_f3_inf_sup(function, x, k_array[i], relative_precision)
     algorithm = nd.ThirdDerivativeCentral(function, x)
@@ -514,7 +602,7 @@ pl.tight_layout(pad=1.2)
 # %%
 x = 1.0e-2
 relative_precision = 1.0e-14
-function = benchmark.get_function()
+function = problem.get_function()
 name = "sqrt"
 number_of_digits = 53
 kmin = 4.4e-7
@@ -533,13 +621,15 @@ plot_ell_ratio(
 pl.ylim(-20.0, 20.0)
 
 # %%
-# Search step
+# The next example searches the optimal step for the square root function.
+
+# %%
 x = 1.0e-2
 relative_precision = 1.0e-14
 kmin = 1.0e-8
 kmax = 1.0e-3
 verbose = True
-function = benchmark.get_function()
+function = problem.get_function()
 algorithm = nd.DumontetVignes(
     function, x, relative_precision=relative_precision, verbose=verbose
 )
@@ -549,7 +639,7 @@ number_of_feval = algorithm.get_number_of_function_evaluations()
 print(f"number_of_feval = {number_of_feval}")
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 feval = algorithm.get_number_of_function_evaluations()
-first_derivative = benchmark.get_first_derivative()
+first_derivative = problem.get_first_derivative()
 absolute_error = abs(f_prime_approx - first_derivative(x))
 print("Abs. error = %.3e" % (absolute_error))
 
@@ -560,12 +650,11 @@ print("L(kmax) = ", ell_kmax)
 
 
 # %%
-#
-print("+ 4. sin")
+# Consider the :class:`~numericalderivative.SinProblem`.
 x = 1.0
 relative_precision = 1.0e-14
-benchmark = nd.SinProblem()
-function = benchmark.function
+problem = nd.SinProblem()
+function = problem.get_function()
 name = "sin"
 number_of_digits = 53
 kmin = 1.0e-5
@@ -588,15 +677,17 @@ x = 1.0
 k = 1.0e-3
 print("x = ", x)
 print("k = ", k)
-algorithm = nd.ThirdDerivativeCentral(benchmark.function, x)
+algorithm = nd.ThirdDerivativeCentral(problem.function, x)
 approx_f3d = algorithm.compute(k)
 print("Approx. f''(x) = ", approx_f3d)
-exact_f3d = benchmark.third_derivative(x)
+third_derivative = problem.get_third_derivative()
+exact_f3d = third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)
 
 relative_precision = 1.0e-14
 print("relative_precision = ", relative_precision)
-f3inf, f3sup = compute_f3_inf_sup(benchmark.function, x, k, relative_precision)
+function = problem.get_function()
+f3inf, f3sup = compute_f3_inf_sup(function, x, k, relative_precision)
 print("f3inf = ", f3inf)
 print("f3sup = ", f3sup)
 

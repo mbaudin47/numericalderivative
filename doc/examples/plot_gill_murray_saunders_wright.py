@@ -24,6 +24,15 @@ import numericalderivative as nd
 
 # %%
 # In the next example, we use the algorithm on the exponential function.
+# We create the :class:`~numericalderivative.GillMurraySaundersWright` algorithm using the function and the point x.
+# Then we use the :meth:`~numericalderivative.GillMurraySaundersWright.compute_step()` method to compute the step,
+# using an upper bound of the step as an initial point of the algorithm.
+# Finally, use the :meth:`~numericalderivative.GillMurraySaundersWright.compute_first_derivative()` method to compute
+# an approximate value of the first derivative using finite differences.
+# The :meth:`~numericalderivative.GillMurraySaundersWright.get_number_of_function_evaluations()` method
+# can be used to get the number of function evaluations.
+
+# %%
 x = 1.0
 algorithm = nd.GillMurraySaundersWright(np.exp, x, verbose=True)
 kmin = 1.0e-10

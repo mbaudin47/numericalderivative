@@ -25,6 +25,13 @@ import numericalderivative as nd
 
 # %%
 # In the next example, we use the algorithm on the exponential function.
+# We create the :class:`~numericalderivative.SteplemanWinarsky` algorithm using the function and the point x.
+# Then we use the :meth:`~numericalderivative.SteplemanWinarsky.compute_step()` method to compute the step,
+# using an upper bound of the step as an initial point of the algorithm.
+# Finally, use the :meth:`~numericalderivative.SteplemanWinarsky.compute_first_derivative()` method to compute
+# an approximate value of the first derivative using finite differences.
+# The :meth:`~numericalderivative.SteplemanWinarsky.get_number_of_function_evaluations()` method
+# can be used to get the number of function evaluations.
 
 # %%
 x = 1.0
@@ -208,6 +215,11 @@ print("Suggested h0 = ", h_reference)
 # -------------------------------
 
 # %%
+# The :meth:`~numericalderivative.SteplemanWinarsky.number_of_lost_digits` method
+# computes the number of lost digits in the approximated derivative
+# depending on the step.
+
+# %%
 h = 1.0e4
 print("Starting h = ", h)
 n_digits = algorithm.number_of_lost_digits(h)
@@ -276,7 +288,9 @@ pl.tight_layout()
 # %%
 # In some cases, it is difficult to find the initial step.
 # In this case, we can use the bisection algorithm, which can produce
-# an initial guess for the step.
+# an initial guess for the step.c
+# This algorithm is based on a search for a suitable step within
+# an interval.
 
 # %%
 # Test with single point and default parameters.
@@ -293,7 +307,8 @@ print("number_of_iterations = ", number_of_iterations)
 print("Func. eval = ", feval)
 
 # %%
-# Do not use the log scale (this can be slower).
+# See how the algorithm behaves if we use or do not use the log scale
+# when searching for the optimal step (this can be slower).
 
 # %%
 x = 1.0
@@ -316,7 +331,12 @@ h0, iterations = algorithm.search_step_with_bisection(
 print("Pas initial = ", h0, ", iterations = ", iterations)
 
 # %%
-# Test
+# In the next example, we search for an initial step using bisection,
+# then use this step as an initial guess for the algorithm.
+# Finally, we compute an approximation of the first derivative using
+# the finite difference formula.
+
+# %%
 benchmark = nd.ExponentialProblem()
 x = 1.0
 algorithm = nd.SteplemanWinarsky(benchmark.function, x, verbose=True)

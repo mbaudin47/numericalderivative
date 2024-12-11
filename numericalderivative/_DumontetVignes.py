@@ -98,7 +98,7 @@ class DumontetVignes:
 
     .. math::
     
-        \ell(k) \in [L_1, L_2] \cup [L_3, L_4]
+        L(k) \in [L_1, L_2] \cup [L_3, L_4]
 
     where:
 
@@ -186,7 +186,7 @@ class DumontetVignes:
         self.x = x
 
     def get_ell_min_max(self):
-        """
+        r"""
         Return the minimum and maximum of the L ratio
 
         The parameters L1 and L2 can be computed from the equations:
