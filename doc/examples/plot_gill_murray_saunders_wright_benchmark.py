@@ -5,8 +5,10 @@
 Benchmark Gill, Murray, Saunders and Wright method
 ==================================================
 
-Find a step which is near to optimal for a centered finite difference 
-formula.
+The goal of this example is to benchmark the :class:`~numericalderivative.GillMurraySaundersWright`
+on a collection of test problems.
+These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
+static method, which returns a list of problems.
 
 References
 ----------
@@ -25,7 +27,7 @@ def benchmark_GMSW_method(
     function, derivative_function, test_points, kmin, kmax, verbose=False
 ):
     """
-    Apply Stepleman & Winarsky method to compute the approximate first
+    Apply Gill, Murray, Saunders & Wright method to compute the approximate first
     derivative using finite difference formula.
 
     Parameters

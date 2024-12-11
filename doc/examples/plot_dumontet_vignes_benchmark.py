@@ -5,8 +5,10 @@
 Benchmark Dumontet & Vignes method
 ==================================
 
-Find a step which is near to optimal for a centered finite difference 
-formula.
+The goal of this example is to benchmark the :class:`~numericalderivative.DumontetVignes`
+on a collection of test problems.
+These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
+static method, which returns a list of problems.
 
 References
 ----------
@@ -16,6 +18,10 @@ References
 import numpy as np
 import tabulate
 import numericalderivative as nd
+
+# %%
+# The next function benchmarks the (Dumontet & Vignes, 1977) algorithm
+# on a given problem and a collection of test points.
 
 
 # %%

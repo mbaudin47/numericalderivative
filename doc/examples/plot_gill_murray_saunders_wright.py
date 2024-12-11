@@ -17,6 +17,7 @@ References
 import numpy as np
 import pylab as pl
 import numericalderivative as nd
+from matplotlib.ticker import MaxNLocator
 
 # %%
 # Use the method on a simple problem
@@ -492,5 +493,102 @@ kmin = 1.0e-15
 kmax = 1.0e-1
 step_array = np.logspace(-15.0, -1.0, number_of_points)
 plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax)
+
+# %%
+# See the history of steps during the bissection search
+# -----------------------------------------------------
+
+# %%
+# In G, M, S & W's method, the bisection algorithm
+# produces a sequence of steps :math:`(k_i)_{1 \leq i \leq n_{iter}}`
+# where :math:`n_{iter} \in \mathbb{N}` is the number of iterations.
+# These steps are meant to converge to an
+# approximately optimal step of for the central finite difference formula of the
+# second derivative.
+# The optimal step :math:`k^\star` for the central finite difference formula of the
+# second derivative can be computed depending on the fourth derivative of the
+# function.
+# In the next example, we want to compute the absolute error between
+# each intermediate step :math:`k_i` and the exact value :math:`k^\star`
+# to see how close the algorithm gets to the exact step.
+# The list of intermediate steps during the algorithm can be obtained
+# thanks to the :meth:`~numericalderivative.GillMurraySaundersWright.get_step_history` method.
+
+
+# %%
+# In the next example, we print the intermediate steps k during
+# the bissection algorithm that searches for a step such
+# that the L ratio is satisfactory.
+# The algorithm has two different methods to update the step:
+#
+# - using the mean,
+# - using the mean in the logarithm space (this is generally much faster).
+
+
+def plot_GMSW_step_history(problem, kmin, kmax, logscale):
+    function = problem.get_function()
+    name = problem.get_name()
+    x = problem.get_x()
+    algorithm = nd.GillMurraySaundersWright(function, x, verbose=True)
+    step, number_of_iterations = algorithm.compute_step(
+        kmin=kmin, kmax=kmax, logscale=logscale
+    )
+    step_k_history = algorithm.get_step_history()
+    print(f"Number of iterations = {number_of_iterations}")
+    print(f"History of steps k : {step_k_history}")
+    last_step_k = step_k_history[-1]
+    print(f"Last step k : {last_step_k}")
+
+    # Then we compute the exact step, using :meth:`~numericalderivative.SecondDerivativeCentral.compute_step`.
+    fourth_derivative = problem.get_fourth_derivative()
+    fourth_derivative_value = fourth_derivative(x)
+    print(f"f^(4)(x) = {fourth_derivative_value}")
+    absolute_precision = 1.0e-16
+    exact_step_k, absolute_error = nd.SecondDerivativeCentral.compute_step(
+        fourth_derivative_value, absolute_precision
+    )
+    print(f"Optimal step k for f^(2)(x) = {exact_step_k}")
+
+    # Plot the absolute error between the exact step k and the intermediate k
+    # of the algorithm.
+    error_step_k = [
+        abs(step_k_history[i] - exact_step_k) for i in range(len(step_k_history))
+    ]
+    fig = pl.figure()
+    pl.title(f"GMSW on {name} at x = {x}. Log scale = {logscale}")
+    pl.plot(range(len(step_k_history)), error_step_k, "o-")
+    pl.xlabel("Iterations")
+    pl.ylabel(r"$|k_i - k^\star|$")
+    pl.yscale("log")
+    ax = fig.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    pl.tight_layout()
+
+
+# %%
+# First, test the logarithmic log scale.
+problem = nd.SinProblem()
+kmin = 1.0e-15
+kmax = 1.0e3
+logscale = True
+plot_GMSW_step_history(problem, kmin, kmax, logscale)
+
+# %%
+# The previous figure shows that the algorithm does not necessarily
+# reduce the distance to the optimal step when we use the logarithmic scale.
+# The algorithm quickly stops and gets an error approximately equal to :math:`10^{-4}`.
+
+# %%
+# Secondly, test the ordinary scale, using the mean.
+problem = nd.SinProblem()
+kmin = 1.0e-15
+kmax = 1.0e3
+logscale = False
+plot_GMSW_step_history(problem, kmin, kmax, logscale)
+
+# %%
+# In the previous plot, we see that the error first decreases
+# down to an error approximately equal to :math:`10^{-4}`.
+# Then the error slightly increases before the algorithm stops.
 
 # %%

@@ -169,6 +169,7 @@ class GillMurraySaundersWright:
         self.y = self.function(self.x)
         self.absolute_precision = abs(relative_precision * self.y)
         self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
+        self.step_history = []
 
     def get_threshold_min_max(self):
         """
@@ -223,11 +224,32 @@ class GillMurraySaundersWright:
     def compute_step_for_second_derivative(
         self, kmin, kmax, iteration_maximum=50, logscale=True
     ):
-        """
+        r"""
         Compute the optimal step k suitable to approximate the second derivative.
 
         Then the approximate value of the second derivative can be computed using
-        compute_2nd_derivative().
+        this step.
+
+        The update formula depends on `logscale`.
+        If it is true, then the logarithmic scale is used:
+
+        .. math::
+
+            h = \exp\left(\frac{\log(k_{\min}) + \log(k_{\max})}{2}\right)
+
+        where :math:`k_\min` is the current lower bound of the search
+        interval and :math:`k_\max` is the current upper bound.
+        This implies:
+
+        .. math::
+
+            h = \sqrt{k_{\min} k_{\max}}.
+
+        Otherwise, we use the mean:
+
+        .. math::
+
+            h = \frac{k_{\min} + k_{\max}}{2}.
 
         Parameters
         ----------
@@ -288,6 +310,7 @@ class GillMurraySaundersWright:
                 step_second_derivative = np.exp(logk)
             else:
                 step_second_derivative = (kmin + kmax) / 2.0
+            self.step_history.append(step_second_derivative)
             c = self.compute_condition(step_second_derivative)
             if self.verbose:
                 print(
@@ -327,7 +350,7 @@ class GillMurraySaundersWright:
 
         This method computes the approximately optimal step for the second derivative.
         Then the approximate value of the second derivative can be computed using
-        compute_2nd_derivative().
+        this step.
 
         Parameters
         ----------
@@ -409,3 +432,16 @@ class GillMurraySaundersWright:
             second_derivative_central_feval + first_derivative_forward + function_eval
         )
         return total_feval
+
+    def get_step_history(self):
+        """
+        Return the history of steps during the search.
+
+        Returns
+        -------
+        step_history : list(float)
+            The list of steps h during intermediate iterations of the search.
+            This is updated by :meth:`compute_step_for_second_derivative`.
+
+        """
+        return self.step_history

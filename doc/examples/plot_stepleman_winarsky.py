@@ -18,6 +18,7 @@ References
 import numpy as np
 import pylab as pl
 import numericalderivative as nd
+from matplotlib.ticker import MaxNLocator
 
 # %%
 # Use the method on a simple problem
@@ -354,6 +355,80 @@ print(
     % (x, absolute_error, estim_relative_error, number_of_function_evaluations)
 )
 
-#
+
+# %%
+# See the history of steps during the search
+# ------------------------------------------
+
+# %%
+# In Stepleman & Winarsky's method, the algorithm
+# produces a sequence of steps :math:`(h_i)_{1 \leq i \leq n_{iter}}`
+# where :math:`n_{iter} \in \mathbb{N}` is the number of iterations.
+# These steps are meant to converge to an
+# approximately optimal step of for the central finite difference formula of the
+# first derivative.
+# The optimal step :math:`h^\star` for the central finite difference formula of the
+# first derivative can be computed depending on the third derivative of the
+# function.
+# In the next example, we want to compute the absolute error between
+# each intermediate step :math:`h_i` and the exact value :math:`h^\star`
+# to see how close the algorithm gets to the exact step.
+# The list of intermediate steps during the algorithm can be obtained
+# thanks to the :meth:`~numericalderivative.SteplemanWinarsky.get_step_history` method.
+
+
+# %%
+# In the next example, we print the intermediate steps k during
+# the bissection algorithm that searches for a step such
+# that the L ratio is satisfactory.
+
+# %%
+problem = nd.SinProblem()
+function = problem.get_function()
+name = problem.get_name()
+x = problem.get_x()
+algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
+initial_step = 1.0e0
+step, number_of_iterations = algorithm.compute_step(initial_step)
+step_h_history = algorithm.get_step_history()
+print(f"Number of iterations = {number_of_iterations}")
+print(f"History of steps h : {step_h_history}")
+# The last step is not the best one, sinces it breaks the monotony
+last_step_h = step_h_history[-2]
+print(f"Last step h : {last_step_h}")
+
+# %%
+# Then we compute the exact step, using :meth:`~numericalderivative.ThirdDerivativeCentral.compute_step`.
+third_derivative = problem.get_third_derivative()
+third_derivative_value = third_derivative(x)
+print(f"f^(3)(x) = {third_derivative_value}")
+absolute_precision = 1.0e-16
+exact_step_k, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value, absolute_precision
+)
+print(f"Optimal step k for f^(3)(x) = {exact_step_k}")
+
+# %%
+# Plot the absolute error between the exact step k and the intermediate k
+# of the algorithm.
+error_step_h = [
+    abs(step_h_history[i] - exact_step_k) for i in range(len(step_h_history))
+]
+fig = pl.figure(figsize=(4.0, 3.0))
+pl.title(f"Stepleman & Winarsky on {name} at x = {x}")
+pl.plot(range(len(step_h_history)), error_step_h, "o-")
+pl.xlabel("Iterations")
+pl.ylabel(r"$|h_i - h^\star|$")
+pl.yscale("log")
+ax = fig.gca()
+ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+pl.tight_layout()
+
+# %%
+# The previous figure shows that the algorithm gets closer to the optimal
+# value of the step k in the early iterations.
+# In the last iterations of the algorithm, the absolute error does not
+# continue to decrease monotically and produces a final absolute
+# error close to :math:`10^{-3}`.
 
 # %%

@@ -15,6 +15,7 @@ import numpy as np
 import pylab as pl
 import numericalderivative as nd
 import sys
+from matplotlib.ticker import MaxNLocator
 
 
 # %%
@@ -690,5 +691,80 @@ function = problem.get_function()
 f3inf, f3sup = compute_f3_inf_sup(function, x, k, relative_precision)
 print("f3inf = ", f3inf)
 print("f3sup = ", f3sup)
+
+# %%
+# See the history of steps during the bissection search
+# -----------------------------------------------------
+
+# %%
+# In Dumontet & Vignes's method, the bisection algorithm
+# produces a sequence of steps :math:`(k_i)_{1 \leq i \leq n_{iter}}`
+# where :math:`n_{iter} \in \mathbb{N}` is the number of iterations.
+# These steps are meant to converge to an
+# approximately optimal step of for the central finite difference formula of the
+# third derivative.
+# The optimal step :math:`k^\star` for the central finite difference formula of the
+# third derivative can be computed depending on the fifth derivative of the
+# function.
+# In the next example, we want to compute the absolute error between
+# each intermediate step :math:`k_i` and the exact value :math:`k^\star`
+# to see how close the algorithm gets to the exact step.
+# The list of intermediate steps during the algorithm can be obtained
+# thanks to the :meth:`~numericalderivative.DumontetVignes.get_step_history` method.
+
+
+# %%
+# In the next example, we print the intermediate steps k during
+# the bissection algorithm that searches for a step such
+# that the L ratio is satisfactory.
+
+# %%
+problem = nd.SinProblem()
+function = problem.get_function()
+name = problem.get_name()
+x = problem.get_x()
+algorithm = nd.DumontetVignes(function, x, verbose=True)
+kmin = 1.0e-10
+kmax = 1.0e0
+step, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+step_k_history = algorithm.get_step_history()
+print(f"Number of iterations = {number_of_iterations}")
+print(f"History of steps k : {step_k_history}")
+last_step_k = step_k_history[-1]
+print(f"Last step k : {last_step_k}")
+
+# %%
+# Then we compute the exact step, using :meth:`~numericalderivative.ThirdDerivativeCentral.compute_step`.
+fifth_derivative = problem.get_fifth_derivative()
+fifth_derivative_value = fifth_derivative(x)
+print(f"f^(5)(x) = {fifth_derivative_value}")
+absolute_precision = 1.0e-16
+exact_step_k, absolute_error = nd.ThirdDerivativeCentral.compute_step(
+    fifth_derivative_value, absolute_precision
+)
+print(f"Optimal step k for f^(3)(x) = {exact_step_k}")
+
+# %%
+# Plot the absolute error between the exact step k and the intermediate k
+# of the algorithm.
+error_step_k = [
+    abs(step_k_history[i] - exact_step_k) for i in range(len(step_k_history))
+]
+fig = pl.figure()
+pl.title(f"Dumontet & Vignes on {name} at x = {x}")
+pl.plot(range(len(step_k_history)), error_step_k, "o-")
+pl.xlabel("Iterations")
+pl.ylabel(r"$|k_i - k^\star|$")
+pl.yscale("log")
+ax = fig.gca()
+ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+pl.tight_layout()
+
+# %%
+# The previous figure shows that the algorithm gets closer to the optimal
+# value of the step k in the early iterations.
+# In the last iterations of the algorithm, the absolute error does not
+# continue to decrease monotically and produces a final absolute
+# error close to :math:`10^{-3}`.
 
 # %%

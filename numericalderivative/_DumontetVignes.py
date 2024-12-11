@@ -184,6 +184,7 @@ class DumontetVignes:
         self.first_derivative_central = nd.FirstDerivativeCentral(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
+        self.step_history = []
 
     def get_ell_min_max(self):
         r"""
@@ -358,6 +359,7 @@ class DumontetVignes:
         # Search solution using bissection
         k = kmin
         found = False
+        self.step_history = []
         for number_of_iterations in range(iteration_maximum):
             if self.verbose:
                 print(
@@ -369,6 +371,7 @@ class DumontetVignes:
                 k = np.exp(logk)
             else:
                 k = (kmin + kmax) / 2.0
+            self.step_history.append(k)
             ell, f3inf, f3sup = self.compute_ell(k)
             if self.verbose:
                 print(
@@ -507,3 +510,16 @@ class DumontetVignes:
         function_eval = self.function.get_number_of_evaluations()
         total_feval = finite_difference_feval + function_eval
         return total_feval
+
+    def get_step_history(self):
+        """
+        Return the history of steps during the bissection search.
+
+        Returns
+        -------
+        step_history : list(float)
+            The list of steps k during intermediate iterations of the bissection search.
+            This is updated by :meth:`compute_third_derivative`.
+
+        """
+        return self.step_history

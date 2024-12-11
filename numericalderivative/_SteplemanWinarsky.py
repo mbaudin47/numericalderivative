@@ -23,7 +23,7 @@ class SteplemanWinarsky:
 
     where :math:`f` is the function, :math:`x \in \mathbb{R}` is the
     input point and :math:`h > 0` is the step.
-    In the previous equation, the function :math:`d` is the central finite difference 
+    In the previous equation, the function :math:`d` is the central finite difference
     formula which is considered in this method.
     The goal of the method is to compute an approximately optimal
     :math:`h^\star` for the central F.D. formula using function evaluations
@@ -118,6 +118,7 @@ class SteplemanWinarsky:
         self.first_derivative_central = nd.FirstDerivativeCentral(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
+        self.step_history = []
         return
 
     def compute_step(self, initial_step=None, iteration_maximum=53, beta=4.0):
@@ -131,9 +132,9 @@ class SteplemanWinarsky:
         ----------
         initial_step : float, > 0.0
             The initial value of the differentiation step.
-            The default initial step is :math:`\beta \epsilon_r^{1/3} |x|` 
-            where :math:`\beta > 0` is the reduction factor, 
-            :math:`\epsilon_r` is the relative error and :math:`x` is the 
+            The default initial step is :math:`\beta \epsilon_r^{1/3} |x|`
+            where :math:`\beta > 0` is the reduction factor,
+            :math:`\epsilon_r` is the relative error and :math:`x` is the
             current point.
             The algorithm produces a sequence of decreasing steps.
             Hence, the initial step should be an upper bound of the true
@@ -176,8 +177,10 @@ class SteplemanWinarsky:
         diff_previous = np.inf
         estim_step = 0.0
         found_monotony_break = False
+        self.step_history = [initial_step]
         for number_of_iterations in range(iteration_maximum):
             h_current = h_previous / beta
+            self.step_history.append(h_current)
             f_prime_approx_current = self.first_derivative_central.compute(h_current)
             # eq. 2.3
             diff_current = abs(f_prime_approx_current - f_prime_approx_previous)
@@ -216,14 +219,14 @@ class SteplemanWinarsky:
         r"""
         Compute the number of (base 10) lost digits.
 
-        The loss of figures produced by the substraction in the finite 
+        The loss of figures produced by the substraction in the finite
         difference formula is (see (Stepleman & Winarsky, 1979), eq. 3.10 page 1261):
 
         .. math::
 
             \delta(h) = \left|\frac{2hd(h)}{f(x)}\right|
-        
-        where :math:`h > 0` is the step and :math:`d(h)` is the central 
+
+        where :math:`h > 0` is the step and :math:`d(h)` is the central
         finite difference formula.
         The number of decimal digits losts in the substraction is
         (see (Stepleman & Winarsky, 1979), eq. 3.11 page 1261):
@@ -231,7 +234,7 @@ class SteplemanWinarsky:
         .. math::
 
             N(h) = -\log_{10}(\delta(h))
-        
+
         where :math:`\log_{10}` is the base-10 decimal digit.
 
         Parameters
@@ -439,3 +442,21 @@ class SteplemanWinarsky:
         function_eval = self.function.get_number_of_evaluations()
         total_feval = finite_difference_feval + function_eval
         return total_feval
+
+    def get_step_history(self):
+        """
+        Return the history of steps during the search.
+
+        Let n be the number of iterations.
+        The best step h is not the last one (with index n-1), since this is the step
+        which breaks the monotony.
+        The best step has index n - 2.
+
+        Returns
+        -------
+        step_history : list(float)
+            The list of steps h during intermediate iterations of the search.
+            This is updated by :meth:`compute_step`.
+
+        """
+        return self.step_history

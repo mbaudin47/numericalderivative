@@ -5,8 +5,10 @@
 Benchmark Stepleman & Winarsky's method
 =======================================
 
-Find a step which is near to optimal for a centered finite difference 
-formula.
+The goal of this example is to benchmark the :class:`~numericalderivative.GillMurraySaundersWright`
+on a collection of test problems.
+These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
+static method, which returns a list of problems.
 
 References
 ----------
@@ -32,7 +34,7 @@ def compute_first_derivative_SW(
     verbose=False,
 ):
     """
-    Compute the approximate derivative from finite differences
+    Compute the approximate derivative from finite differences using Stepleman & Winarsky's method
 
     Uses bisection to find the approximate optimal step for the first
     derivative.
