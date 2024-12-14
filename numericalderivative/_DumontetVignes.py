@@ -289,11 +289,9 @@ class DumontetVignes:
             If no value is provided, the default is to compute the largest
             possible kmax using number_of_digits and x.
         logscale : bool, optional
-            Set to True to use a logarithmic scale when updating
-            the step k during the search.
-            Set to False to use a linear scale when updating
-            the step k during the search.
-            The default is False.
+            Set to True to use a logarithmic scale when updating the step k
+            during the search. Set to False to use a linear scale when
+            updating the step k during the search.
         markdown : bool, optional
             If True, then prints a Markdown table of the iterations.
 
@@ -306,6 +304,11 @@ class DumontetVignes:
             The number of number_of_iterations required to reach that optimum.
 
         """
+        if iteration_maximum < 1:
+            raise ValueError(
+                f"The maximum number of iterations must be > 1, "
+                f"but iteration_maximum = {iteration_maximum}"
+            )
         if self.verbose:
             print("x = %.3e" % (self.x))
             print(f"iteration_maximum = {iteration_maximum}")
@@ -363,8 +366,9 @@ class DumontetVignes:
         for number_of_iterations in range(iteration_maximum):
             if self.verbose:
                 print(
-                    "+ Iteration = %d, kmin = %.3e, kmax = %.3e"
-                    % (number_of_iterations, kmin, kmax)
+                    f"+ Iteration = {number_of_iterations}, "
+                    f"kmin = {kmin:.3e}, "
+                    f"kmax = {kmax:.3e}"
                 )
             if logscale:
                 logk = (np.log(kmin) + np.log(kmax)) / 2.0
@@ -375,8 +379,7 @@ class DumontetVignes:
             ell, f3inf, f3sup = self.compute_ell(k)
             if self.verbose:
                 print(
-                    "  k = %.3e, f3inf = %.3e, f3sup = %.3e, ell = %.3e"
-                    % (k, f3inf, f3sup, ell)
+                    f"  k = {k:.3e}, f3inf = {f3inf:.3e}, f3sup = {f3sup:.3e}, ell = {ell:.3e}"
                 )
             if markdown:
                 print(

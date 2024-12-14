@@ -239,13 +239,13 @@ class GillMurraySaundersWright:
 
         where :math:`k_\min` is the current lower bound of the search
         interval and :math:`k_\max` is the current upper bound.
-        This implies:
+        This implies that the update is the geometrical mean:
 
         .. math::
 
             h = \sqrt{k_{\min} k_{\max}}.
 
-        Otherwise, we use the mean:
+        Otherwise, we use the arithmetic mean:
 
         .. math::
 

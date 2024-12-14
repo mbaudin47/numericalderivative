@@ -24,6 +24,7 @@ from ._DerivativeBenchmark import (
 from ._DumontetVignes import DumontetVignes
 from ._GillMurraySaundersWright import GillMurraySaundersWright
 from ._SteplemanWinarsky import SteplemanWinarsky
+from ._SXXNForward import SXXNForward
 from ._FiniteDifferenceFormula import (
     FiniteDifferenceFormula,
     FirstDerivativeForward,
@@ -60,6 +61,7 @@ __all__ = [
     "DumontetVignes",
     "GillMurraySaundersWright",
     "SteplemanWinarsky",
+    "SXXNForward",
     "BuildBenchmark",
     "GeneralFiniteDifference",
 ]
