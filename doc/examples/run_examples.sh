@@ -13,3 +13,4 @@ python3 plot_stepleman_winarsky_benchmark.py
 python3 plot_stepleman_winarsky_plots.py
 python3 plot_stepleman_winarsky.py
 python3 plot_sxxn.py
+python3 plot_sxxn_benchmark.py

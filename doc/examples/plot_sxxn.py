@@ -214,6 +214,6 @@ pl.tight_layout()
 
 # %%
 # The previous figure shows that the algorithm converges relatively fast.
-# The criterion does not evolve monotically.
+# The absolute error does not evolve monotically.
 
 # %%

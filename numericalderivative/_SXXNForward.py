@@ -6,7 +6,7 @@ Class to define Shi, Xie, Xuan & Nocedal algorithm for the forward formula
 
 import numpy as np
 import numericalderivative as nd
-
+import math
 
 class SXXNForward:
     r"""
@@ -174,9 +174,14 @@ class SXXNForward:
                 f"The maximum number of iterations must be > 1, "
                 f"but iteration_maximum = {iteration_maximum}"
             )
+        fractional_part, _ = math.modf(iteration_maximum)
+        if fractional_part != 0.0:
+            raise ValueError(
+                f"The maximum number of iterations must be an integer, "
+                f"but its fractional part is {fractional_part}"
+            )
 
         # Initialize
-        number_of_iterations = 1
         f0 = self.function(self.x)
         absolute_precision = self.relative_precision * abs(f0)
         estim_step = 2.0 / np.sqrt(3.0) * np.sqrt(absolute_precision)
@@ -185,7 +190,8 @@ class SXXNForward:
         lower_step_bound = 0.0
         upper_step_bound = np.inf
         self.step_history = []
-        print("iteration_maximum =", iteration_maximum)
+        if self.verbose:
+            print("iteration_maximum =", iteration_maximum)
         for number_of_iterations in range(iteration_maximum):
             self.step_history.append(estim_step)
             test_ratio = self.compute_test_ratio(
@@ -286,7 +292,7 @@ class SXXNForward:
         -------
         step_history : list(float)
             The list of steps k during intermediate iterations of the bissection search.
-            This is updated by :meth:`compute_third_derivative`.
+            This is updated by :meth:`compute_step`.
 
         """
         return self.step_history

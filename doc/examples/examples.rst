@@ -42,3 +42,4 @@ Shi, Xie, Xuan & Nocedal
 .. toctree::
 
    ../auto_example/plot_sxxn
+   ../auto_example/plot_sxxn_benchmark
