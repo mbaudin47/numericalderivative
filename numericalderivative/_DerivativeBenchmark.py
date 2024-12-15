@@ -93,6 +93,21 @@ class DerivativeBenchmarkProblem:
             )
         self.interval = interval
 
+    def __str__(self, x = None) -> str:
+        if x is None:
+            x = self.x
+        report = ""
+        report += f"DerivativeBenchmarkProblem\n"
+        report += f"name = {self.name}\n"
+        report += f"x = {x}\n"
+        report += f"f(x) = {self.function(self.x)}\n"
+        report += f"f'(x) = {self.first_derivative(self.x)}\n"
+        report += f"f''(x) = {self.second_derivative(self.x)}\n"
+        report += f"f^(3)(x) = {self.fourth_derivative(self.x)}\n"
+        report += f"f^(4)(x) = {self.third_derivative(self.x)}\n"
+        report += f"f^(5)(x) = {self.fifth_derivative(self.x)}\n"
+        return report
+
     def get_name(self):
         """
         Return the name of the problem
@@ -473,6 +488,10 @@ class SinProblem(DerivativeBenchmarkProblem):
 
     for any :math:`x`.
     The test point is :math:`x = 1`.
+
+    This function can be difficult to differentiate at the points
+    :math:`x = \pm \pi` because the second derivative is zero at these
+    points.
 
     See problem #5 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.

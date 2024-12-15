@@ -94,6 +94,18 @@ tabulate.tabulate(
     headers=["Index", "Name", "x", "xmin", "xmax"],
     tablefmt="html",
 )
+
+# %%
+# Print each benchmark problems.
+
+# %%
+benchmark = nd.BuildBenchmark()
+number_of_problems = len(benchmark)
+for i in range(number_of_problems):
+    problem = benchmark[i]
+    print(problem)
+
+
 # %%
 # Plot the benchmark problems.
 

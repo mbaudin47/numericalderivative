@@ -180,12 +180,14 @@ def benchmark_SteplemanWinarsky_method(
             x,
             initial_step,
             derivative_function,
+            verbose=verbose
         )
         relative_error = absolute_error / abs(derivative_function(x))
         if verbose:
             print(
-                "x = %.3f, abs. error = %.3e, rel. error = %.3e, Func. eval. = %d"
-                % (x, absolute_error, relative_error, number_of_function_evaluations)
+                f"x = {x}, abs. error = {absolute_error:.3e}, "
+                f"rel. error = {relative_error:.3e}, "
+                f"Func. eval. = {number_of_function_evaluations}"
             )
         relative_error_array[i] = relative_error
         feval_array[i] = number_of_function_evaluations
@@ -201,11 +203,12 @@ def benchmark_SteplemanWinarsky_method(
 # %%
 print("+ Benchmark on several points")
 number_of_test_points = 100
-test_points = np.linspace(0.01, 12.2, number_of_test_points)
 initial_step = 1.0e-1
 problem = nd.ExponentialProblem()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
+interval = problem.get_interval()
+test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
     function, first_derivative, test_points, initial_step, True
 )

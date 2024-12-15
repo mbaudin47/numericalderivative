@@ -144,12 +144,14 @@ def benchmark_method(function, derivative_function, test_points, verbose=False):
             function,
             x,
             derivative_function,
+            verbose=verbose
         )
         relative_error = absolute_error / abs(derivative_function(x))
         if verbose:
             print(
-                "x = %.3f, abs. error = %.3e, rel. error = %.3e, Func. eval. = %d"
-                % (x, absolute_error, relative_error, number_of_function_evaluations)
+                f"x = {x}, abs. error = {absolute_error:.3e}, "
+                f"rel. error = {relative_error:.3e}, "
+                f"Func. eval. = {number_of_function_evaluations}"
             )
         relative_error_array[i] = relative_error
         feval_array[i] = number_of_function_evaluations
@@ -165,10 +167,11 @@ def benchmark_method(function, derivative_function, test_points, verbose=False):
 # %%
 print("+ Benchmark on several points")
 number_of_test_points = 100
-test_points = np.linspace(0.01, 12.2, number_of_test_points)
-problem = nd.ExponentialProblem()
+problem = nd.GMSWExponentialProblem()
+interval = problem.get_interval()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
+test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 average_relative_error, average_feval = benchmark_method(
     function, first_derivative, test_points, True
 )
