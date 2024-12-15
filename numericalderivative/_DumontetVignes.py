@@ -188,7 +188,7 @@ class DumontetVignes:
 
     def get_ell_min_max(self):
         r"""
-        Return the minimum and maximum of the L ratio
+        Return the minimum and maximum bounds of the L ratio
 
         The parameters L1 and L2 can be computed from the equations:
 

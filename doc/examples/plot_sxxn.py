@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Experiment with Stepleman & Winarsky method
-===========================================
+Experiment with Shi, Xie, Xuan & Nocedal method
+===============================================
 
 Find a step which is near to optimal for a centered finite difference 
 formula.
@@ -55,10 +55,10 @@ absolute_error = abs(f_prime_approx - f_prime_exact)
 # Consider this problem.
 
 # %%
-benchmark = nd.ScaledExponentialProblem()
-name = benchmark.get_name()
-x = benchmark.get_x()
-second_derivative = benchmark.get_second_derivative()
+problem = nd.ScaledExponentialProblem()
+name = problem.get_name()
+x = problem.get_x()
+second_derivative = problem.get_second_derivative()
 second_derivative_value = second_derivative(x)
 optimum_step, absolute_error = nd.FirstDerivativeForward.compute_step(
     second_derivative_value
@@ -73,15 +73,16 @@ print(f"Minimum absolute error= {absolute_error}")
 # -------------------
 
 # %%
-x = 1.0
-finite_difference = nd.FirstDerivativeForward(benchmark.function, x)
+function = problem.get_function()
+first_derivative = problem.get_first_derivative()
+finite_difference = nd.FirstDerivativeForward(function, x)
 number_of_points = 1000
 step_array = np.logspace(-8.0, 4.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     h = step_array[i]
     f_prime_approx = finite_difference.compute(h)
-    error_array[i] = abs(f_prime_approx - benchmark.first_derivative(x))
+    error_array[i] = abs(f_prime_approx - first_derivative(x))
 
 # %%
 pl.figure()
@@ -100,7 +101,7 @@ pl.tight_layout()
 # Use the algorithm to detect h*
 
 # %%
-algorithm = nd.SXXNForward(benchmark.function, x, verbose=True)
+algorithm = nd.SXXNForward(function, x, verbose=True)
 x = 1.0e0
 h_optimal, iterations = algorithm.compute_step()
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
@@ -108,7 +109,7 @@ print("Optimum h =", h_optimal)
 print("iterations =", iterations)
 print("Function evaluations =", number_of_function_evaluations)
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
-absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
+absolute_error = abs(f_prime_approx - problem.first_derivative(x))
 print("Error = ", absolute_error)
 
 
@@ -116,188 +117,35 @@ print("Error = ", absolute_error)
 # Plot the criterion depending on the step
 # ----------------------------------------
 
-# TODO : update this
-
 # %%
-# Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
-number_of_points = 20
-h_initial = 1.0e5
-beta = 4.0
-step_array = np.zeros((number_of_points))
-diff_array = np.zeros((number_of_points))
+# Plot the test ratio depending on h
+problem = nd.SinProblem()
+function = problem.get_function()
+name = problem.get_name()
+x = problem.get_x()
+algorithm = nd.SXXNForward(function, x, verbose=True)
+minimum_test_ratio, maximum_test_ratio = algorithm.get_ratio_min_max()
+absolute_precision = 1.0e-15
+number_of_points = 500
+step_array = np.logspace(-10.0, 3.0, number_of_points)
+test_ratio_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    if i == 0:
-        step_array[i] = h_initial / beta
-        diff_array[i] = fd_difference(step_array[i], h_initial, benchmark.function, x)
-    else:
-        step_array[i] = step_array[i - 1] / beta
-        diff_array[i] = fd_difference(
-            step_array[i], step_array[i - 1], benchmark.function, x
-        )
+    test_ratio_array[i] = algorithm.compute_test_ratio(
+        step_array[i], absolute_precision
+    )
 
 # %%
 pl.figure()
-pl.plot(step_array, diff_array, "o")
-pl.title("F.D. difference")
+pl.plot(step_array, test_ratio_array, "-", label="Test ratio")
+pl.plot(step_array, [minimum_test_ratio] * number_of_points, "--", label="Min")
+pl.plot(step_array, [maximum_test_ratio] * number_of_points, ":", label="Max")
+pl.title(f"{name} at x = {x}. Test ratio.")
 pl.xlabel("h")
-pl.ylabel(r"$|\operatorname{FD}(h) - \operatorname{FD}(h / 2) |$")
+pl.ylabel(r"$r$")
 pl.xscale("log")
 pl.yscale("log")
+pl.legend()
 pl.tight_layout()
-
-# %%
-# Compute reference step
-# ----------------------
-
-# %%
-p = 1.0e-16
-beta = 4.0
-h_reference = beta * p ** (1 / 3) * x
-print("Suggested h0 = ", h_reference)
-
-# %%
-# Plot number of lost digits vs h
-# -------------------------------
-
-# %%
-# The :meth:`~numericalderivative.SXXNForward.number_of_lost_digits` method
-# computes the number of lost digits in the approximated derivative
-# depending on the step.
-
-# %%
-h = 1.0e4
-print("Starting h = ", h)
-n_digits = algorithm.number_of_lost_digits(h)
-print("Number of lost digits = ", n_digits)
-threshold = np.log10(p ** (-1.0 / 3.0) / beta)
-print("Threshold = ", threshold)
-
-step_zero, iterations = algorithm.search_step_with_bisection(
-    1.0e-5,
-    1.0e7,
-)
-print("step_zero = ", step_zero)
-print("iterations = ", iterations)
-
-estim_step, iterations = algorithm.compute_step(step_zero, beta=1.5)
-print("estim_step = ", estim_step)
-print("iterations = ", iterations)
-
-# %%
-number_of_points = 1000
-step_array = np.logspace(-7.0, 7.0, number_of_points)
-n_digits_array = np.zeros((number_of_points))
-for i in range(number_of_points):
-    h = step_array[i]
-    n_digits_array[i] = algorithm.number_of_lost_digits(h)
-
-# %%
-y_max = algorithm.number_of_lost_digits(h_reference)
-pl.figure()
-pl.plot(step_array, n_digits_array, label="$N(h)$")
-pl.plot([h_reference] * 2, [0.0, y_max], "--", label=r"$h_{ref}$")
-pl.plot([step_zero] * 2, [0.0, y_max], "--", label=r"$h^{(0)}$")
-pl.plot([estim_step] * 2, [0.0, y_max], "--", label=r"$h^\star$")
-pl.plot(
-    step_array,
-    np.array([threshold] * number_of_points),
-    ":",
-    label=r"$T$",
-)
-pl.title("Number of digits lost by F.D.")
-pl.xlabel("h")
-pl.ylabel("$N(h)$")
-pl.xscale("log")
-_ = pl.legend(bbox_to_anchor=(1.0, 1.0))
-pl.tight_layout()
-
-
-# %%
-pl.figure()
-pl.plot(step_array, error_array)
-pl.plot([step_zero] * 2, [0.0, 1.0e-9], "--", label=r"$h^{(0)}$")
-pl.plot([estim_step] * 2, [0.0, 1.0e-9], "--", label=r"$h^\star$")
-pl.title("Finite difference")
-pl.xlabel("h")
-pl.ylabel("Error")
-pl.xscale("log")
-pl.legend(bbox_to_anchor=(1.0, 1.0))
-pl.yscale("log")
-pl.tight_layout()
-
-# %%
-# Use the bisection search
-# ------------------------
-
-
-# %%
-# In some cases, it is difficult to find the initial step.
-# In this case, we can use the bisection algorithm, which can produce
-# an initial guess for the step.c
-# This algorithm is based on a search for a suitable step within
-# an interval.
-
-# %%
-# Test with single point and default parameters.
-
-# %%
-x = 1.0
-f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(
-    1.0e-7,
-    1.0e7,
-)
-feval = algorithm.get_number_of_function_evaluations()
-print("FD(x) = ", f_prime_approx)
-print("number_of_iterations = ", number_of_iterations)
-print("Func. eval = ", feval)
-
-# %%
-# See how the algorithm behaves if we use or do not use the log scale
-# when searching for the optimal step (this can be slower).
-
-# %%
-x = 1.0
-maximum_bisection = 53
-print("+ No log scale.")
-h0, iterations = algorithm.search_step_with_bisection(
-    1.0e-7,
-    1.0e1,
-    maximum_bisection=53,
-    log_scale=False,
-)
-print("Pas initial = ", h0, ", iterations = ", iterations)
-print("+ Log scale.")
-h0, iterations = algorithm.search_step_with_bisection(
-    1.0e-7,
-    1.0e1,
-    maximum_bisection=53,
-    log_scale=True,
-)
-print("Pas initial = ", h0, ", iterations = ", iterations)
-
-# %%
-# In the next example, we search for an initial step using bisection,
-# then use this step as an initial guess for the algorithm.
-# Finally, we compute an approximation of the first derivative using
-# the finite difference formula.
-
-# %%
-benchmark = nd.ExponentialProblem()
-x = 1.0
-algorithm = nd.SXXNForward(benchmark.function, x, verbose=True)
-initial_step, estim_relative_error = algorithm.search_step_with_bisection(
-    1.0e-6,
-    100.0 * x,
-    beta=4.0,
-)
-step, number_of_iterations = algorithm.compute_step(initial_step)
-f_prime_approx = algorithm.compute_first_derivative(step)
-absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
-feval = algorithm.get_number_of_function_evaluations()
-print(
-    "x = %.3f, abs. error = %.3e, estim. rel. error = %.3e, Func. eval. = %d"
-    % (x, absolute_error, estim_relative_error, number_of_function_evaluations)
-)
 
 
 # %%
@@ -305,14 +153,14 @@ print(
 # ------------------------------------------
 
 # %%
-# In Stepleman & Winarsky's method, the algorithm
+# In Shi, Xie, Xuan & Nocedal's method, the algorithm
 # produces a sequence of steps :math:`(h_i)_{1 \leq i \leq n_{iter}}`
 # where :math:`n_{iter} \in \mathbb{N}` is the number of iterations.
 # These steps are meant to converge to an
-# approximately optimal step of for the central finite difference formula of the
+# approximately optimal step of for the forward finite difference formula of the
 # first derivative.
 # The optimal step :math:`h^\star` for the central finite difference formula of the
-# first derivative can be computed depending on the third derivative of the
+# first derivative can be computed depending on the second derivative of the
 # function.
 # In the next example, we want to compute the absolute error between
 # each intermediate step :math:`h_i` and the exact value :math:`h^\star`
@@ -327,39 +175,35 @@ print(
 # that the L ratio is satisfactory.
 
 # %%
-problem = nd.SinProblem()
+problem = nd.ScaledExponentialProblem()
 function = problem.get_function()
 name = problem.get_name()
 x = problem.get_x()
 algorithm = nd.SXXNForward(function, x, verbose=True)
-initial_step = 1.0e0
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.compute_step()
 step_h_history = algorithm.get_step_history()
 print(f"Number of iterations = {number_of_iterations}")
 print(f"History of steps h : {step_h_history}")
-# The last step is not the best one, sinces it breaks the monotony
-last_step_h = step_h_history[-2]
+last_step_h = step_h_history[-1]
 print(f"Last step h : {last_step_h}")
 
 # %%
-# Then we compute the exact step, using :meth:`~numericalderivative.ThirdDerivativeCentral.compute_step`.
-third_derivative = problem.get_third_derivative()
-third_derivative_value = third_derivative(x)
-print(f"f^(3)(x) = {third_derivative_value}")
+# Then we compute the exact step, using :meth:`~numericalderivative.FirstDerivativeForward.compute_step`.
+second_derivative = problem.get_second_derivative()
+second_derivative_value = second_derivative(x)
+print(f"f^(2)(x) = {second_derivative_value}")
 absolute_precision = 1.0e-16
-exact_step_k, absolute_error = nd.FirstDerivativeCentral.compute_step(
-    third_derivative_value, absolute_precision
+exact_step, absolute_error = nd.FirstDerivativeForward.compute_step(
+    second_derivative_value, absolute_precision
 )
-print(f"Optimal step k for f^(3)(x) = {exact_step_k}")
+print(f"Optimal step k for f'(x) using forward F.D. = {exact_step}")
 
 # %%
 # Plot the absolute error between the exact step k and the intermediate k
 # of the algorithm.
-error_step_h = [
-    abs(step_h_history[i] - exact_step_k) for i in range(len(step_h_history))
-]
+error_step_h = [abs(step_h_history[i] - exact_step) for i in range(len(step_h_history))]
 fig = pl.figure(figsize=(4.0, 3.0))
-pl.title(f"Stepleman & Winarsky on {name} at x = {x}")
+pl.title(f"Shi, Xie, Xuan & Nocedal on {name} at x = {x}")
 pl.plot(range(len(step_h_history)), error_step_h, "o-")
 pl.xlabel("Iterations")
 pl.ylabel(r"$|h_i - h^\star|$")
@@ -369,10 +213,7 @@ ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 pl.tight_layout()
 
 # %%
-# The previous figure shows that the algorithm gets closer to the optimal
-# value of the step k in the early iterations.
-# In the last iterations of the algorithm, the absolute error does not
-# continue to decrease monotically and produces a final absolute
-# error close to :math:`10^{-3}`.
+# The previous figure shows that the algorithm converges relatively fast.
+# The criterion does not evolve monotically.
 
 # %%

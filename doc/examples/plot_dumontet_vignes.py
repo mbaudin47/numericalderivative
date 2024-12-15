@@ -442,9 +442,9 @@ plot_ell_ratio(
 x = 1.0
 name = "scaled exp"
 problem = nd.ScaledExponentialProblem()
-function = problem.function
-function_derivative = problem.first_derivative
-function_third_derivative = problem.third_derivative
+function = problem.get_function()
+function_derivative = problem.get_first_derivative()
+function_third_derivative = problem.get_third_derivative()
 number_of_points = 1000
 step_array = np.logspace(-7.0, 6.0, number_of_points)
 kmin = 1.0e-2
@@ -544,11 +544,12 @@ print("f3sup = ", f3sup)
 
 # %%
 number_of_points = 1000
+function = problem.get_function()
 third_derivative = problem.get_third_derivative()
 k_array = np.logspace(-6.0, -1.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    algorithm = nd.ThirdDerivativeCentral(problem.function, x)
+    algorithm = nd.ThirdDerivativeCentral(function, x)
     f2nde_approx = algorithm.compute(k_array[i])
     error_array[i] = abs(f2nde_approx - third_derivative(x))
 
@@ -678,7 +679,8 @@ x = 1.0
 k = 1.0e-3
 print("x = ", x)
 print("k = ", k)
-algorithm = nd.ThirdDerivativeCentral(problem.function, x)
+function = problem.get_function()
+algorithm = nd.ThirdDerivativeCentral(function, x)
 approx_f3d = algorithm.compute(k)
 print("Approx. f''(x) = ", approx_f3d)
 third_derivative = problem.get_third_derivative()

@@ -56,10 +56,10 @@ absolute_error = abs(f_prime_approx - f_prime_exact)
 # Consider this problem.
 
 # %%
-benchmark = nd.ScaledExponentialProblem()
-name = benchmark.get_name()
-x = benchmark.get_x()
-third_derivative = benchmark.get_third_derivative()
+problem = nd.ScaledExponentialProblem()
+name = problem.get_name()
+x = problem.get_x()
+third_derivative = problem.get_third_derivative()
 third_derivative_value = third_derivative(x)
 optimum_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
     third_derivative_value
@@ -75,14 +75,16 @@ print(f"Minimum absolute error= {absolute_error}")
 
 # %%
 x = 1.0
-finite_difference = nd.FirstDerivativeCentral(benchmark.function, x)
+function = problem.get_function()
+first_derivative = problem.get_first_derivative()
+finite_difference = nd.FirstDerivativeCentral(function, x)
 number_of_points = 1000
 step_array = np.logspace(-7.0, 5.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     h = step_array[i]
     f_prime_approx = finite_difference.compute(h)
-    error_array[i] = abs(f_prime_approx - benchmark.first_derivative(x))
+    error_array[i] = abs(f_prime_approx - first_derivative(x))
 
 # %%
 pl.figure()
@@ -101,7 +103,9 @@ pl.tight_layout()
 # Use the algorithm to detect h*
 
 # %%
-algorithm = nd.SteplemanWinarsky(benchmark.function, x, verbose=True)
+function = problem.get_function()
+first_derivative = problem.get_first_derivative()
+algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
 initial_step = 1.0e8
 x = 1.0e0
 h_optimal, iterations = algorithm.compute_step(initial_step)
@@ -110,7 +114,7 @@ print("Optimum h =", h_optimal)
 print("iterations =", iterations)
 print("Function evaluations =", number_of_function_evaluations)
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
-absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
+absolute_error = abs(f_prime_approx - first_derivative(x))
 print("Error = ", absolute_error)
 
 
@@ -155,9 +159,10 @@ def fd_difference(h1, h2, function, x):
 number_of_points = 1000
 step_array = np.logspace(-7.0, 5.0, number_of_points)
 diff_array = np.zeros((number_of_points))
+function = problem.get_function()
 for i in range(number_of_points):
     h = step_array[i]
-    diff_array[i] = fd_difference(h, h / 2, benchmark.function, x)
+    diff_array[i] = fd_difference(h, h / 2, function, x)
 
 # %%
 pl.figure()
@@ -181,15 +186,14 @@ h_initial = 1.0e5
 beta = 4.0
 step_array = np.zeros((number_of_points))
 diff_array = np.zeros((number_of_points))
+function = problem.get_function()
 for i in range(number_of_points):
     if i == 0:
         step_array[i] = h_initial / beta
-        diff_array[i] = fd_difference(step_array[i], h_initial, benchmark.function, x)
+        diff_array[i] = fd_difference(step_array[i], h_initial, function, x)
     else:
         step_array[i] = step_array[i - 1] / beta
-        diff_array[i] = fd_difference(
-            step_array[i], step_array[i - 1], benchmark.function, x
-        )
+        diff_array[i] = fd_difference(step_array[i], step_array[i - 1], function, x)
 
 # %%
 pl.figure()
@@ -338,9 +342,11 @@ print("Pas initial = ", h0, ", iterations = ", iterations)
 # the finite difference formula.
 
 # %%
-benchmark = nd.ExponentialProblem()
+problem = nd.ExponentialProblem()
+function = problem.get_function()
+first_derivative = problem.get_first_derivative()
 x = 1.0
-algorithm = nd.SteplemanWinarsky(benchmark.function, x, verbose=True)
+algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
 initial_step, estim_relative_error = algorithm.search_step_with_bisection(
     1.0e-6,
     100.0 * x,
@@ -348,7 +354,7 @@ initial_step, estim_relative_error = algorithm.search_step_with_bisection(
 )
 step, number_of_iterations = algorithm.compute_step(initial_step)
 f_prime_approx = algorithm.compute_first_derivative(step)
-absolute_error = abs(f_prime_approx - benchmark.first_derivative(x))
+absolute_error = abs(f_prime_approx - first_derivative(x))
 feval = algorithm.get_number_of_function_evaluations()
 print(
     "x = %.3f, abs. error = %.3e, estim. rel. error = %.3e, Func. eval. = %d"

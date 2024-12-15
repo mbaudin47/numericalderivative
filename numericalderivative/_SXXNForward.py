@@ -39,6 +39,10 @@ class SXXNForward:
         The point where the derivative is to be evaluated.
     relative_precision : float, > 0, optional
         The relative precision of evaluation of f. The default is 1.0e-16.
+    minimum_test_ratio : float, > 1
+        The minimum value of the test ratio.
+    maximum_test_ratio : float, > minimum_test_ratio
+        The maximum value of the test ratio.
     args : list
         A list of optional arguments that the function takes as inputs.
         By default, there is no extra argument and calling sequence of
@@ -59,7 +63,14 @@ class SXXNForward:
     """
 
     def __init__(
-        self, function, x, relative_precision=1.0e-16, args=None, verbose=False
+        self,
+        function,
+        x,
+        relative_precision=1.0e-16,
+        minimum_test_ratio=1.5,
+        maximum_test_ratio=6.0,
+        args=None,
+        verbose=False,
     ):
         if relative_precision <= 0.0:
             raise ValueError(
@@ -72,7 +83,33 @@ class SXXNForward:
         self.function = nd.FunctionWithArguments(function, args)
         self.x = x
         self.step_history = []
+        if minimum_test_ratio <= 1.0:
+            raise ValueError(
+                f"The minimum test ratio must be > 1, "
+                f"but minimum_test_ratio = {minimum_test_ratio}"
+            )
+        if maximum_test_ratio <= minimum_test_ratio:
+            raise ValueError(
+                f"The maximum test ratio must be greater than the minimum, "
+                f"but minimum_test_ratio = {minimum_test_ratio} "
+                f" and maximum_test_ratio = {maximum_test_ratio}"
+            )
+        self.minimum_test_ratio = minimum_test_ratio
+        self.maximum_test_ratio = maximum_test_ratio
         return
+
+    def get_ratio_min_max(self):
+        r"""
+        Return the minimum and maximum of the test ratio
+
+        Returns
+        -------
+        minimum_test_ratio : float, > 0
+            The lower bound of the test ratio.
+        maximum_test_ratio : float, > 0
+            The upper bound of the test ratio.
+        """
+        return [self.minimum_test_ratio, self.maximum_test_ratio]
 
     def compute_test_ratio(self, step, absolute_precision, function_values=None):
         r"""
@@ -107,8 +144,6 @@ class SXXNForward:
     def compute_step(
         self,
         iteration_maximum=50,
-        minimum_test_ratio=1.5,
-        maximum_test_ratio=6.0,
         logscale=True,
     ):
         r"""
@@ -121,10 +156,6 @@ class SXXNForward:
         ----------
         iteration_maximum : int, optional
             The number of number_of_iterations. The default is 53.
-        minimum_test_ratio : float, > 1
-            The minimum value of the test ratio.
-        maximum_test_ratio : float, > minimum_test_ratio
-            The maximum value of the test ratio.
         logscale : bool, optional
             Set to True to use a logarithmic scale when updating the step k
             during the search. Set to False to use a linear scale when
@@ -143,17 +174,6 @@ class SXXNForward:
                 f"The maximum number of iterations must be > 1, "
                 f"but iteration_maximum = {iteration_maximum}"
             )
-        if minimum_test_ratio <= 1.0:
-            raise ValueError(
-                f"The minimum test ratio must be > 1, "
-                f"but minimum_test_ratio = {minimum_test_ratio}"
-            )
-        if maximum_test_ratio <= minimum_test_ratio:
-            raise ValueError(
-                f"The maximum test ratio must be greater than the minimum, "
-                f"but minimum_test_ratio = {minimum_test_ratio} "
-                f" and maximum_test_ratio = {maximum_test_ratio}"
-            )
 
         # Initialize
         number_of_iterations = 1
@@ -164,8 +184,10 @@ class SXXNForward:
         f4 = self.function(self.x + 4.0 * estim_step)
         lower_step_bound = 0.0
         upper_step_bound = np.inf
+        self.step_history = []
         print("iteration_maximum =", iteration_maximum)
         for number_of_iterations in range(iteration_maximum):
+            self.step_history.append(estim_step)
             test_ratio = self.compute_test_ratio(
                 estim_step, absolute_precision, [f0, f1, f4]
             )
@@ -174,23 +196,40 @@ class SXXNForward:
                     f"+ Iteration = {number_of_iterations}, "
                     f"lower_step_bound = {lower_step_bound:.3e}, "
                     f"upper_step_bound = {upper_step_bound:.3e}, "
+                    f"estim_step = {estim_step:.3e}, "
                     f"r = {test_ratio:.4f}"
                 )
-            if test_ratio < minimum_test_ratio:
+            if test_ratio < self.minimum_test_ratio:
+                if self.verbose:
+                    print(
+                        "    - test_ratio < self.minimum_test_ratio. "
+                        "Set lower bound to h."
+                    )
                 lower_step_bound = estim_step
-            elif test_ratio > upper_step_bound:
+            elif test_ratio > self.maximum_test_ratio:
+                if self.verbose:
+                    print(
+                        "    - test_ratio > self.minimum_test_ratio. "
+                        "Set upper bound to h."
+                    )
                 upper_step_bound = estim_step
             else:
                 break
             if upper_step_bound == np.inf:
+                if self.verbose:
+                    print("    - upper_step_bound == np.inf. Increase h.")
                 estim_step *= 4.0
                 f1 = f4
                 f4 = self.function(self.x + 4.0 * estim_step)
             elif lower_step_bound == 0.0:
+                if self.verbose:
+                    print("    - upper_step_bound == np.inf. Decrease h.")
                 estim_step /= 4.0
                 f4 = f1
                 f1 = self.function(self.x + estim_step)
             else:
+                if self.verbose:
+                    print("    - Bisection.")
                 if logscale:
                     log_step = (
                         np.log(lower_step_bound) + np.log(upper_step_bound)
@@ -198,6 +237,8 @@ class SXXNForward:
                     estim_step = np.exp(log_step)
                 else:
                     estim_step = (lower_step_bound + upper_step_bound) / 2.0
+                f1 = self.function(self.x + estim_step)
+                f4 = self.function(self.x + 4 * estim_step)
 
         return estim_step, number_of_iterations
 
@@ -236,3 +277,16 @@ class SXXNForward:
         function_eval = self.function.get_number_of_evaluations()
         total_feval = finite_difference_feval + function_eval
         return total_feval
+
+    def get_step_history(self):
+        """
+        Return the history of steps during the bissection search.
+
+        Returns
+        -------
+        step_history : list(float)
+            The list of steps k during intermediate iterations of the bissection search.
+            This is updated by :meth:`compute_third_derivative`.
+
+        """
+        return self.step_history
