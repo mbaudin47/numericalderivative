@@ -235,10 +235,15 @@ class CheckDerivativeBenchmark(unittest.TestCase):
         checker = ProblemChecker(problem)
         checker.check()
 
+    def test_polynomial_at_zero(self):
+        problem = nd.PolynomialProblem(x=0.0)
+        print(problem)
+
     def test_All(self):
         collection = nd.BuildBenchmark()
         for i in range(len(collection)):
             problem = collection[i]
+            print(problem)
             name = problem.get_name()
             print(f"#{i}/{len(collection)}, checking {name}")
             checker = ProblemChecker(problem)

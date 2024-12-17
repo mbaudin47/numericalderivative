@@ -63,6 +63,11 @@ class DerivativeBenchmarkProblem:
         >>> function = problem.get_function()
         >>> first_derivative = problem.get_first_derivative()
 
+        Print a problem.
+
+        >>> problem = nd.ExponentialProblem()
+        >>> print(problem)
+
         The next example creates a benchmark experiment.
 
         >>> import numericalderivative as nd
@@ -93,19 +98,29 @@ class DerivativeBenchmarkProblem:
             )
         self.interval = interval
 
-    def __str__(self, x = None) -> str:
-        if x is None:
-            x = self.x
+    def __str__(self, x=None) -> str:
         report = ""
         report += f"DerivativeBenchmarkProblem\n"
         report += f"name = {self.name}\n"
-        report += f"x = {x}\n"
+        report += f"x = {self.x}\n"
         report += f"f(x) = {self.function(self.x)}\n"
         report += f"f'(x) = {self.first_derivative(self.x)}\n"
-        report += f"f''(x) = {self.second_derivative(self.x)}\n"
-        report += f"f^(3)(x) = {self.fourth_derivative(self.x)}\n"
-        report += f"f^(4)(x) = {self.third_derivative(self.x)}\n"
-        report += f"f^(5)(x) = {self.fifth_derivative(self.x)}\n"
+        try:
+            report += f"f''(x) = {self.second_derivative(self.x)}\n"
+        except:
+            report += f"f''(x) = undefined\n"
+        try:
+            report += f"f^(3)(x) = {self.fourth_derivative(self.x)}\n"
+        except:
+            report += f"f^(3)(x) = undefined\n"
+        try:
+            report += f"f^(4)(x) = {self.third_derivative(self.x)}\n"
+        except:
+            report += f"f^(4)(x) = undefined\n"
+        try:
+            report += f"f^(5)(x) = {self.fifth_derivative(self.x)}\n"
+        except:
+            report += f"f^(5)(x) = undefined\n"
         return report
 
     def get_name(self):
@@ -226,9 +241,17 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
     This produces an infinite exact step for the first derivative
     central finite difference formula.
 
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
     """
 
-    def __init__(self, alpha=2):
+    def __init__(self, alpha=2, x=1.0, interval=[-12.0, 12.0]):
 
         def function(x):
             return x**self.alpha
@@ -263,8 +286,6 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
                 * x ** (self.alpha - 5)
             )
 
-        x = 1.0
-        interval = [-12.0, 12.0]
         if alpha == 0.0:
             raise ValueError(f"The parameter alpha = {alpha} must be nonzero.")
         self.alpha = alpha
@@ -297,9 +318,18 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
 
     See problem #1 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
+
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[0.0, 12.0]):
 
         def exp(x):
             return np.exp(x)
@@ -319,8 +349,6 @@ class ExponentialProblem(DerivativeBenchmarkProblem):
         def function_5th_derivative(x):
             return np.exp(x)
 
-        x = 1.0
-        interval = [0.0, 12.0]
         super().__init__(
             "exp",
             exp,
@@ -349,9 +377,18 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
 
     See problem #2 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
+
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[0.01, 12.0]):
 
         def log(x):
             return np.log(x)
@@ -371,8 +408,6 @@ class LogarithmicProblem(DerivativeBenchmarkProblem):
         def log_5th_derivative(x):
             return 24 / x**5
 
-        x = 1.0
-        interval = [0.01, 12.0]
         super().__init__(
             "log",
             log,
@@ -404,12 +439,19 @@ class SquareRootProblem(DerivativeBenchmarkProblem):
 
     See problem #3 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
+
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[0.01, 12.0]):
 
-        x = 1.0
-        interval = [0.01, 12.0]
         problem = PolynomialProblem(0.5)
         super().__init__(
             "sqrt",
@@ -439,9 +481,18 @@ class AtanProblem(DerivativeBenchmarkProblem):
 
     See problem #4 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
+
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
     """
 
-    def __init__(self):
+    def __init__(self, x=0.5, interval=[-12.0, 12.0]):
 
         def atan(x):
             return np.arctan(x)
@@ -461,8 +512,6 @@ class AtanProblem(DerivativeBenchmarkProblem):
         def atan_5th_derivative(x):
             return 24.0 * (5 * x**4 - 10 * x**2 + 1) / (1.0 + x**2) ** 5
 
-        x = 0.5
-        interval = [-12.0, 12.0]
         super().__init__(
             "atan",
             atan,
@@ -495,9 +544,18 @@ class SinProblem(DerivativeBenchmarkProblem):
 
     See problem #5 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
+
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[-np.pi, np.pi]):
 
         def sin(x):
             return np.sin(x)
@@ -517,8 +575,6 @@ class SinProblem(DerivativeBenchmarkProblem):
         def sin_5th_derivative(x):
             return np.cos(x)
 
-        x = 1.0
-        interval = [-np.pi, np.pi]
         super().__init__(
             "sin",
             sin,
@@ -553,15 +609,19 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
     ----------
     alpha : float, nonzero 0
         The parameter
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
     """
 
-    def __init__(self, alpha=1.0e6):
+    def __init__(self, alpha=1.0e6, x=1.0, interval=[0.0, 12.0]):
         if alpha == 0.0:
             raise ValueError(f"alpha = {alpha} should be nonzero")
         self.alpha = alpha
 
-        x = 1.0
-        interval = [0.0, 12.0]
         new_alpha = -1.0 / alpha
         problem = SXXNProblem2(new_alpha)
         super().__init__(
@@ -598,13 +658,19 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
     ----------
     alpha : float, > 0
         The parameter
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
 
     References
     ----------
     - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[0.0, 12.0]):
 
         sxxn1 = SXXNProblem1()
         sxxn1_function = sxxn1.get_function()
@@ -681,8 +747,6 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
             y = y1 + y2
             return y
 
-        x = 1.0
-        interval = [0.0, 12.0]
         super().__init__(
             "GMSW",
             gmsw_exp,
@@ -716,13 +780,22 @@ class SXXNProblem1(DerivativeBenchmarkProblem):
     A naive choice of the step for forward differences can result in
     extremely large step and huge error.
 
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
+
     References
     ----------
     - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
 
     """
 
-    def __init__(self):
+    def __init__(self, x=-8.0, interval=[-12.0, 12.0]):
         def sxxn1(x):
             expm1 = np.expm1(x)  # np.exp(x) - 1
             y = expm1**2
@@ -749,8 +822,6 @@ class SXXNProblem1(DerivativeBenchmarkProblem):
             y = 2 * np.exp(x) * (16 * np.exp(x) - 1)
             return y
 
-        x = -8.0
-        interval = [-12.0, 12.0]
         super().__init__(
             "SXXN1",
             sxxn1,
@@ -792,6 +863,12 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
     ----------
     alpha : float, > 0
         The parameter.
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
 
     References
     ----------
@@ -799,7 +876,7 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
 
     """
 
-    def __init__(self, alpha=1.0e2):
+    def __init__(self, alpha=1.0e2, x=0.01, interval=[-1.0, 1.0]):
         self.alpha = alpha
 
         def sxxn2(x):
@@ -825,9 +902,6 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
         def sxxn2_5th_derivative(x):
             y = self.alpha**5 * np.exp(self.alpha * x)
             return y
-
-        x = 0.01
-        interval = [-1.0, 1.0]
 
         super().__init__(
             "SXXN2",
@@ -860,13 +934,22 @@ class SXXNProblem3(DerivativeBenchmarkProblem):
     According to (Shi, Xie, Xuan & Nocedal, 2022), this problem
     is difficult because f'(1) = 0.
 
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
+
     References
     ----------
     - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
 
     """
 
-    def __init__(self):
+    def __init__(self, x=0.99999, interval=[-12.0, 12.0]):
         def sxxn3(x):
             y = x**4 + 3 * x**2 - 10 * x
             return y
@@ -890,9 +973,6 @@ class SXXNProblem3(DerivativeBenchmarkProblem):
         def sxxn3_5th_derivative(x):
             y = 0.0
             return y
-
-        x = 0.99999
-        interval = [-12.0, 12.0]
 
         super().__init__(
             "SXXN3",
@@ -929,13 +1009,22 @@ class SXXNProblem4(DerivativeBenchmarkProblem):
     The fourth derivative is zero, which produces an infinite optimal
     second derivative step for central finite difference formula.
 
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
+
     References
     ----------
     - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
 
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0e-9, interval=[-12.0, 12.0]):
         def sxxn_4(x):
             y = 1.0e4 * x**3 + 0.01 * x**2 + 5 * x
             return y
@@ -959,9 +1048,6 @@ class SXXNProblem4(DerivativeBenchmarkProblem):
         def sxxn4_5th_derivative(x):
             y = 0
             return y
-
-        x = 1.0e-9
-        interval = [-12.0, 12.0]
 
         super().__init__(
             "SXXN4",
@@ -992,16 +1078,24 @@ class OliverProblem1(DerivativeBenchmarkProblem):
     The test point is :math:`x = 1`.
     This is the ScaledExponentialProblem with :math:`\alpha = -1/4`.
 
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
+
     References
     ----------
     - Oliver, J. (1980). An algorithm for numerical differentiation of a function of one real variable. _Journal of Computational and Applied Mathematics, 6,_ 145–160.
 
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[-12.0, 12.0]):
         alpha = -1.0 / 4.0
-        problem = ScaledExponentialProblem(alpha)
-        interval = [-12.0, 12.0]
+        problem = ScaledExponentialProblem(alpha, x)
 
         super().__init__(
             "Oliver1",
@@ -1031,13 +1125,22 @@ class OliverProblem2(DerivativeBenchmarkProblem):
     for any :math:`x`.
     The test point is :math:`x = 1`.
 
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
+
     References
     ----------
     - Oliver, J. (1980). An algorithm for numerical differentiation of a function of one real variable. _Journal of Computational and Applied Mathematics, 6,_ 145–160.
 
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[-12.0, 12.0]):
         def function(x):
             y = np.exp(x**2)
             return y
@@ -1061,9 +1164,6 @@ class OliverProblem2(DerivativeBenchmarkProblem):
         def function_5th_derivative(x):
             y = 8.0 * np.exp(x**2) * (4 * x**4 + 20 * x**2 + 15)
             return y
-
-        x = 1.0
-        interval = [-12.0, 12.0]
 
         super().__init__(
             "Oliver2",
@@ -1093,13 +1193,22 @@ class OliverProblem3(DerivativeBenchmarkProblem):
     for any :math:`x`.
     The test point is :math:`x = 1`.
 
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
+
     References
     ----------
     - Oliver, J. (1980). An algorithm for numerical differentiation of a function of one real variable. _Journal of Computational and Applied Mathematics, 6,_ 145–160.
 
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[0.01, 12.0]):
         def function(x):
             y = x**2 * np.log(x)
             return y
@@ -1123,9 +1232,6 @@ class OliverProblem3(DerivativeBenchmarkProblem):
         def function_5th_derivative(x):
             y = 4.0 / x**3
             return y
-
-        x = 1.0
-        interval = [0.01, 12.0]
 
         super().__init__(
             "Oliver3",
@@ -1155,13 +1261,22 @@ class InverseProblem(DerivativeBenchmarkProblem):
     for any nonzero :math:`x`.
     The test point is :math:`x = 1`.
 
+    Parameters
+    ----------
+    x : float
+        The point where the derivative should be computed for a single test.
+    interval : list of 2 floats
+        The lower and upper bounds of the benchmark problem.
+        This can be useful for benchmarking on several points.
+        We must have interval[0] <= interval[1].
+
     References
     ----------
     - Oliver, J. (1980). An algorithm for numerical differentiation of a function of one real variable. _Journal of Computational and Applied Mathematics, 6,_ 145–160.
 
     """
 
-    def __init__(self):
+    def __init__(self, x=1.0, interval=[0.01, 12.0]):
         def function(x):
             y = 1.0 / x
             return y
@@ -1185,9 +1300,6 @@ class InverseProblem(DerivativeBenchmarkProblem):
         def function_5th_derivative(x):
             y = -120.0 / x**6
             return y
-
-        x = 1.0
-        interval = [0.01, 12.0]
 
         super().__init__(
             "inverse",
