@@ -119,7 +119,7 @@ print("Error = ", absolute_error)
 
 # %%
 # Plot the test ratio depending on h
-problem = nd.SinProblem()
+problem = nd.ScaledExponentialProblem()
 function = problem.get_function()
 name = problem.get_name()
 x = problem.get_x()
