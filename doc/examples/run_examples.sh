@@ -12,5 +12,5 @@ python3 plot_gill_murray_saunders_wright.py
 python3 plot_stepleman_winarsky_benchmark.py
 python3 plot_stepleman_winarsky_plots.py
 python3 plot_stepleman_winarsky.py
-python3 plot_sxxn.py
-python3 plot_sxxn_benchmark.py
+python3 plot_shi_xie_xuan_nocedal_forward.py
+python3 plot_shi_xie_xuan_nocedal_forward_benchmark.py

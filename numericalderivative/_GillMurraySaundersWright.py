@@ -445,3 +445,15 @@ class GillMurraySaundersWright:
 
         """
         return self.step_history
+
+    def get_relative_precision(self):
+        """
+        Return the relative precision of the function evaluation
+
+        Returns
+        -------
+        relative_precision : float
+            The relative precision of evaluation of f.
+    
+        """
+        return self.relative_precision

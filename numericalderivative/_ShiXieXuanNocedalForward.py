@@ -168,7 +168,7 @@ class ShiXieXuanNocedalForward:
 
     def compute_step(
         self,
-        initial_step,
+        initial_step=None,
         iteration_maximum=50,
         logscale=True,
     ):
@@ -187,13 +187,13 @@ class ShiXieXuanNocedalForward:
 
         where :math:`\epsilon_f > 0` is the absolute precision of the
         function evaluation.
-        This initial guess is not implemented here because the
-        hypothesis is not always true.
-        See :meth:`~numericalderivative.FirstDerivativeForward.compute_step`
-        for an implementation of the optimal step.
+        This initial guess is not always accurate and can lead to failure 
+        of the algorithm.
 
         Parameters
         ----------
+        initial_step : float, > 0
+            The initial step in the algorithm.
         iteration_maximum : int, optional
             The number of number_of_iterations. The default is 53.
         logscale : bool, optional
@@ -221,10 +221,8 @@ class ShiXieXuanNocedalForward:
                 f"but its fractional part is {fractional_part}"
             )
 
-        # Initialize
-        f0 = self.function(self.x)
         if initial_step is None:
-            initial_step = 2.0 / np.sqrt(3.0) * np.sqrt(self.absolute_precision)
+            estim_step = 2.0 / np.sqrt(3.0) * np.sqrt(self.absolute_precision)
         if initial_step < 0.0:
             raise ValueError(
                 f"The initial step must be > 0, "
@@ -232,6 +230,7 @@ class ShiXieXuanNocedalForward:
             )
         estim_step = initial_step
         # Compute function value
+        f0 = self.function(self.x)
         f1 = self.function(self.x + estim_step)
         f4 = self.function(self.x + 4.0 * estim_step)
         if self.verbose:
@@ -353,3 +352,15 @@ class ShiXieXuanNocedalForward:
 
         """
         return self.step_history
+
+    def get_absolute_precision(self):
+        """
+        Return the absolute precision of the function evaluation
+
+        Returns
+        -------
+        absolute_precision : float
+            The absolute precision of evaluation of f.
+    
+        """
+        return self.absolute_precision

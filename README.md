@@ -70,7 +70,10 @@ pip install numericalderivative
 ## Roadmap
 - See why the Dumontet & Vignes method fails on the polynomial function.
 - See why the Gill, Murray, Saunders & Wright method fails on the sin function.
-- See why SXXNForward fails on GMSW
+- In DumontetVignes.compute_third_derivative, set kmin and kmax as a list
+  with two floats. This simplifies the API.
+- In class GillMurraySaundersWright.compute_step_for_second_derivative, set kmin and kmax as a list
+  with two floats. This simplifies the API.
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
