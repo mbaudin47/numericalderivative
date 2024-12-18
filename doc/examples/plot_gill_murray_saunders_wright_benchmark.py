@@ -84,6 +84,9 @@ def benchmark_GMSW_method(
         print("Average number of function evaluations =", average_feval)
     return average_relative_error, average_feval
 
+# %%
+# The next example computes the approximate derivative on the 
+# :class:`~numericalderivative.ExponentialProblem`.
 
 # %%
 print("+ Benchmark on several points")
@@ -91,9 +94,10 @@ number_of_test_points = 100
 test_points = np.linspace(0.01, 12.2, number_of_test_points)
 kmin = 1.0e-16
 kmax = 1.0e-1
-benchmark = nd.ExponentialProblem()
+problem = nd.ExponentialProblem()
+print(problem)
 average_relative_error, average_feval = benchmark_GMSW_method(
-    benchmark.function, benchmark.first_derivative, test_points, kmin, kmax, True
+    problem.get_function(), problem.get_first_derivative(), test_points, kmin, kmax, True
 )
 
 
@@ -121,7 +125,10 @@ kmax_map = {
 }
 
 # %%
-# Benchmark GillMurraySaundersWright
+# Benchmark the :class:`~numericalderivative.GillMurraySaundersWright` class
+# on a collection of problems.
+
+# %%
 number_of_test_points = 100
 data = []
 function_list = nd.BuildBenchmark()

@@ -80,7 +80,8 @@ def benchmark_DumontetVignes_method(
             absolute_error = abs(f_prime_approx - exact_first_derivative)
             relative_error = absolute_error / abs(exact_first_derivative)
         except:
-            number_of_function_evaluations = np.nan
+            number_of_function_evaluations = -1
+            absolute_error = np.nan
             relative_error = np.nan
         if verbose:
             print(
@@ -97,12 +98,16 @@ def benchmark_DumontetVignes_method(
         print("Average number of function evaluations =", average_feval)
     return average_relative_error, average_feval
 
+# %%
+# The next example computes the approximate derivative on the 
+# :class:`~numericalderivative.LogarithmicProblem`.
 
 # %%
-x = 1.1
-benchmark = nd.LogarithmicProblem()
-f = benchmark.function
-f_prime = benchmark.get_first_derivative()
+problem = nd.LogarithmicProblem()
+print(problem)
+f = problem.get_function()
+f_prime = problem.get_first_derivative()
+x = problem.get_x()
 kmin = 1.0e-9
 kmax = 1.0e-3
 relative_precision = 1.0e-14
@@ -119,7 +124,10 @@ print(f"absolute_error = {absolute_error}")
 print(f"feval = {feval}")
 
 # %%
-print("+ Benchmark on several points")
+# The next example computes the approximate derivative on the 
+# :class:`~numericalderivative.ExponentialProblem` on a set of points.
+
+# %%
 number_of_test_points = 100
 test_points = np.linspace(0.01, 12.5, number_of_test_points)
 benchmark = nd.ExponentialProblem()
@@ -161,7 +169,10 @@ kmax_map = {
 
 
 # %%
-# Benchmark DumontetVignes
+# Benchmark the :class:`~numericalderivative.DumontetVignes` class
+# on a collection of problems.
+
+# %%
 number_of_test_points = 100
 relative_precision = 1.0e-14
 data = []

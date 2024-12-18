@@ -20,10 +20,20 @@ import numpy as np
 # %%
 # First, we create an use a single problem.
 # We create the problem and get the function and its
-# first derivative
+# first derivative.
+# Printing the object evaluates the function and its 
+# derivatives at the test point.
 
 # %%
 problem = nd.ExponentialProblem()
+print(problem)
+
+# %%
+# We can also use the pretty-print.
+problem
+
+# %%
+# Get the data from the problem
 x = problem.get_x()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()

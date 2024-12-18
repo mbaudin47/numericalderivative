@@ -123,6 +123,33 @@ class DerivativeBenchmarkProblem:
             report += f"f^(5)(x) = undefined\n"
         return report
 
+    def _repr_html_(self, x=None) -> str:
+        report = ""
+        report += f"<b>DerivativeBenchmarkProblem</b>\n"
+        report += f"<ul>\n"
+        report += f"<li>name = {self.name}</li>\n"
+        report += f"<li>x = {self.x}</li>\n"
+        report += f"<li>f(x) = {self.function(self.x)}</li>\n"
+        report += f"<li>f'(x) = {self.first_derivative(self.x)}</li>\n"
+        try:
+            report += f"<li>f''(x) = {self.second_derivative(self.x)}</li>\n"
+        except:
+            report += f"<li>f''(x) = undefined</li>\n"
+        try:
+            report += f"<li>f^(3)(x) = {self.fourth_derivative(self.x)}</li>\n"
+        except:
+            report += f"<li>f^(3)(x) = undefined</li>\n"
+        try:
+            report += f"<li>f^(4)(x) = {self.third_derivative(self.x)}</li>\n"
+        except:
+            report += f"<li>f^(4)(x) = undefined</li>\n"
+        try:
+            report += f"<li>f^(5)(x) = {self.fifth_derivative(self.x)}</li>\n"
+        except:
+            report += f"<li>f^(5)(x) = undefined</li>\n"
+        report += f"</ul>\n"
+        return report
+
     def get_name(self):
         """
         Return the name of the problem

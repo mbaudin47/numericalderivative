@@ -57,6 +57,7 @@ absolute_error = abs(f_prime_approx - f_prime_exact)
 
 # %%
 problem = nd.ScaledExponentialProblem()
+print(problem)
 name = problem.get_name()
 x = problem.get_x()
 third_derivative = problem.get_third_derivative()
@@ -74,7 +75,7 @@ print(f"Minimum absolute error= {absolute_error}")
 # -------------------
 
 # %%
-x = 1.0
+x = problem.get_x()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
 finite_difference = nd.FirstDerivativeCentral(function, x)
@@ -107,7 +108,7 @@ function = problem.get_function()
 first_derivative = problem.get_first_derivative()
 algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
 initial_step = 1.0e8
-x = 1.0e0
+x = problem.get_x()
 h_optimal, iterations = algorithm.compute_step(initial_step)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", h_optimal)

@@ -5,7 +5,7 @@
 Benchmark Stepleman & Winarsky's method
 =======================================
 
-The goal of this example is to problem the :class:`~numericalderivative.SteplemanWinarsky`
+The goal of this example is to benchmark the :class:`~numericalderivative.SteplemanWinarsky`
 class on a collection of test problems.
 These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
 static method, which returns a list of problems.
@@ -87,12 +87,13 @@ def compute_first_derivative_SW(
 
 
 # %%
-# The next script is a simple use of the :class:`SteplemanWinarsky` class.
+# The next script is a simple use of the :class:`~numericalderivative.SteplemanWinarsky` class.
 
 # %%
-x = 1.0
 problem = nd.ExponentialProblem()
+print(problem)
 function = problem.get_function()
+x = problem.get_x()
 algorithm = nd.SteplemanWinarsky(
     function,
     x,
@@ -197,9 +198,11 @@ def benchmark_SteplemanWinarsky_method(
         print("Average number of function evaluations =", average_feval)
     return average_relative_error, average_feval
 
+# %%
+# The next example computes the approximate derivative on the 
+# :class:`~numericalderivative.ExponentialProblem` on a set of points.
 
 # %%
-print("+ Benchmark on several points")
 number_of_test_points = 100
 initial_step = 1.0e-1
 problem = nd.ExponentialProblem()
@@ -236,7 +239,7 @@ initial_step_map = {
 
 # %%
 # The next script evaluates a collection of benchmark problems
-# using the :class:`SteplemanWinarsky` class.
+# using the :class:`~numericalderivative.SteplemanWinarsky` class.
 
 # %%
 number_of_test_points = 100

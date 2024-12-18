@@ -5,7 +5,7 @@
 Benchmark Shi, Xie, Xuan & Nocedal's forward method
 ===================================================
 
-The goal of this example is to problem the :class:`~numericalderivative.ShiXieXuanNocedalForward`
+The goal of this example is to benchmark the :class:`~numericalderivative.ShiXieXuanNocedalForward`
 class on a collection of test problems.
 These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
 static method, which returns a list of problems.
@@ -48,6 +48,8 @@ def compute_first_derivative(
         The exact first derivative of the function.
     initial_step : float, > 0
         A initial step.
+    relative_precision : float, > 0
+        The relative precision of the evaluation of the function
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
 
@@ -61,7 +63,7 @@ def compute_first_derivative(
         The number of function evaluations.
     """
 
-    absolute_precision = abs(function(x)) * relative_precision
+    absolute_precision = abs(function(x)) * relative_precision  # A guess
     try:
         algorithm = nd.ShiXieXuanNocedalForward(function, x, absolute_precision, verbose=verbose)
         step, _ = algorithm.compute_step(initial_step)
@@ -76,11 +78,15 @@ def compute_first_derivative(
 
 
 # %%
-# Test
-x = 1.0
+# The next example computes the approximate derivative on the 
+# :class:`~numericalderivative.ExponentialProblem`.
+
+# %%
 initial_step = 1.0e0
 problem = nd.ExponentialProblem()
+print(problem)
 function = problem.get_function()
+x = problem.get_x()
 algorithm = nd.ShiXieXuanNocedalForward(
     function,
     x,
@@ -131,6 +137,8 @@ def benchmark_method(
         The exact first derivative of the function
     test_points : list(float)
         The list of x points where the problem must be performed.
+    initial_step : float, > 0
+        A initial step.
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
 
@@ -177,6 +185,7 @@ def benchmark_method(
 print("+ Benchmark on several points")
 number_of_test_points = 31
 problem = nd.PolynomialProblem()
+print(problem)
 interval = problem.get_interval()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
