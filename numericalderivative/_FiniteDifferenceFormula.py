@@ -314,7 +314,7 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
         Compute the exact optimal step for central finite difference for f'.
 
         This is the step which is optimal to approximate the first derivative
-        f'(x) using the centered finite difference formula (see `compute()`).
+        f'(x) using the central finite difference formula (see `compute()`).
         The optimal step is:
 
         .. math::

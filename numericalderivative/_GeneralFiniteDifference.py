@@ -199,7 +199,7 @@ class GeneralFiniteDifference:
         self.direction = direction
         if self.direction == "central" and formula_accuracy % 2 == 1:
             raise ValueError(
-                f"Invalid accuracy for a centered formula with even differentiation order: "
+                f"Invalid accuracy for a central formula with even differentiation order: "
                 f"direction = {direction} is central, "
                 f"formula_accuracy = {formula_accuracy} is odd."
                 f" Please increase formula_accuracy by 1."

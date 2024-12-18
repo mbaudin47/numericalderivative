@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Experiment with Shi, Xie, Xuan & Nocedal method
-===============================================
+Experiment with Shi, Xie, Xuan & Nocedal forward method
+=======================================================
 
 Find a step which is near to optimal for a forward finite difference 
 formula.

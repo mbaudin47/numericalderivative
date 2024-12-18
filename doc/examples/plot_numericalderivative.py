@@ -5,7 +5,7 @@
 A simple demonstration of the methods
 =====================================
 
-Finds a step which is near to optimal for a centered finite difference 
+Finds a step which is near to optimal for a central finite difference 
 formula.
 
 References

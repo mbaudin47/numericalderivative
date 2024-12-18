@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Benchmark Shi, Xie, Xuan & Nocedal's method
-===========================================
+Benchmark Shi, Xie, Xuan & Nocedal's forward method
+===================================================
 
 The goal of this example is to problem the :class:`~numericalderivative.ShiXieXuanNocedalForward`
 class on a collection of test problems.

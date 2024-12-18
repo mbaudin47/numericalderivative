@@ -12,7 +12,7 @@ class SteplemanWinarsky:
     r"""
     Compute an approximately optimal step for the central F.D. formula of the first derivative
 
-    Uses centered finite difference to compute an approximate value of f'(x).
+    Uses central finite difference to compute an approximate value of f'(x).
     The approximate optimal step for f'(x) is computed using a monotony property.
 
     The central F.D. is:
@@ -409,7 +409,7 @@ class SteplemanWinarsky:
 
     def compute_first_derivative(self, step):
         """
-        Compute an approximate value of f'(x) using centered finite difference.
+        Compute an approximate value of f'(x) using central finite difference.
 
         The denominator is, however, implemented using the equation 3.4
         in Stepleman & Winarsky (1979).

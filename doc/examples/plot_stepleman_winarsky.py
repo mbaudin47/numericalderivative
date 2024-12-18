@@ -5,7 +5,7 @@
 Experiment with Stepleman & Winarsky method
 ===========================================
 
-Find a step which is near to optimal for a centered finite difference 
+Find a step which is near to optimal for a central finite difference 
 formula.
 
 References
