@@ -12,7 +12,7 @@ Algorithms for optimal step
        DumontetVignes
        GillMurraySaundersWright
        SteplemanWinarsky
-       SXXNForward
+       ShiXieXuanNocedalForward
 
 Finite Differences
 ------------------

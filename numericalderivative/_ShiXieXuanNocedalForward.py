@@ -9,7 +9,7 @@ import numericalderivative as nd
 import math
 
 
-class SXXNForward:
+class ShiXieXuanNocedalForward:
     r"""
     Compute an approximately optimal step for the forward F.D. formula of the first derivative
 
@@ -77,7 +77,7 @@ class SXXNForward:
     >>>     return np.exp(-x / alpha)
     >>>
     >>> x = 1.0e-2
-    >>> algorithm = nd.SXXNForward(
+    >>> algorithm = nd.ShiXieXuanNocedalForward(
     >>>     scaled_exp, x,
     >>> )
     >>> h_optimal, number_of_iterations = algorithm.compute_step()

@@ -26,18 +26,19 @@ from matplotlib.ticker import MaxNLocator
 
 # %%
 # In the next example, we use the algorithm on the exponential function.
-# We create the :class:`~numericalderivative.SXXNForward` algorithm using the function and the point x.
-# Then we use the :meth:`~numericalderivative.SXXNForward.compute_step()` method to compute the step,
+# We create the :class:`~numericalderivative.ShiXieXuanNocedalForward` algorithm using the function and the point x.
+# Then we use the :meth:`~numericalderivative.ShiXieXuanNocedalForward.compute_step()` method to compute the step,
 # using an upper bound of the step as an initial point of the algorithm.
-# Finally, use the :meth:`~numericalderivative.SXXNForward.compute_first_derivative()` method to compute
+# Finally, use the :meth:`~numericalderivative.ShiXieXuanNocedalForward.compute_first_derivative()` method to compute
 # an approximate value of the first derivative using finite differences.
-# The :meth:`~numericalderivative.SXXNForward.get_number_of_function_evaluations()` method
+# The :meth:`~numericalderivative.ShiXieXuanNocedalForward.get_number_of_function_evaluations()` method
 # can be used to get the number of function evaluations.
 
 # %%
 x = 1.0
-algorithm = nd.SXXNForward(np.exp, x, verbose=True)
-step, number_of_iterations = algorithm.compute_step()
+algorithm = nd.ShiXieXuanNocedalForward(np.exp, x, verbose=True)
+initial_step = 1.0
+step, number_of_iterations = algorithm.compute_step(initial_step)
 f_prime_approx = algorithm.compute_first_derivative(step)
 feval = algorithm.get_number_of_function_evaluations()
 f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
@@ -101,9 +102,10 @@ pl.tight_layout()
 # Use the algorithm to detect h*
 
 # %%
-algorithm = nd.SXXNForward(function, x, verbose=True)
+algorithm = nd.ShiXieXuanNocedalForward(function, x, verbose=True)
 x = 1.0e0
-h_optimal, iterations = algorithm.compute_step()
+initial_step = 1.0
+h_optimal, iterations = algorithm.compute_step(initial_step)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", h_optimal)
 print("iterations =", iterations)
@@ -123,7 +125,7 @@ problem = nd.ScaledExponentialProblem()
 function = problem.get_function()
 name = problem.get_name()
 x = problem.get_x()
-algorithm = nd.SXXNForward(function, x, verbose=True)
+algorithm = nd.ShiXieXuanNocedalForward(function, x, verbose=True)
 minimum_test_ratio, maximum_test_ratio = algorithm.get_ratio_min_max()
 absolute_precision = 1.0e-15
 number_of_points = 500
@@ -131,7 +133,7 @@ step_array = np.logspace(-10.0, 3.0, number_of_points)
 test_ratio_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     test_ratio_array[i] = algorithm.compute_test_ratio(
-        step_array[i], absolute_precision
+        step_array[i], 
     )
 
 # %%
@@ -166,7 +168,7 @@ pl.tight_layout()
 # each intermediate step :math:`h_i` and the exact value :math:`h^\star`
 # to see how close the algorithm gets to the exact step.
 # The list of intermediate steps during the algorithm can be obtained
-# thanks to the :meth:`~numericalderivative.SXXNForward.get_step_history` method.
+# thanks to the :meth:`~numericalderivative.ShiXieXuanNocedalForward.get_step_history` method.
 
 
 # %%
@@ -179,8 +181,9 @@ problem = nd.ScaledExponentialProblem()
 function = problem.get_function()
 name = problem.get_name()
 x = problem.get_x()
-algorithm = nd.SXXNForward(function, x, verbose=True)
-step, number_of_iterations = algorithm.compute_step()
+algorithm = nd.ShiXieXuanNocedalForward(function, x, verbose=True)
+initial_step = 1.e5
+step, number_of_iterations = algorithm.compute_step(initial_step)
 step_h_history = algorithm.get_step_history()
 print(f"Number of iterations = {number_of_iterations}")
 print(f"History of steps h : {step_h_history}")

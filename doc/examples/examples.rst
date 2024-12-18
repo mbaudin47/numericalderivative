@@ -41,5 +41,5 @@ Shi, Xie, Xuan & Nocedal
 
 .. toctree::
 
-   ../auto_example/plot_sxxn_forward
-   ../auto_example/plot_sxxn_forward_benchmark
+   ../auto_example/plot_shi_xie_xuan_nocedal_forward
+   ../auto_example/plot_shi_xie_xuan_nocedal_forward_benchmark

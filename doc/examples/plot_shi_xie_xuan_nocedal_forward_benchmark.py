@@ -3,9 +3,9 @@
 # Copyright 2024 - Michaël Baudin.
 """
 Benchmark Shi, Xie, Xuan & Nocedal's method
-=======================================
+===========================================
 
-The goal of this example is to problem the :class:`~numericalderivative.SXXNForward`
+The goal of this example is to problem the :class:`~numericalderivative.ShiXieXuanNocedalForward`
 class on a collection of test problems.
 These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
 static method, which returns a list of problems.
@@ -63,7 +63,7 @@ def compute_first_derivative(
 
     absolute_precision = abs(function(x)) * relative_precision
     try:
-        algorithm = nd.SXXNForward(function, x, absolute_precision, verbose=verbose)
+        algorithm = nd.ShiXieXuanNocedalForward(function, x, absolute_precision, verbose=verbose)
         step, _ = algorithm.compute_step(initial_step)
         f_prime_approx = algorithm.compute_first_derivative(step)
         f_prime_exact = first_derivative(x)
@@ -81,7 +81,7 @@ x = 1.0
 initial_step = 1.0e0
 problem = nd.ExponentialProblem()
 function = problem.get_function()
-algorithm = nd.SXXNForward(
+algorithm = nd.ShiXieXuanNocedalForward(
     function,
     x,
     verbose=True,
@@ -211,7 +211,7 @@ initial_step_map = {
 
 # %%
 # The next script evaluates a collection of benchmark problems
-# using the :class:`~numericalderivative.SXXNForward` class.
+# using the :class:`~numericalderivative.ShiXieXuanNocedalForward` class.
 
 # %%
 number_of_test_points = 100

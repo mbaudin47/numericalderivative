@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Test for SXXNForward class.
+Test for ShiXieXuanNocedalForward class.
 """
 import unittest
 import numpy as np
@@ -53,12 +53,12 @@ def scaled_exp_3d_derivative(x):
     return -np.exp(-x / alpha) / (alpha**3)
 
 
-class CheckSXXNForward(unittest.TestCase):
+class CheckShiXieXuanNocedalForward(unittest.TestCase):
     def test_base_default_default_step(self):
         print("test_base_default_default_step")
         x = 1.0e0
         # Check approximate optimal h
-        algorithm = nd.SXXNForward(my_exp, x, verbose=True)
+        algorithm = nd.ShiXieXuanNocedalForward(my_exp, x, verbose=True)
         initial_step = 1.0e0
         step_computed, iterations = algorithm.compute_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
@@ -85,7 +85,7 @@ class CheckSXXNForward(unittest.TestCase):
         print("test_scaled_exp")
         x = 1.0e0
         # Check approximate optimal h
-        algorithm = nd.SXXNForward(scaled_exp, x, verbose=True)
+        algorithm = nd.ShiXieXuanNocedalForward(scaled_exp, x, verbose=True)
         initial_step = 1.0e0
         step_computed, iterations = algorithm.compute_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
