@@ -25,9 +25,11 @@ import numericalderivative as nd
 
 # %%
 def compute_first_derivative(
-    f,
+    function,
     x,
-    f_prime,
+    first_derivative,
+    initial_step,
+    relative_precision=1.0e-15,
     verbose=False,
 ):
     """
@@ -38,12 +40,14 @@ def compute_first_derivative(
 
     Parameters
     ----------
-    f : function
+    function : function
         The function.
     x : float
         The point where the derivative is to be evaluated
-    f_prime : function
+    first_derivative : function
         The exact first derivative of the function.
+    initial_step : float, > 0
+        A initial step.
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
 
@@ -56,12 +60,15 @@ def compute_first_derivative(
     feval : int
         The number of function evaluations.
     """
+
+    absolute_precision = abs(function(x)) * relative_precision
     try:
-        algorithm = nd.SXXNForward(f, x, verbose=verbose)
-        step, _ = algorithm.compute_step()
+        algorithm = nd.SXXNForward(function, x, absolute_precision, verbose=verbose)
+        step, _ = algorithm.compute_step(initial_step)
         f_prime_approx = algorithm.compute_first_derivative(step)
+        f_prime_exact = first_derivative(x)
         feval = algorithm.get_number_of_function_evaluations()
-        absolute_error = abs(f_prime_approx - f_prime(x))
+        absolute_error = abs(f_prime_approx - f_prime_exact)
     except:
         absolute_error = np.nan
         feval = np.nan
@@ -71,6 +78,7 @@ def compute_first_derivative(
 # %%
 # Test
 x = 1.0
+initial_step = 1.0e0
 problem = nd.ExponentialProblem()
 function = problem.get_function()
 algorithm = nd.SXXNForward(
@@ -94,6 +102,7 @@ x = 1.0
     function,
     x,
     first_derivative,
+    initial_step,
     verbose=True,
 )
 print(
@@ -105,8 +114,11 @@ print(
 # Perform the benchmark
 # ---------------------
 
+
 # %%
-def benchmark_method(function, derivative_function, test_points, verbose=False):
+def benchmark_method(
+    function, derivative_function, test_points, initial_step, verbose=False
+):
     """
     Apply Stepleman & Winarsky method to compute the approximate first
     derivative using finite difference formula.
@@ -141,40 +153,61 @@ def benchmark_method(function, derivative_function, test_points, verbose=False):
             absolute_error,
             number_of_function_evaluations,
         ) = compute_first_derivative(
-            function,
-            x,
-            derivative_function,
-            verbose=verbose
+            function, x, derivative_function, initial_step, verbose=verbose
         )
-        relative_error = absolute_error / abs(derivative_function(x))
         if verbose:
             print(
-                f"x = {x}, abs. error = {absolute_error:.3e}, "
-                f"rel. error = {relative_error:.3e}, "
+                f"x = {x}, "
+                f"abs. error = {absolute_error:.3e}, "
                 f"Func. eval. = {number_of_function_evaluations}"
             )
+        relative_error = absolute_error / abs(derivative_function(x))
         relative_error_array[i] = relative_error
         feval_array[i] = number_of_function_evaluations
 
     average_relative_error = np.mean(relative_error_array)
     average_feval = np.mean(feval_array)
     if verbose:
-        print("Average error =", average_relative_error)
+        print("Average rel. error =", average_relative_error)
         print("Average number of function evaluations =", average_feval)
     return average_relative_error, average_feval
 
 
 # %%
 print("+ Benchmark on several points")
-number_of_test_points = 100
-problem = nd.GMSWExponentialProblem()
+number_of_test_points = 31
+problem = nd.PolynomialProblem()
 interval = problem.get_interval()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
+initial_step = 1.0e2
 test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 average_relative_error, average_feval = benchmark_method(
-    function, first_derivative, test_points, True
+    function, first_derivative, test_points, initial_step, verbose=True
 )
+
+# %%
+# Map from the problem name to the initial step.
+
+# %%
+initial_step_map = {
+    "polynomial": 1.0,
+    "inverse": 1.0e0,
+    "exp": 1.0e-1,
+    "log": 1.0e-3,  # x > 0
+    "sqrt": 1.0e-3,  # x > 0
+    "atan": 1.0e0,
+    "sin": 1.0e0,
+    "scaled exp": 1.0e5,
+    "GMSW": 1.0e0,
+    "SXXN1": 1.0e0,
+    "SXXN2": 1.0e0,  # Fails
+    "SXXN3": 1.0e0,
+    "SXXN4": 1.0e0,
+    "Oliver1": 1.0e0,
+    "Oliver2": 1.0e0,
+    "Oliver3": 1.0e-3,
+}
 
 # %%
 # The next script evaluates a collection of benchmark problems
@@ -185,22 +218,21 @@ number_of_test_points = 100
 data = []
 function_list = nd.BuildBenchmark()
 number_of_functions = len(function_list)
-average_relative_error_list = []
+average_absolute_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
     problem = function_list[i]
     name = problem.get_name()
+    initial_step = initial_step_map[name]
     function = problem.get_function()
     first_derivative = problem.get_first_derivative()
     interval = problem.get_interval()
     test_points = np.linspace(interval[0], interval[1], number_of_test_points)
     print(f"Function #{i}, {name}")
     average_relative_error, average_feval = benchmark_method(
-        function,
-        first_derivative,
-        test_points,
+        function, first_derivative, test_points, initial_step
     )
-    average_relative_error_list.append(average_relative_error)
+    average_absolute_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)
     data.append(
         (
@@ -212,8 +244,7 @@ for i in range(number_of_functions):
 data.append(
     [
         "Average",
-        "-",
-        np.nanmean(average_relative_error_list),
+        np.nanmean(average_absolute_error_list),
         np.nanmean(average_feval_list),
     ]
 )

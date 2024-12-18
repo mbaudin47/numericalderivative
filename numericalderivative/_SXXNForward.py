@@ -8,6 +8,7 @@ import numpy as np
 import numericalderivative as nd
 import math
 
+
 class SXXNForward:
     r"""
     Compute an approximately optimal step for the forward F.D. formula of the first derivative
@@ -30,6 +31,7 @@ class SXXNForward:
 
     where :math:`r_\ell > 0` is the lower bound of the test ratio
     and :math:`r_u` is the upper bound.
+    The algorithm is based on bisection.
 
     Parameters
     ----------
@@ -37,8 +39,11 @@ class SXXNForward:
         The function to differentiate.
     x : float
         The point where the derivative is to be evaluated.
-    relative_precision : float, > 0, optional
-        The relative precision of evaluation of f. The default is 1.0e-16.
+    absolute_precision : float, > 0, optional
+        The absolute precision of evaluation of f. The default is 1.0e-16.
+        If the function value is close to zero (e.g. for the sin function
+        at x = np.pi where f(x) is close to 1.0e-32), then the absolute
+        precision cannot always be computed from the relative precision.
     minimum_test_ratio : float, > 1
         The minimum value of the test ratio.
     maximum_test_ratio : float, > minimum_test_ratio
@@ -60,24 +65,46 @@ class SXXNForward:
     References
     ----------
     - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
+
+    Examples
+    ----------
+    Compute the step of a badly scaled function.
+
+    >>> import numericalderivative as nd
+    >>>
+    >>> def scaled_exp(x):
+    >>>     alpha = 1.e6
+    >>>     return np.exp(-x / alpha)
+    >>>
+    >>> x = 1.0e-2
+    >>> algorithm = nd.SXXNForward(
+    >>>     scaled_exp, x,
+    >>> )
+    >>> h_optimal, number_of_iterations = algorithm.compute_step()
+    >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
+
+    Set the initial step.
+
+    >>> initial_step = 1.0e8
+    >>> h_optimal, number_of_iterations = algorithm.compute_step(initial_step)
     """
 
     def __init__(
         self,
         function,
         x,
-        relative_precision=1.0e-16,
+        absolute_precision=1.0e-15,
         minimum_test_ratio=1.5,
         maximum_test_ratio=6.0,
         args=None,
         verbose=False,
     ):
-        if relative_precision <= 0.0:
+        if absolute_precision <= 0.0:
             raise ValueError(
-                f"The relative precision must be > 0. "
-                f"here precision = {relative_precision}"
+                f"The absolute precision must be > 0. "
+                f"here absolute precision = {absolute_precision}"
             )
-        self.relative_precision = relative_precision
+        self.absolute_precision = absolute_precision
         self.verbose = verbose
         self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
@@ -111,7 +138,7 @@ class SXXNForward:
         """
         return [self.minimum_test_ratio, self.maximum_test_ratio]
 
-    def compute_test_ratio(self, step, absolute_precision, function_values=None):
+    def compute_test_ratio(self, step, function_values=None):
         r"""
         Compute the test ratio
 
@@ -119,8 +146,6 @@ class SXXNForward:
         ----------
         step : float, > 0
             The finite difference step
-        absolute_precision : float, > 0
-            The absolute precision
         function_values : list(3 floats)
             The function values f(x), f(x + h), f(x + 4h).
             If function_values is None, then compute the funtion
@@ -138,11 +163,12 @@ class SXXNForward:
             function_values = [f0, f1, f4]
 
         f0, f1, f4 = function_values
-        test_ratio = abs(f4 - 4 * f1 + 3 * f0) / (8 * absolute_precision)
+        test_ratio = abs(f4 - 4 * f1 + 3 * f0) / (8 * self.absolute_precision)
         return test_ratio
 
     def compute_step(
         self,
+        initial_step,
         iteration_maximum=50,
         logscale=True,
     ):
@@ -151,6 +177,20 @@ class SXXNForward:
 
         This function computes an approximate optimal step h for the central
         finite difference.
+
+        The initial step suggested by (Shi, Xie, Xuan & Nocedal, 2022)
+        is based on the hypothesis that the second derivative is equal to 1:
+
+        .. math::
+
+            h_0 = \frac{2}{\sqrt(3)} \sqrt(\epsilon_f)
+
+        where :math:`\epsilon_f > 0` is the absolute precision of the
+        function evaluation.
+        This initial guess is not implemented here because the
+        hypothesis is not always true.
+        See :meth:`~numericalderivative.FirstDerivativeForward.compute_step`
+        for an implementation of the optimal step.
 
         Parameters
         ----------
@@ -183,27 +223,47 @@ class SXXNForward:
 
         # Initialize
         f0 = self.function(self.x)
-        absolute_precision = self.relative_precision * abs(f0)
-        estim_step = 2.0 / np.sqrt(3.0) * np.sqrt(absolute_precision)
+        if initial_step is None:
+            initial_step = 2.0 / np.sqrt(3.0) * np.sqrt(self.absolute_precision)
+        if initial_step < 0.0:
+            raise ValueError(
+                f"The initial step must be > 0, "
+                f"but initial_step = {initial_step:.3e}"
+            )
+        estim_step = initial_step
+        # Compute function value
         f1 = self.function(self.x + estim_step)
         f4 = self.function(self.x + 4.0 * estim_step)
-        lower_step_bound = 0.0
-        upper_step_bound = np.inf
-        self.step_history = []
         if self.verbose:
-            print("iteration_maximum =", iteration_maximum)
+            print(f"x = {self.x}")
+            print(f"f(x) = {f0}")
+            print(f"f(x + h) = {f1}")
+            print(f"f(x + 4 * h) = {f4}")
+            print(f"absolute_precision = {self.absolute_precision:.3e}")
+            print(f"estim_step={estim_step:.3e}")
+        lower_bound = 0.0
+        upper_bound = np.inf
+        self.step_history = []
         for number_of_iterations in range(iteration_maximum):
+            """
+            # Check that the upper bound of the step is not too small
+            # This would prevent the magic trick to be used, indicating
+            # that the problem is inconsistent with the method.
+            actual_step = (self.x + estim_step) - self.x  # Magic trick
+            if actual_step == 0.0:
+                raise ValueError(f"The actual step is zero at x = {self.x}. "
+                                 f"The method cannot be used for this problem.")
+            """
+            # Update history
             self.step_history.append(estim_step)
-            test_ratio = self.compute_test_ratio(
-                estim_step, absolute_precision, [f0, f1, f4]
-            )
+            test_ratio = self.compute_test_ratio(estim_step, [f0, f1, f4])
             if self.verbose:
                 print(
-                    f"+ Iteration = {number_of_iterations}, "
-                    f"lower_step_bound = {lower_step_bound:.3e}, "
-                    f"upper_step_bound = {upper_step_bound:.3e}, "
-                    f"estim_step = {estim_step:.3e}, "
-                    f"r = {test_ratio:.4f}"
+                    f"+ Iter.={number_of_iterations}, "
+                    f"lower_bound={lower_bound:.3e}, "
+                    f"upper_bound={upper_bound:.3e}, "
+                    f"estim_step={estim_step:.3e}, "
+                    f"r = {test_ratio:.3e}"
                 )
             if test_ratio < self.minimum_test_ratio:
                 if self.verbose:
@@ -211,38 +271,38 @@ class SXXNForward:
                         "    - test_ratio < self.minimum_test_ratio. "
                         "Set lower bound to h."
                     )
-                lower_step_bound = estim_step
+                lower_bound = estim_step
             elif test_ratio > self.maximum_test_ratio:
                 if self.verbose:
                     print(
                         "    - test_ratio > self.minimum_test_ratio. "
                         "Set upper bound to h."
                     )
-                upper_step_bound = estim_step
+                upper_bound = estim_step
             else:
-                break
-            if upper_step_bound == np.inf:
                 if self.verbose:
-                    print("    - upper_step_bound == np.inf. Increase h.")
+                    print(f"    - Step = {estim_step} is OK: stop.")
+                break
+            if upper_bound == np.inf:
+                if self.verbose:
+                    print("    - upper_bound == np.inf: increase h.")
                 estim_step *= 4.0
                 f1 = f4
                 f4 = self.function(self.x + 4.0 * estim_step)
-            elif lower_step_bound == 0.0:
+            elif lower_bound == 0.0:
                 if self.verbose:
-                    print("    - upper_step_bound == np.inf. Decrease h.")
+                    print("    - lower_bound == 0: decrease h.")
                 estim_step /= 4.0
                 f4 = f1
                 f1 = self.function(self.x + estim_step)
             else:
-                if self.verbose:
-                    print("    - Bisection.")
                 if logscale:
-                    log_step = (
-                        np.log(lower_step_bound) + np.log(upper_step_bound)
-                    ) / 2.0
+                    log_step = (np.log(lower_bound) + np.log(upper_bound)) / 2.0
                     estim_step = np.exp(log_step)
                 else:
-                    estim_step = (lower_step_bound + upper_step_bound) / 2.0
+                    estim_step = (lower_bound + upper_bound) / 2.0
+                if self.verbose:
+                    print(f"    - Bisection: estim_step = {estim_step:.3e}.")
                 f1 = self.function(self.x + estim_step)
                 f4 = self.function(self.x + 4 * estim_step)
 
@@ -250,10 +310,7 @@ class SXXNForward:
 
     def compute_first_derivative(self, step):
         """
-        Compute an approximate value of f'(x) using centered finite difference.
-
-        The denominator is, however, implemented using the equation 3.4
-        in Stepleman & Winarsky (1979).
+        Compute an approximate value of f'(x) using central finite difference.
 
         Parameters
         ----------

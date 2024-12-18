@@ -105,6 +105,8 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
             The differentiation step h.
         second_derivative_value : float
             The value of the second derivative at point x.
+            If this value is unknown, we suggest to use the value 1 as
+            an initial guess.
         absolute_precision : float, optional
             The absolute error of the function f at the point x.
             This is equal to abs(relative_precision * f(x)) where
@@ -149,6 +151,8 @@ class FirstDerivativeForward(FiniteDifferenceFormula):
         ----------
         second_derivative_value : float
             The value of the second derivative at point x.
+            If this value is unknown, we suggest to use the value 1 as
+            an initial guess.
         absolute_precision : float, optional
             The absolute error of the function f at the point x.
             This is equal to abs(relative_precision * f(x)) where
@@ -327,6 +331,8 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
         ----------
         third_derivative_value : float
             The value of the third derivative at point x.
+            If this value is unknown, we suggest to use the value 1 as
+            an initial guess.
         absolute_precision : float, optional
             The absolute error of the function f at the point x.
             This is equal to abs(relative_precision * f(x)) where
@@ -482,7 +488,9 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
         Parameters
         ----------
         fourth_derivative_value : float
-            The fourth derivative f^(4) at point x.
+            The value of the fourth derivative f^(4) at point x.
+            If this value is unknown, we suggest to use the value 1 as
+            an initial guess.
         absolute_precision : float, optional
             The absolute error of the function f at the point x.
             This is equal to abs(relative_precision * f(x)) where
@@ -552,7 +560,8 @@ class SecondDerivativeCentral(FiniteDifferenceFormula):
 
         This second derivative can be used to compute an
         approximate optimal step for the forward first finite difference.
-        Please use compute_step() to do this.
+        Please use :meth:`~numericalderivative.SecondDerivativeCentral.compute_step`
+        to do this.
 
         Parameters
         ----------
@@ -606,6 +615,8 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
             The differentiation step h.
         fifth_derivative_value : float
             The value of the fifth derivative at point x.
+            If this value is unknown, we suggest to use the value 1 as
+            an initial guess.
         absolute_precision : float, optional
             The absolute error of the function f at the point x.
             This is equal to abs(relative_precision * f(x)) where
@@ -649,6 +660,8 @@ class ThirdDerivativeCentral(FiniteDifferenceFormula):
         ----------
         fifth_derivative_value : float
             The fourth derivative f^(4) at point x.
+            If this value is unknown, we suggest to use the value 1 as
+            an initial guess.
         absolute_precision : float, optional
             The absolute error of the function f at the point x.
             This is equal to abs(relative_precision * f(x)) where

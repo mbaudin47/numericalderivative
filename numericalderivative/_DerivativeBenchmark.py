@@ -596,7 +596,7 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
 
     .. math::
 
-        f(x) = \exp(-x / \alpha)
+        f(x) = \exp(\alpha x)
 
     for any :math:`x` where :math:`\alpha` is a parameter.
     The test point is :math:`x = 1`.
@@ -617,13 +617,12 @@ class ScaledExponentialProblem(DerivativeBenchmarkProblem):
         We must have interval[0] <= interval[1].
     """
 
-    def __init__(self, alpha=1.0e6, x=1.0, interval=[0.0, 12.0]):
+    def __init__(self, alpha=-1.0e-6, x=1.0, interval=[0.0, 12.0]):
         if alpha == 0.0:
             raise ValueError(f"alpha = {alpha} should be nonzero")
         self.alpha = alpha
 
-        new_alpha = -1.0 / alpha
-        problem = SXXNProblem2(new_alpha)
+        problem = SXXNProblem2(alpha)
         super().__init__(
             "scaled exp",
             problem.get_function(),
@@ -664,13 +663,16 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
         The lower and upper bounds of the benchmark problem.
         This can be useful for benchmarking on several points.
         We must have interval[0] <= interval[1].
+        The interval should not contain x = 0 because the first
+        derivative is zero at this point.
+        This may create an infinite relative error.
 
     References
     ----------
     - Gill, P. E., Murray, W., Saunders, M. A., & Wright, M. H. (1983). Computing forward-difference intervals for numerical optimization. SIAM Journal on Scientific and Statistical Computing, 4(2), 310-321.
     """
 
-    def __init__(self, x=1.0, interval=[0.0, 12.0]):
+    def __init__(self, x=1.0, interval=[0.001, 12.0]):
 
         sxxn1 = SXXNProblem1()
         sxxn1_function = sxxn1.get_function()
@@ -850,7 +852,7 @@ class SXXNProblem2(DerivativeBenchmarkProblem):
     for any :math:`x` and :math:`\alpha` is a parameter.
     The test point is :math:`x = 0.01`.
 
-    The function is similar to ScaledExponentialProblem,
+    The function is similar to :class:`~numericalderivative.ScaledExponentialProblem`,
     but the scaling and the test point are different.
 
     According to (Shi, Xie, Xuan & Nocedal, 2022), this problem is
@@ -1072,11 +1074,12 @@ class OliverProblem1(DerivativeBenchmarkProblem):
 
     .. math::
 
-        f(x) = \exp(4 * x)
+        f(x) = \exp(4 x)
 
     for any :math:`x`.
     The test point is :math:`x = 1`.
-    This is the ScaledExponentialProblem with :math:`\alpha = -1/4`.
+    This is the :class:`~numericalderivative.ScaledExponentialProblem`
+    with :math:`\alpha = 4`.
 
     Parameters
     ----------
@@ -1093,9 +1096,8 @@ class OliverProblem1(DerivativeBenchmarkProblem):
 
     """
 
-    def __init__(self, x=1.0, interval=[-12.0, 12.0]):
-        alpha = -1.0 / 4.0
-        problem = ScaledExponentialProblem(alpha, x)
+    def __init__(self, alpha=4.0, x=1.0, interval=[-12.0, 12.0]):
+        problem = SXXNProblem2(alpha, x)
 
         super().__init__(
             "Oliver1",

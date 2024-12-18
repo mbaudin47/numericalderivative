@@ -59,7 +59,8 @@ class CheckSXXNForward(unittest.TestCase):
         x = 1.0e0
         # Check approximate optimal h
         algorithm = nd.SXXNForward(my_exp, x, verbose=True)
-        step_computed, iterations = algorithm.compute_step()
+        initial_step = 1.0e0
+        step_computed, iterations = algorithm.compute_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
@@ -85,7 +86,8 @@ class CheckSXXNForward(unittest.TestCase):
         x = 1.0e0
         # Check approximate optimal h
         algorithm = nd.SXXNForward(scaled_exp, x, verbose=True)
-        step_computed, iterations = algorithm.compute_step()
+        initial_step = 1.0e0
+        step_computed, iterations = algorithm.compute_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0

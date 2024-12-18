@@ -31,6 +31,7 @@ import numericalderivative as nd
 # The next function computes the approximate first derivative from finite
 # differences using Stepleman & Winarsky's method.
 
+
 # %%
 def compute_first_derivative_SW(
     f,
@@ -136,6 +137,7 @@ print(
 # Perform the benchmark
 # ---------------------
 
+
 # %%
 def benchmark_SteplemanWinarsky_method(
     function, derivative_function, test_points, initial_step, verbose=False
@@ -176,11 +178,7 @@ def benchmark_SteplemanWinarsky_method(
             absolute_error,
             number_of_function_evaluations,
         ) = compute_first_derivative_SW(
-            function,
-            x,
-            initial_step,
-            derivative_function,
-            verbose=verbose
+            function, x, initial_step, derivative_function, verbose=verbose
         )
         relative_error = absolute_error / abs(derivative_function(x))
         if verbose:
