@@ -21,7 +21,7 @@ class CheckGeneralFD(unittest.TestCase):
         f_third_derivative_exact = function_third_derivative(x)
         print(f"f_third_derivative_exact = {f_third_derivative_exact}")
         differentiation_order = 3
-        # centered formula is for even accuracy
+        # central formula is for even accuracy
         direction = "central"
         for formula_accuracy in [2, 4, 6]:
             formula = nd.GeneralFiniteDifference(

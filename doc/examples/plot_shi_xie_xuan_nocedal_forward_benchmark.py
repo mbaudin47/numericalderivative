@@ -2,19 +2,14 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Benchmark Stepleman & Winarsky's method
-=======================================
+Benchmark Shi, Xie, Xuan & Nocedal's forward method
+===================================================
 
-The goal of this example is to benchmark the :class:`~numericalderivative.SteplemanWinarsky`
+The goal of this example is to benchmark the :class:`~numericalderivative.ShiXieXuanNocedalForward`
 class on a collection of test problems.
 These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
 static method, which returns a list of problems.
 
-References
-----------
-- Adaptive numerical differentiation
-  R. S. Stepleman and N. D. Winarsky
-  Journal: Math. Comp. 33 (1979), 1257-1264 
 """
 
 # %%
@@ -27,38 +22,34 @@ import numericalderivative as nd
 # Compute the first derivative
 # ----------------------------
 
-# %%
-# The next function computes the approximate first derivative from finite
-# differences using Stepleman & Winarsky's method.
-
 
 # %%
-def compute_first_derivative_SW(
-    f,
+def compute_first_derivative(
+    function,
     x,
+    first_derivative,
     initial_step,
-    f_prime,
-    beta=4.0,
+    relative_precision=1.0e-15,
     verbose=False,
 ):
     """
-    Compute the approximate first derivative from finite differences using Stepleman & Winarsky's method
+    Compute the approximate derivative from finite differences using Shi, Xie, Xuan & Nocedal's method
 
     Uses bisection to find the approximate optimal step for the first
     derivative.
 
     Parameters
     ----------
-    f : function
+    function : function
         The function.
     x : float
         The point where the derivative is to be evaluated
+    first_derivative : function
+        The exact first derivative of the function.
     initial_step : float, > 0
         A initial step.
-    f_prime : function
-        The exact first derivative of the function.
-    beta : float, > 1.0
-        The reduction factor of h at each iteration.
+    relative_precision : float, > 0
+        The relative precision of the evaluation of the function
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
 
@@ -71,15 +62,15 @@ def compute_first_derivative_SW(
     feval : int
         The number of function evaluations.
     """
+
+    absolute_precision = abs(function(x)) * relative_precision  # A guess
     try:
-        algorithm = nd.SteplemanWinarsky(f, x, verbose=verbose)
-        step, _ = algorithm.compute_step(
-            initial_step,
-            beta=beta,
-        )
+        algorithm = nd.ShiXieXuanNocedalForward(function, x, absolute_precision, verbose=verbose)
+        step, _ = algorithm.compute_step(initial_step)
         f_prime_approx = algorithm.compute_first_derivative(step)
+        f_prime_exact = first_derivative(x)
         feval = algorithm.get_number_of_function_evaluations()
-        absolute_error = abs(f_prime_approx - f_prime(x))
+        absolute_error = abs(f_prime_approx - f_prime_exact)
     except:
         absolute_error = np.nan
         feval = np.nan
@@ -87,46 +78,37 @@ def compute_first_derivative_SW(
 
 
 # %%
-# The next script is a simple use of the :class:`~numericalderivative.SteplemanWinarsky` class.
+# The next example computes the approximate derivative on the 
+# :class:`~numericalderivative.ExponentialProblem`.
 
 # %%
+initial_step = 1.0e0
 problem = nd.ExponentialProblem()
 print(problem)
 function = problem.get_function()
 x = problem.get_x()
-algorithm = nd.SteplemanWinarsky(
+algorithm = nd.ShiXieXuanNocedalForward(
     function,
     x,
     verbose=True,
 )
-third_derivative = problem.get_third_derivative()
-third_derivative_value = third_derivative(x)
-optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
-    third_derivative_value
+second_derivative = problem.get_second_derivative()
+second_derivative_value = second_derivative(x)
+optimal_step, absolute_error = nd.FirstDerivativeForward.compute_step(
+    second_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
-
-h0, iterations = algorithm.search_step_with_bisection(
-    1.0e-7,
-    1.0e1,
-)
-print("Pas initial = ", h0, ", iterations = ", iterations)
-lost_digits = algorithm.number_of_lost_digits(h0)
-print("lost_digits = ", lost_digits)
-
-initial_step = 1.0e1
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
 x = 1.0
 (
     absolute_error,
     number_of_function_evaluations,
-) = compute_first_derivative_SW(
+) = compute_first_derivative(
     function,
     x,
-    initial_step,
     first_derivative,
-    beta=10.0,
+    initial_step,
     verbose=True,
 )
 print(
@@ -140,7 +122,7 @@ print(
 
 
 # %%
-def benchmark_SteplemanWinarsky_method(
+def benchmark_method(
     function, derivative_function, test_points, initial_step, verbose=False
 ):
     """
@@ -156,7 +138,7 @@ def benchmark_SteplemanWinarsky_method(
     test_points : list(float)
         The list of x points where the problem must be performed.
     initial_step : float, > 0
-        The initial step.
+        A initial step.
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
 
@@ -178,40 +160,39 @@ def benchmark_SteplemanWinarsky_method(
         (
             absolute_error,
             number_of_function_evaluations,
-        ) = compute_first_derivative_SW(
-            function, x, initial_step, derivative_function, verbose=verbose
+        ) = compute_first_derivative(
+            function, x, derivative_function, initial_step, verbose=verbose
         )
-        relative_error = absolute_error / abs(derivative_function(x))
         if verbose:
             print(
-                f"x = {x}, abs. error = {absolute_error:.3e}, "
-                f"rel. error = {relative_error:.3e}, "
+                f"x = {x}, "
+                f"abs. error = {absolute_error:.3e}, "
                 f"Func. eval. = {number_of_function_evaluations}"
             )
+        relative_error = absolute_error / abs(derivative_function(x))
         relative_error_array[i] = relative_error
         feval_array[i] = number_of_function_evaluations
 
     average_relative_error = np.mean(relative_error_array)
     average_feval = np.mean(feval_array)
     if verbose:
-        print("Average error =", average_relative_error)
+        print("Average rel. error =", average_relative_error)
         print("Average number of function evaluations =", average_feval)
     return average_relative_error, average_feval
 
-# %%
-# The next example computes the approximate derivative on the 
-# :class:`~numericalderivative.ExponentialProblem` on a set of points.
 
 # %%
-number_of_test_points = 100
-initial_step = 1.0e-1
-problem = nd.ExponentialProblem()
+print("+ Benchmark on several points")
+number_of_test_points = 31
+problem = nd.PolynomialProblem()
+print(problem)
+interval = problem.get_interval()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
-interval = problem.get_interval()
+initial_step = 1.0e2
 test_points = np.linspace(interval[0], interval[1], number_of_test_points)
-average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
-    function, first_derivative, test_points, initial_step, True
+average_relative_error, average_feval = benchmark_method(
+    function, first_derivative, test_points, initial_step, verbose=True
 )
 
 # %%
@@ -239,14 +220,14 @@ initial_step_map = {
 
 # %%
 # The next script evaluates a collection of benchmark problems
-# using the :class:`~numericalderivative.SteplemanWinarsky` class.
+# using the :class:`~numericalderivative.ShiXieXuanNocedalForward` class.
 
 # %%
 number_of_test_points = 100
 data = []
 function_list = nd.BuildBenchmark()
 number_of_functions = len(function_list)
-average_relative_error_list = []
+average_absolute_error_list = []
 average_feval_list = []
 for i in range(number_of_functions):
     problem = function_list[i]
@@ -257,15 +238,14 @@ for i in range(number_of_functions):
     interval = problem.get_interval()
     test_points = np.linspace(interval[0], interval[1], number_of_test_points)
     print(f"Function #{i}, {name}")
-    average_relative_error, average_feval = benchmark_SteplemanWinarsky_method(
+    average_relative_error, average_feval = benchmark_method(
         function, first_derivative, test_points, initial_step
     )
-    average_relative_error_list.append(average_relative_error)
+    average_absolute_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)
     data.append(
         (
             name,
-            initial_step,
             average_relative_error,
             average_feval,
         )
@@ -273,14 +253,13 @@ for i in range(number_of_functions):
 data.append(
     [
         "Average",
-        "-",
-        np.nanmean(average_relative_error_list),
+        np.nanmean(average_absolute_error_list),
         np.nanmean(average_feval_list),
     ]
 )
 tabulate.tabulate(
     data,
-    headers=["Name", "h0", "Average rel. error", "Average func. eval"],
+    headers=["Name", "Average rel. error", "Average func. eval"],
     tablefmt="html",
 )
 

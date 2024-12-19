@@ -35,3 +35,11 @@ Stepleman & Winarsky
    ../auto_example/plot_stepleman_winarsky
    ../auto_example/plot_stepleman_winarsky_plots
    ../auto_example/plot_stepleman_winarsky_benchmark
+
+Shi, Xie, Xuan & Nocedal
+------------------------
+
+.. toctree::
+
+   ../auto_example/plot_shi_xie_xuan_nocedal_forward
+   ../auto_example/plot_shi_xie_xuan_nocedal_forward_benchmark

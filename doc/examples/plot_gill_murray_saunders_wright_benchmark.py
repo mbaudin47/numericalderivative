@@ -5,8 +5,10 @@
 Benchmark Gill, Murray, Saunders and Wright method
 ==================================================
 
-Find a step which is near to optimal for a centered finite difference 
-formula.
+The goal of this example is to benchmark the :class:`~numericalderivative.GillMurraySaundersWright`
+on a collection of test problems.
+These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
+static method, which returns a list of problems.
 
 References
 ----------
@@ -25,7 +27,7 @@ def benchmark_GMSW_method(
     function, derivative_function, test_points, kmin, kmax, verbose=False
 ):
     """
-    Apply Stepleman & Winarsky method to compute the approximate first
+    Apply Gill, Murray, Saunders & Wright method to compute the approximate first
     derivative using finite difference formula.
 
     Parameters
@@ -82,6 +84,9 @@ def benchmark_GMSW_method(
         print("Average number of function evaluations =", average_feval)
     return average_relative_error, average_feval
 
+# %%
+# The next example computes the approximate derivative on the 
+# :class:`~numericalderivative.ExponentialProblem`.
 
 # %%
 print("+ Benchmark on several points")
@@ -89,9 +94,10 @@ number_of_test_points = 100
 test_points = np.linspace(0.01, 12.2, number_of_test_points)
 kmin = 1.0e-16
 kmax = 1.0e-1
-benchmark = nd.ExponentialProblem()
+problem = nd.ExponentialProblem()
+print(problem)
 average_relative_error, average_feval = benchmark_GMSW_method(
-    benchmark.function, benchmark.first_derivative, test_points, kmin, kmax, True
+    problem.get_function(), problem.get_first_derivative(), test_points, kmin, kmax, True
 )
 
 
@@ -119,7 +125,10 @@ kmax_map = {
 }
 
 # %%
-# Benchmark GillMurraySaundersWright
+# Benchmark the :class:`~numericalderivative.GillMurraySaundersWright` class
+# on a collection of problems.
+
+# %%
 number_of_test_points = 100
 data = []
 function_list = nd.BuildBenchmark()
