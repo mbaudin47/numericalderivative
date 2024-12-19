@@ -184,7 +184,6 @@ tabulate.tabulate(
 )
 # %%
 # Notice that the method does not perform correctly for the :class:`~numericalderivative.PolynomialProblem`.
-# Indeed, this function as a zero third derivative. 
-# This produces a L ratio which is negative, so that there is no value of the 
+# Indeed, this function as a zero third derivative.
+# This produces a L ratio which is negative, so that there is no value of the
 # step :math:`k` such that the condition is satisfied.
-

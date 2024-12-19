@@ -145,7 +145,7 @@ tabulate.tabulate(data, headers=["x", "Rel. err.", "F. Eval."], tablefmt="html")
 # %%
 initial_step_map = {
     "polynomial": 1.0,
-    "inverse": 1.0e-2,
+    "inverse": 1.0e-3,
     "exp": 1.0e-1,
     "log": 1.0e-3,  # x > 0
     "sqrt": 1.0e-3,  # x > 0
@@ -154,7 +154,7 @@ initial_step_map = {
     "scaled exp": 1.0e5,
     "GMSW": 1.0e0,
     "SXXN1": 1.0e0,
-    "SXXN2": 1.0e0,  # Fails
+    "SXXN2": 1.0e0,
     "SXXN3": 1.0e0,
     "SXXN4": 1.0e0,
     "Oliver1": 1.0e0,

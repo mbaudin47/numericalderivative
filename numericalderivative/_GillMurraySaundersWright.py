@@ -79,10 +79,11 @@ class GillMurraySaundersWright:
 
     The algorithm can fail in the case where the function is odd
     or approximately linear.
-    For example, the function :math:`\sin` is linear at point :math:`x = -\pi`.
+    For example, the function :math:`\sin` is linear at point :math:`x = \pm \pi`.
     In this case, the second derivative is zero, which produces a
     value of :math:`\Phi` zero or close to zero.
     This produces an infinite value of the condition error.
+    The same problem appears at :math:`x = 0`.
 
     In this algorithm fails to produce a consistent step, one can compute
     an approximately optimal step using :meth:`~numericalderivative.FirstDerivativeForward.compute_step`.

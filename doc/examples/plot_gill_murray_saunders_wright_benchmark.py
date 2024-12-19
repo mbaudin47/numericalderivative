@@ -185,7 +185,11 @@ tabulate.tabulate(
 # %%
 # Notice that the method cannot perform correctly for the sin function
 # at the point
-# Indeed, this function is such that f''(x) = 0 if x = +/-pi.
+# Indeed, this function is such that :math:`f''(x) = 0` if :math:`x = \pm \pi`.
 # In this case, the condition error is infinite and the method
 # cannot work.
-# Therefore, we make so that the points +/-pi are excluded from the benchmark.
+# Therefore, we make so that the points :math:`\pm \pi` are excluded from the benchmark.
+# The same problem appears at the point :math:`x = 0`.
+# This point is not included in the test set if the number of points is even
+# (e.g. with `number_of_test_points = 100`), but it might appear if the
+# number of test points is odd.
