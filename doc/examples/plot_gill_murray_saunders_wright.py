@@ -222,9 +222,6 @@ def benchmark_method(
 
     average_error = np.mean(relative_error_array)
     average_feval = np.mean(feval_array)
-    if verbose:
-        print("Average error =", average_error)
-        print("Average number of function evaluations =", average_feval)
     return average_error, average_feval
 
 
@@ -242,8 +239,10 @@ average_error, average_feval = benchmark_method(
     test_points,
     kmin,
     kmax,
-    True,
+    False,
 )
+print("Average error =", average_error)
+print("Average number of function evaluations =", average_feval)
 
 # %%
 # Plot the condition error depending on the step
@@ -261,7 +260,7 @@ def plot_condition_error(name, function, x, kmin, kmax, number_of_points=1000):
         condition_array[i] = algorithm.compute_condition(k_array[i])
 
     #
-    pl.figure(figsize=(4.0, 3.0))
+    pl.figure()
     pl.title(f"Condition error of {name} at x = {x}")
     pl.plot(k_array, condition_array)
     pl.plot([kmin, kmax], [c_min] * 2, label=r"$c_{min}$")
@@ -284,7 +283,7 @@ def plot_condition_error(name, function, x, kmin, kmax, number_of_points=1000):
 # error is between these two limits.
 
 # %%
-number_of_points = 1000
+number_of_points = 200
 problem = nd.ScaledExponentialProblem()
 x = problem.get_x()
 name = problem.get_name()
@@ -319,18 +318,20 @@ average_error, average_feval = benchmark_method(
     test_points,
     kmin,
     kmax,
-    True,
+    False,
 )
+print("Average error =", average_error)
+print("Average number of function evaluations =", average_feval)
 
 
 # %%
 # Plot the condition error depending on k.
-number_of_points = 1000
+number_of_points = 200
 problem = nd.SinProblem()
 x = -np.pi
 name = problem.get_name()
 function = problem.get_function()
-kmin = 1.0e-20
+kmin = 1.0e-17
 kmax = 1.0e-10
 plot_condition_error(name, function, x, kmin, kmax)
 
@@ -443,7 +444,7 @@ def plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, verbose=False)
 # %%
 problem = nd.ExponentialProblem()
 x = 1.0
-number_of_points = 1000
+number_of_points = 200
 step_array = np.logspace(-15.0, -1.0, number_of_points)
 kmin = 1.0e-15
 kmax = 1.0e-1

@@ -79,7 +79,7 @@ x = problem.get_x()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
 finite_difference = nd.FirstDerivativeCentral(function, x)
-number_of_points = 1000
+number_of_points = 200
 step_array = np.logspace(-7.0, 5.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
@@ -157,7 +157,7 @@ def fd_difference(h1, h2, function, x):
 
 # %%
 # Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
-number_of_points = 1000
+number_of_points = 200
 step_array = np.logspace(-7.0, 5.0, number_of_points)
 diff_array = np.zeros((number_of_points))
 function = problem.get_function()
@@ -245,7 +245,7 @@ print("estim_step = ", estim_step)
 print("iterations = ", iterations)
 
 # %%
-number_of_points = 1000
+number_of_points = 200
 step_array = np.logspace(-7.0, 7.0, number_of_points)
 n_digits_array = np.zeros((number_of_points))
 for i in range(number_of_points):
@@ -421,7 +421,7 @@ print(f"Optimal step k for f^(3)(x) = {exact_step_k}")
 error_step_h = [
     abs(step_h_history[i] - exact_step_k) for i in range(len(step_h_history))
 ]
-fig = pl.figure(figsize=(4.0, 3.0))
+fig = pl.figure()
 pl.title(f"Stepleman & Winarsky on {name} at x = {x}")
 pl.plot(range(len(step_h_history)), error_step_h, "o-")
 pl.xlabel("Iterations")

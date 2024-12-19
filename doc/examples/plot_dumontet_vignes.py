@@ -249,7 +249,7 @@ def plot_ell_ratio(
 # %%
 # 1. Consider the :class:`~numericalderivative.ExponentialProblem` function.
 
-number_of_points = 1000
+number_of_points = 200
 relative_precision = 1.0e-15
 x = 1.0
 function = nd.ExponentialProblem().get_function()
