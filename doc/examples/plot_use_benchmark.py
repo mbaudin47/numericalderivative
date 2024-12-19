@@ -81,7 +81,7 @@ print(f"Absolute error = {absolute_error}")
 # We can use a collection of benchmark problems.
 
 # %%
-benchmark = nd.BuildBenchmark()
+benchmark = nd.build_benchmark()
 number_of_problems = len(benchmark)
 data = []
 for i in range(number_of_problems):
@@ -109,7 +109,7 @@ tabulate.tabulate(
 # Print each benchmark problems.
 
 # %%
-benchmark = nd.BuildBenchmark()
+benchmark = nd.build_benchmark()
 number_of_problems = len(benchmark)
 for i in range(number_of_problems):
     problem = benchmark[i]
@@ -120,7 +120,7 @@ for i in range(number_of_problems):
 # Plot the benchmark problems.
 
 # %%
-benchmark = nd.BuildBenchmark()
+benchmark = nd.build_benchmark()
 number_of_problems = len(benchmark)
 number_of_columns = 3
 number_of_rows = math.ceil(number_of_problems / number_of_columns)

@@ -7,7 +7,7 @@ Benchmark Gill, Murray, Saunders and Wright method
 
 The goal of this example is to benchmark the :class:`~numericalderivative.GillMurraySaundersWright`
 on a collection of test problems.
-These problems are created by the :meth:`~numericalderivative.BuildBenchmark()` 
+These problems are created by the :meth:`~numericalderivative.build_benchmark()` 
 static method, which returns a list of problems.
 
 References
@@ -22,67 +22,53 @@ import tabulate
 import numericalderivative as nd
 
 
-# %%
-def benchmark_GMSW_method(
-    function, derivative_function, test_points, kmin, kmax, verbose=False
-):
-    """
-    Apply Gill, Murray, Saunders & Wright method to compute the approximate first
-    derivative using finite difference formula.
+class GillMurraySaundersWrightMethod:
+    def __init__(self, relative_precision, kmin, kmax):
+        """
+        Create a GillMurraySaundersWright method to compute the approximate first derivative
 
-    Parameters
-    ----------
-    function : function
-        The function.
-    derivative_function : function
-        The exact first derivative of the function
-    test_points : list(float)
-        The list of x points where the benchmark must be performed.
-    verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
+        Parameters
+        ----------
+        relative_precision : float, > 0, optional
+            The relative precision of evaluation of f.
+        kmin : float, kmin > 0
+            A minimum bound for the finite difference step of the third derivative.
+            If no value is provided, the default is to compute the smallest
+            possible kmin using number_of_digits and x.
+        kmax : float, kmax > kmin > 0
+            A maximum bound for the finite difference step of the third derivative.
+            If no value is provided, the default is to compute the largest
+            possible kmax using number_of_digits and x.
+        """
+        self.relative_precision = relative_precision
+        self.kmin = kmin
+        self.kmax = kmax
 
-    Returns
-    -------
-    average_relative_error : float, > 0
-        The average relative error between the approximate first derivative
-        and the true first derivative.
-    feval : int
-        The number of function evaluations.
+    def compute_first_derivative(self, function, x):
+        """
+        Compute the first derivative using GillMurraySaundersWright
 
-    """
-    number_of_test_points = len(test_points)
-    relative_error_array = np.zeros(number_of_test_points)
-    feval_array = np.zeros(number_of_test_points)
-    for i in range(number_of_test_points):
-        x = test_points[i]
-        if verbose:
-            print(f"x = {x:.3f}")
-        try:
-            algorithm = nd.GillMurraySaundersWright(function, x, verbose=verbose)
-            step, _ = algorithm.compute_step(kmin, kmax)
-            f_prime_approx = algorithm.compute_first_derivative(step)
-            number_of_function_evaluations = (
-                algorithm.get_number_of_function_evaluations()
-            )
-            absolute_error = abs(f_prime_approx - derivative_function(x))
-            relative_error = absolute_error / abs(derivative_function(x))
-        except:
-            number_of_function_evaluations = np.nan
-            relative_error = np.nan
-        if verbose:
-            print(
-                "x = %.3f, abs. error = %.3e, rel. error = %.3e, Func. eval. = %d"
-                % (x, absolute_error, relative_error, number_of_function_evaluations)
-            )
-        relative_error_array[i] = relative_error
-        feval_array[i] = number_of_function_evaluations
+        Parameters
+        ----------
+        function : function
+            The function
+        x : float
+            The test point
 
-    average_relative_error = np.mean(relative_error_array)
-    average_feval = np.mean(feval_array)
-    if verbose:
-        print("Average error =", average_relative_error)
-        print("Average number of function evaluations =", average_feval)
-    return average_relative_error, average_feval
+        Returns
+        -------
+        f_prime_approx : float
+            The approximate value of the first derivative of the function at point x
+        number_of_function_evaluations : int
+            The number of function evaluations.
+        """
+        algorithm = nd.GillMurraySaundersWright(
+            function, x, relative_precision=self.relative_precision
+        )
+        step, _ = algorithm.compute_step(kmin, kmax)
+        f_prime_approx = algorithm.compute_first_derivative(step)
+        number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+        return f_prime_approx, number_of_function_evaluations
 
 
 # %%
@@ -91,20 +77,24 @@ def benchmark_GMSW_method(
 
 # %%
 print("+ Benchmark on several points")
-number_of_test_points = 100
+number_of_test_points = 20
 test_points = np.linspace(0.01, 12.2, number_of_test_points)
 kmin = 1.0e-16
 kmax = 1.0e-1
 problem = nd.ExponentialProblem()
 print(problem)
-average_relative_error, average_feval = benchmark_GMSW_method(
+relative_precision = 1.0e-16
+method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+average_relative_error, average_feval, data = nd.benchmark_method(
     problem.get_function(),
     problem.get_first_derivative(),
     test_points,
-    kmin,
-    kmax,
+    method.compute_first_derivative,
     True,
 )
+print("Average relative error =", average_relative_error)
+print("Average number of function evaluations =", average_feval)
+tabulate.tabulate(data, headers=["x", "Rel. err.", "F. Eval."], tablefmt="html")
 
 
 # %%
@@ -137,7 +127,7 @@ kmax_map = {
 # %%
 number_of_test_points = 100
 data = []
-function_list = nd.BuildBenchmark()
+function_list = nd.build_benchmark()
 number_of_functions = len(function_list)
 average_relative_error_list = []
 average_feval_list = []
@@ -151,12 +141,12 @@ for i in range(number_of_functions):
     interval = problem.get_interval()
     test_points = np.linspace(interval[0], interval[1], number_of_test_points)
     print(f"Function #{i}, {name}")
-    average_relative_error, average_feval = benchmark_GMSW_method(
+    method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+    average_relative_error, average_feval, _ = nd.benchmark_method(
         function,
         first_derivative,
         test_points,
-        kmin,
-        kmax,
+        method.compute_first_derivative,
     )
     average_relative_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)

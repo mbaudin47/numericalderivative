@@ -186,12 +186,12 @@ class SteplemanWinarsky:
             diff_current = abs(f_prime_approx_current - f_prime_approx_previous)
             if self.verbose:
                 print(
-                    "number_of_iterations=%d, h=%.4e, |FD(h_current) - FD(h_previous)|=%.4e"
+                    "  number_of_iterations=%d, h=%.4e, |FD(h_current) - FD(h_previous)|=%.4e"
                     % (number_of_iterations, h_current, diff_current)
                 )
             if diff_current == 0.0:
                 if self.verbose:
-                    print("Stop because zero difference.")
+                    print("  Stop because zero difference.")
                 found_monotony_break = True
                 # Zero difference achieved at step h : go back one step
                 estim_step = h_current * beta
@@ -199,7 +199,7 @@ class SteplemanWinarsky:
 
             if diff_previous < diff_current:
                 if self.verbose:
-                    print("Stop because no monotony anymore.")
+                    print("  Stop because no monotony anymore.")
                 found_monotony_break = True
                 # Monotony breaked at step h : go back one step
                 estim_step = h_current * beta

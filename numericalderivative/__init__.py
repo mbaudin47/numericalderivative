@@ -19,7 +19,8 @@ from ._DerivativeBenchmark import (
     OliverProblem1,
     OliverProblem2,
     OliverProblem3,
-    BuildBenchmark,
+    build_benchmark,
+    benchmark_method,
 )
 from ._DumontetVignes import DumontetVignes
 from ._GillMurraySaundersWright import GillMurraySaundersWright
@@ -58,11 +59,12 @@ __all__ = [
     "OliverProblem1",
     "OliverProblem2",
     "OliverProblem3",
+    "build_benchmark",
+    "benchmark_method",
     "DumontetVignes",
     "GillMurraySaundersWright",
     "SteplemanWinarsky",
     "ShiXieXuanNocedalForward",
-    "BuildBenchmark",
     "GeneralFiniteDifference",
 ]
 __version__ = "1.0"

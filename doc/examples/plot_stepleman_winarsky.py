@@ -85,15 +85,14 @@ number_of_points = 200
 step_array = np.logspace(-7.0, 5.0, number_of_points)
 error_array = np.zeros((number_of_points))
 for i in range(number_of_points):
-    h = step_array[i]
-    f_prime_approx = finite_difference.compute(h)
+    f_prime_approx = finite_difference.compute(step_array[i])
     error_array[i] = abs(f_prime_approx - first_derivative(x))
 
 # %%
 pl.figure()
 pl.plot(step_array, error_array)
 pl.plot([optimum_step] * 2, [min(error_array), max(error_array)], label=r"$h^*$")
-pl.title("Central finite difference")
+pl.title(f"Central finite difference on {problem.get_name()} at x = {problem.get_x()}")
 pl.xlabel("h")
 pl.ylabel("Error")
 pl.xscale("log")
@@ -118,7 +117,7 @@ print("iterations =", iterations)
 print("Function evaluations =", number_of_function_evaluations)
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 absolute_error = abs(f_prime_approx - first_derivative(x))
-print("Error = ", absolute_error)
+print("Absolute error = ", absolute_error)
 
 
 # %%
@@ -159,13 +158,14 @@ def fd_difference(h1, h2, function, x):
 
 # %%
 # Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
+
+# %%
 number_of_points = 200
 step_array = np.logspace(-7.0, 5.0, number_of_points)
 diff_array = np.zeros((number_of_points))
 function = problem.get_function()
 for i in range(number_of_points):
-    h = step_array[i]
-    diff_array[i] = fd_difference(h, h / 2, function, x)
+    diff_array[i] = fd_difference(step_array[i], step_array[i] / 2, function, x)
 
 # %%
 pl.figure()
@@ -184,6 +184,8 @@ pl.tight_layout()
 
 # %%
 # Plot the evolution of | FD(h) - FD(h / 2) | for different values of h
+
+# %%
 number_of_points = 20
 h_initial = 1.0e5
 beta = 4.0

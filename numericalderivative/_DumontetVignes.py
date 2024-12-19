@@ -104,7 +104,14 @@ class DumontetVignes:
 
     - :math:`L_3 = 2` and :math:`L_2 = \frac{1}{L_3}`,
     - :math:`L_4 = 15` and :math:`L_1 = \frac{1}{L_4}`.
-     
+
+    This method does not perform correctly if the third derivative is 
+    zero or is close to zero (see (Dumontet & Vignes, 1977) remark page 22).
+    This produces a L ratio which is negative, so that there is no value of the 
+    step :math:`k` such that the condition is satisfied.
+    This happens for example for the :class:`~numericalderivative.PolynomialProblem`,
+    which has a zero third derivative for any :math:`x`.
+
     Parameters
     ----------
     function : function

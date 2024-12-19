@@ -267,6 +267,9 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
     For example, if :math:`\alpha = 2`, then the third derivative is zero.
     This produces an infinite exact step for the first derivative
     central finite difference formula.
+    For example, the :class:`~numericalderivative.DumontetVignes` algorithm
+    does not perform correctly for this problem because it is
+    based on the hypothesis that the third derivative is zero.
 
     Parameters
     ----------
@@ -1346,7 +1349,7 @@ class InverseProblem(DerivativeBenchmarkProblem):
         )
 
 
-def BuildBenchmark():
+def build_benchmark():
     """
     Create a list of benchmark problems.
 
@@ -1374,3 +1377,77 @@ def BuildBenchmark():
         OliverProblem3(),
     ]
     return benchmark_list
+
+
+# %%
+def benchmark_method(
+    function,
+    derivative_function,
+    test_points,
+    compute_first_derivative,
+    verbose=False,
+):
+    """
+    Compute the first derivative using Dumontet & Vignes's method.
+
+    Parameters
+    ----------
+    function : function
+        The function.
+    derivative_function : function
+        The exact first derivative of the function.
+    test_points : list(float)
+        The list of x points where the derivative is to be evaluated
+    compute_first_derivative : function
+        The method to compute the first derivative.
+        The calling sequence must be `f_prime_approx, f_eval = compute_first_derivative(function, x)`
+        where `f_prime_approx` is the approximate value of the first derivative,
+        `f_eval` is the number of function evaluations, `function` is the
+        function and `x` is the point.
+    verbose : bool
+        Set to True to print intermediate messages.
+
+    Returns
+    -------
+    average_relative_error : float, > 0
+        The average relative error between the approximate first derivative
+        and the exact first derivative
+    average_feval : float
+        The average number of function evaluations
+    data : list(floats)
+        For each test point, a list of 3 floats: x, relative error, feval.
+    """
+    number_of_test_points = len(test_points)
+    relative_error_array = np.zeros(number_of_test_points)
+    feval_array = np.zeros(number_of_test_points)
+    for i in range(number_of_test_points):
+        x = test_points[i]
+        try:
+            f_prime_approx, number_of_function_evaluations = compute_first_derivative(
+                function, x
+            )
+            exact_first_derivative = derivative_function(x)
+            absolute_error = abs(f_prime_approx - exact_first_derivative)
+            relative_error = absolute_error / abs(exact_first_derivative)
+        except:
+            number_of_function_evaluations = -1
+            absolute_error = np.nan
+            relative_error = np.nan
+        if verbose:
+            print(
+                f"x = {x:.3f}, "
+                f"abs. error = {absolute_error:.3e}, "
+                f"rel. error = {relative_error:.3e}, "
+                f"Func. eval. = {number_of_function_evaluations}"
+            )
+        relative_error_array[i] = relative_error
+        feval_array[i] = number_of_function_evaluations
+
+    average_relative_error = np.mean(relative_error_array)
+    average_feval = np.mean(feval_array)
+    # Compute the dataset of the benchmark
+    data = []
+    for i in range(number_of_test_points):
+        x = test_points[i]
+        data.append([x, relative_error_array[i], feval_array[i]])
+    return average_relative_error, average_feval, data

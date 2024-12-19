@@ -240,7 +240,7 @@ class CheckDerivativeBenchmark(unittest.TestCase):
         print(problem)
 
     def test_All(self):
-        collection = nd.BuildBenchmark()
+        collection = nd.build_benchmark()
         for i in range(len(collection)):
             problem = collection[i]
             print(problem)
