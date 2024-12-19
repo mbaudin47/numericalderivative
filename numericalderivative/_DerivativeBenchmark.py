@@ -677,6 +677,9 @@ class GMSWExponentialProblem(DerivativeBenchmarkProblem):
 
     for any :math:`x`.
     The test point is :math:`x = 1`.
+    For this point, the value of the function is zero.
+    Hence, the absolute error of the function evaluation cannot be
+    computed from a given relative error for this test point.
     The optimal finite difference step for the forward finite difference
     formula of the first derivative is approximately :math:`10^{-3}`.
 
