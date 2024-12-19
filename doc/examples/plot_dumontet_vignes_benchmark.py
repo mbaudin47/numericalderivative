@@ -145,6 +145,9 @@ for i in range(number_of_functions):
     interval = problem.get_interval()
     test_points = np.linspace(interval[0], interval[1], number_of_test_points)
     print(f"Function #{i}, {name}")
+    if name == "polynomial":
+        # Skip this problem (see below)
+        continue
     method = DumontetVignesMethod(relative_precision, kmin, kmax)
     average_relative_error, average_feval, _ = nd.benchmark_method(
         function,
@@ -180,3 +183,8 @@ tabulate.tabulate(
     tablefmt="html",
 )
 # %%
+# Notice that the method does not perform correctly for the :class:`~numericalderivative.PolynomialProblem`.
+# Indeed, this function as a zero third derivative. 
+# This produces a L ratio which is negative, so that there is no value of the 
+# step :math:`k` such that the condition is satisfied.
+
