@@ -79,3 +79,8 @@ pip install numericalderivative
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+
+- Implement a method to compute the absolute error of evaluation of the function f, 
+  for example :
+
+J. J. Moré and S. M. Wild, _Estimating computational noise_, _SIAM Journal on Scientific Computing_, 33 (2011), pp. 1292–1314.
