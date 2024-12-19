@@ -54,6 +54,55 @@ absolute_error = abs(f_prime_approx - f_prime_exact)
 # ------------------------------------------
 
 
+class GillMurraySaundersWrightMethod:
+    def __init__(self, relative_precision, kmin, kmax):
+        """
+        Create a GillMurraySaundersWright method to compute the approximate first derivative
+
+        Parameters
+        ----------
+        relative_precision : float, > 0, optional
+            The relative precision of evaluation of f.
+        kmin : float, kmin > 0
+            A minimum bound for the finite difference step of the third derivative.
+            If no value is provided, the default is to compute the smallest
+            possible kmin using number_of_digits and x.
+        kmax : float, kmax > kmin > 0
+            A maximum bound for the finite difference step of the third derivative.
+            If no value is provided, the default is to compute the largest
+            possible kmax using number_of_digits and x.
+        """
+        self.relative_precision = relative_precision
+        self.kmin = kmin
+        self.kmax = kmax
+
+    def compute_first_derivative(self, function, x):
+        """
+        Compute the first derivative using GillMurraySaundersWright
+
+        Parameters
+        ----------
+        function : function
+            The function
+        x : float
+            The test point
+
+        Returns
+        -------
+        f_prime_approx : float
+            The approximate value of the first derivative of the function at point x
+        number_of_function_evaluations : int
+            The number of function evaluations.
+        """
+        algorithm = nd.GillMurraySaundersWright(
+            function, x, relative_precision=self.relative_precision
+        )
+        step, _ = algorithm.compute_step(kmin, kmax)
+        f_prime_approx = algorithm.compute_first_derivative(step)
+        number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+        return f_prime_approx, number_of_function_evaluations
+
+
 # %%
 def compute_first_derivative_GMSW(
     function,
@@ -61,6 +110,7 @@ def compute_first_derivative_GMSW(
     first_derivative,
     kmin,
     kmax,
+    relative_precision=1.0e-15,
     verbose=False,
 ):
     """
@@ -90,10 +140,11 @@ def compute_first_derivative_GMSW(
     feval : int
         The number of function evaluations.
     """
-    algorithm = nd.GillMurraySaundersWright(function, x, verbose=verbose)
-    step, number_of_iterations = algorithm.compute_step(kmin, kmax)
-    f_prime_approx = algorithm.compute_first_derivative(step)
-    feval = algorithm.get_number_of_function_evaluations()
+
+    method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+    f_prime_approx, number_of_function_evaluations = method.compute_first_derivative(
+        function, x
+    )
     f_prime_exact = first_derivative(x)
     if verbose:
         print(f"Computed step = {step:.3e}")
@@ -101,7 +152,7 @@ def compute_first_derivative_GMSW(
         print(f"f_prime_approx = {f_prime_approx}")
         print(f"f_prime_exact = {f_prime_exact}")
     absolute_error = abs(f_prime_approx - f_prime_exact)
-    return absolute_error, feval
+    return absolute_error, number_of_function_evaluations
 
 
 # %%
@@ -168,67 +219,6 @@ print(
 
 
 # %%
-def benchmark_method(
-    function, first_derivative, test_points, kmin, kmax, verbose=False
-):
-    """
-    Apply Gill, Murray, Saunders & Wright method to compute the approximate first
-    derivative using finite difference formula.
-
-    Parameters
-    ----------
-    f : function
-        The function.
-    first_derivative : function
-        The exact first derivative of the function
-    test_points : list(float)
-        The list of x points where the problem must be performed.
-    kmin : float, > 0
-        The minimum step k for the second derivative.
-    kmax : float, > kmin
-        The maximum step k for the second derivative.
-    verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
-
-    Returns
-    -------
-    absolute_error : float, > 0
-        The absolute error between the approximate first derivative
-        and the true first derivative.
-
-    feval : int
-        The number of function evaluations.
-
-    """
-    number_of_test_points = len(test_points)
-    relative_error_array = np.zeros(number_of_test_points)
-    feval_array = np.zeros(number_of_test_points)
-    for i in range(number_of_test_points):
-        x = test_points[i]
-        if verbose:
-            print(f"i = {i}, x = {x:.3f}")
-        (
-            absolute_error,
-            number_of_function_evaluations,
-        ) = compute_first_derivative_GMSW(
-            function, x, first_derivative, kmin, kmax, verbose
-        )
-        relative_error = absolute_error / abs(first_derivative(x))
-        if verbose:
-            print(
-                f"x = {x:.3f}, abs. error = {absolute_error:.3e}, "
-                f"rel. error = {relative_error:.3e}, "
-                f"Func. eval. = {number_of_function_evaluations}"
-            )
-        relative_error_array[i] = relative_error
-        feval_array[i] = number_of_function_evaluations
-
-    average_error = np.mean(relative_error_array)
-    average_feval = np.mean(feval_array)
-    return average_error, average_feval
-
-
-# %%
 print("+ Benchmark on several points on ScaledExponentialProblem")
 number_of_test_points = 100
 problem = nd.ScaledExponentialProblem()
@@ -236,12 +226,13 @@ interval = problem.get_interval()
 test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 kmin = 1.0e-12
 kmax = 1.0e1
-average_error, average_feval = benchmark_method(
+relative_precision = 1.0e-15
+method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+average_error, average_feval, _ = nd.benchmark_method(
     problem.get_function(),
     problem.get_fifth_derivative(),
     test_points,
-    kmin,
-    kmax,
+    method.compute_first_derivative,
     False,
 )
 print("Average error =", average_error)
@@ -315,12 +306,13 @@ test_points = np.linspace(
 )
 kmin = 1.0e-12
 kmax = 1.0e1
-average_error, average_feval = benchmark_method(
+relative_precision = 1.0e-15
+method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+average_error, average_feval, _ = nd.benchmark_method(
     problem.get_function(),
     problem.get_fifth_derivative(),
     test_points,
-    kmin,
-    kmax,
+    method.compute_first_derivative,
     False,
 )
 print("Average error =", average_error)

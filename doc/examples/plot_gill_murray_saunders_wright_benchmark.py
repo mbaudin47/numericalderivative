@@ -78,11 +78,12 @@ class GillMurraySaundersWrightMethod:
 # %%
 print("+ Benchmark on several points")
 number_of_test_points = 20
-test_points = np.linspace(0.01, 12.2, number_of_test_points)
 kmin = 1.0e-16
 kmax = 1.0e-1
 problem = nd.ExponentialProblem()
 print(problem)
+interval = problem.get_interval()
+test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 relative_precision = 1.0e-16
 method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
 average_relative_error, average_feval, data = nd.benchmark_method(
@@ -126,6 +127,8 @@ kmax_map = {
 
 # %%
 number_of_test_points = 100
+relative_precision = 1.0e-15
+delta_x = 1.0e-9
 data = []
 function_list = nd.build_benchmark()
 number_of_functions = len(function_list)
@@ -138,8 +141,13 @@ for i in range(number_of_functions):
     name = problem.get_name()
     kmax = kmax_map[name]
     kmin = 1.0e-16 * kmax
-    interval = problem.get_interval()
-    test_points = np.linspace(interval[0], interval[1], number_of_test_points)
+    lower_x_bound, upper_x_bound = problem.get_interval()
+    if name == "sin":
+        # Change the lower and upper bound so that the points +/-pi
+        # are excluded (see below for details).
+        lower_x_bound += delta_x
+        upper_x_bound -= delta_x
+    test_points = np.linspace(lower_x_bound, upper_x_bound, number_of_test_points)
     print(f"Function #{i}, {name}")
     method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
     average_relative_error, average_feval, _ = nd.benchmark_method(
@@ -175,3 +183,9 @@ tabulate.tabulate(
 )
 
 # %%
+# Notice that the method cannot perform correctly for the sin function
+# at the point
+# Indeed, this function is such that f''(x) = 0 if x = +/-pi.
+# In this case, the condition error is infinite and the method
+# cannot work.
+# Therefore, we make so that the points +/-pi are excluded from the benchmark.

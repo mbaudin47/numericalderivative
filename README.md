@@ -84,3 +84,8 @@ Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-diffe
   for example :
 
 J. J. Moré and S. M. Wild, _Estimating computational noise_, _SIAM Journal on Scientific Computing_, 33 (2011), pp. 1292–1314.
+
+- Make sure that the API help page of each method has a paragraph on the
+  cases of failure.
+  Also, add a paragraph on an alternative method using compute_step of F.D. formula,
+  with some extra assumption.

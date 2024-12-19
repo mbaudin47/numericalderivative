@@ -110,11 +110,11 @@ class DerivativeBenchmarkProblem:
         except:
             report += f"f''(x) = undefined\n"
         try:
-            report += f"f^(3)(x) = {self.fourth_derivative(self.x)}\n"
+            report += f"f^(3)(x) = {self.third_derivative(self.x)}\n"
         except:
             report += f"f^(3)(x) = undefined\n"
         try:
-            report += f"f^(4)(x) = {self.third_derivative(self.x)}\n"
+            report += f"f^(4)(x) = {self.fourth_derivative(self.x)}\n"
         except:
             report += f"f^(4)(x) = undefined\n"
         try:
@@ -136,11 +136,11 @@ class DerivativeBenchmarkProblem:
         except:
             report += f"<li>f''(x) = undefined</li>\n"
         try:
-            report += f"<li>f^(3)(x) = {self.fourth_derivative(self.x)}</li>\n"
+            report += f"<li>f^(3)(x) = {self.third_derivative(self.x)}</li>\n"
         except:
             report += f"<li>f^(3)(x) = undefined</li>\n"
         try:
-            report += f"<li>f^(4)(x) = {self.third_derivative(self.x)}</li>\n"
+            report += f"<li>f^(4)(x) = {self.fourth_derivative(self.x)}</li>\n"
         except:
             report += f"<li>f^(4)(x) = undefined</li>\n"
         try:

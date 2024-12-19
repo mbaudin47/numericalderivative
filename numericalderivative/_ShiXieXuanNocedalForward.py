@@ -243,6 +243,7 @@ class ShiXieXuanNocedalForward:
         lower_bound = 0.0
         upper_bound = np.inf
         self.step_history = []
+        found = False
         for number_of_iterations in range(iteration_maximum):
             """
             # Check that the upper bound of the step is not too small
@@ -281,6 +282,7 @@ class ShiXieXuanNocedalForward:
             else:
                 if self.verbose:
                     print(f"    - Step = {estim_step} is OK: stop.")
+                found = True
                 break
             if upper_bound == np.inf:
                 if self.verbose:
@@ -305,6 +307,12 @@ class ShiXieXuanNocedalForward:
                 f1 = self.function(self.x + estim_step)
                 f4 = self.function(self.x + 4 * estim_step)
 
+        if not found:
+            raise ValueError(
+                f"Unable to find satisfactory step_second_derivative "
+                f"after {iteration_maximum} iterations. "
+                f"Please increase iteration_maximum = {iteration_maximum}."
+            )
         return estim_step, number_of_iterations
 
     def compute_first_derivative(self, step):

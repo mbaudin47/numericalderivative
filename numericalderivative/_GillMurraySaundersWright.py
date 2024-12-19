@@ -84,8 +84,8 @@ class GillMurraySaundersWright:
     value of :math:`\Phi` zero or close to zero.
     This produces an infinite value of the condition error.
 
-    In this algorithm fails to produce a consistent step, can compute
-    an approximately optimal step using `FirstDerivativeForward.compute_step`.
+    In this algorithm fails to produce a consistent step, one can compute
+    an approximately optimal step using :meth:`~numericalderivative.FirstDerivativeForward.compute_step`.
     Since the value of the second derivative is unknown, we can make the
     hypothesis that :math:`f''(x) \approx 1`.
 
@@ -338,7 +338,7 @@ class GillMurraySaundersWright:
         if not found:
             raise ValueError(
                 f"Unable to find satisfactory step_second_derivative "
-                f"after {iteration_maximum} iterations."
+                f"after {iteration_maximum} iterations. "
                 f"The function might be odd or approximately linear. "
                 f"Please increase iteration_maximum = {iteration_maximum}."
             )
