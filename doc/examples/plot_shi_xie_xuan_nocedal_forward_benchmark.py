@@ -65,7 +65,9 @@ def compute_first_derivative(
 
     absolute_precision = abs(function(x)) * relative_precision  # A guess
     try:
-        algorithm = nd.ShiXieXuanNocedalForward(function, x, absolute_precision, verbose=verbose)
+        algorithm = nd.ShiXieXuanNocedalForward(
+            function, x, absolute_precision, verbose=verbose
+        )
         step, _ = algorithm.compute_step(initial_step)
         f_prime_approx = algorithm.compute_first_derivative(step)
         f_prime_exact = first_derivative(x)
@@ -78,7 +80,7 @@ def compute_first_derivative(
 
 
 # %%
-# The next example computes the approximate derivative on the 
+# The next example computes the approximate derivative on the
 # :class:`~numericalderivative.ExponentialProblem`.
 
 # %%

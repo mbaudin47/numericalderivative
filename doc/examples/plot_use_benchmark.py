@@ -21,7 +21,7 @@ import numpy as np
 # First, we create an use a single problem.
 # We create the problem and get the function and its
 # first derivative.
-# Printing the object evaluates the function and its 
+# Printing the object evaluates the function and its
 # derivatives at the test point.
 
 # %%

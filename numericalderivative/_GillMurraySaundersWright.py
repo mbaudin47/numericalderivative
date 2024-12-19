@@ -454,6 +454,6 @@ class GillMurraySaundersWright:
         -------
         relative_precision : float
             The relative precision of evaluation of f.
-    
+
         """
         return self.relative_precision

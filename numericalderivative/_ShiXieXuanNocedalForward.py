@@ -187,7 +187,7 @@ class ShiXieXuanNocedalForward:
 
         where :math:`\epsilon_f > 0` is the absolute precision of the
         function evaluation.
-        This initial guess is not always accurate and can lead to failure 
+        This initial guess is not always accurate and can lead to failure
         of the algorithm.
 
         Parameters
@@ -361,6 +361,6 @@ class ShiXieXuanNocedalForward:
         -------
         absolute_precision : float
             The absolute precision of evaluation of f.
-    
+
         """
         return self.absolute_precision

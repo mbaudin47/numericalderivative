@@ -198,8 +198,9 @@ def benchmark_SteplemanWinarsky_method(
         print("Average number of function evaluations =", average_feval)
     return average_relative_error, average_feval
 
+
 # %%
-# The next example computes the approximate derivative on the 
+# The next example computes the approximate derivative on the
 # :class:`~numericalderivative.ExponentialProblem` on a set of points.
 
 # %%

@@ -110,6 +110,9 @@ kmin = 1.0e-15
 kmax = 1.0e1
 x = 1.0
 problem = nd.ExponentialProblem()
+problem
+
+# %%
 second_derivative_value = problem.second_derivative(x)
 optimal_step, absolute_error = nd.FirstDerivativeForward.compute_step(
     second_derivative_value

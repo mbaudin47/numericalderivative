@@ -84,8 +84,9 @@ def benchmark_GMSW_method(
         print("Average number of function evaluations =", average_feval)
     return average_relative_error, average_feval
 
+
 # %%
-# The next example computes the approximate derivative on the 
+# The next example computes the approximate derivative on the
 # :class:`~numericalderivative.ExponentialProblem`.
 
 # %%
@@ -97,7 +98,12 @@ kmax = 1.0e-1
 problem = nd.ExponentialProblem()
 print(problem)
 average_relative_error, average_feval = benchmark_GMSW_method(
-    problem.get_function(), problem.get_first_derivative(), test_points, kmin, kmax, True
+    problem.get_function(),
+    problem.get_first_derivative(),
+    test_points,
+    kmin,
+    kmax,
+    True,
 )
 
 

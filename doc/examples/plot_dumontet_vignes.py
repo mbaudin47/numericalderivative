@@ -209,7 +209,7 @@ def plot_ell_ratio(
         ell_array[i], _, _ = compute_ell(function, x, k_array[i], relative_precision)
 
     pl.figure()
-    pl.plot(k_array, ell_array)
+    pl.plot(k_array, ell_array, label="L")
     if plot_L_constants:
         indices = np.isfinite(ell_array)
         maximum_finite_ell = np.max(ell_array[indices])
@@ -220,7 +220,7 @@ def plot_ell_ratio(
         else:
             pl.plot(k_array, [ell_3] * number_of_points, ":", label="$L_3$")
             pl.plot(k_array, [ell_4] * number_of_points, "--", label="$L_4$")
-        pl.legend()
+        pl.legend(bbox_to_anchor=(1.0, 1.0))
     pl.title(f"{name}, x = {x:.2e}, p = {relative_precision:.2e}")
     pl.xlabel("k")
     pl.ylabel("L")
@@ -252,20 +252,20 @@ def plot_ell_ratio(
 number_of_points = 200
 relative_precision = 1.0e-15
 x = 1.0
-function = nd.ExponentialProblem().get_function()
-name = "exp"
+problem = nd.ExponentialProblem()
+problem
+
+# %%
 number_of_digits = 53
-kmin = 1.55e-5
-kmax = 1.0e-4
 plot_ell_ratio(
-    name,
-    function,
+    problem.get_name(),
+    problem.get_function(),
     x,
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    kmin=1.55e-5,
+    kmax=1.0e-4,
     plot_L_constants=True,
 )
 
@@ -275,20 +275,17 @@ plot_ell_ratio(
 # %%
 relative_precision = 1.0e-10
 x = 1.0
-function = nd.ExponentialProblem().get_function()
-name = "exp"
+problem = nd.ExponentialProblem()
 number_of_digits = 53
-kmin = 5.0e-5
-kmax = 1.0e-2
 plot_ell_ratio(
-    name,
-    function,
+    problem.get_name(),
+    problem.get_function(),
     x,
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    kmin=5.0e-5,
+    kmax=1.0e-2,
     y_logscale=False,
     plot_L_constants=True,
 )
@@ -301,20 +298,17 @@ pl.ylim(-20.0, 20.0)
 # %%
 relative_precision = 1.0e-14
 x = 1.0
-function = nd.ExponentialProblem().get_function()
-name = "exp"
+problem = nd.ExponentialProblem()
 number_of_digits = 53
-kmin = 4.0e-5
-kmax = 1.0e-2
 plot_ell_ratio(
-    name,
-    function,
+    problem.get_name(),
+    problem.get_function(),
     x,
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    kmin=4.0e-5,
+    kmax=1.0e-2,
 )
 
 # %%
@@ -322,21 +316,18 @@ plot_ell_ratio(
 
 # %%
 relative_precision = 1.0e-16
-x = 4.0
-function = nd.ExponentialProblem().get_function()
-name = "exp"
+x = 4.0  # A carefully chosen point
+problem = nd.ExponentialProblem()
 number_of_digits = 53
-kmin = 1.0e-5
-kmax = 1.0e-2
 plot_ell_ratio(
-    name,
-    function,
+    problem.get_name(),
+    problem.get_function(),
     x,
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    kmin=1.0e-5,
+    kmax=1.0e-2,
 )
 
 # %%
@@ -344,21 +335,18 @@ plot_ell_ratio(
 
 # %%
 relative_precision = 1.0e-14
-x = 4.0
-function = nd.ExponentialProblem().get_function()
-name = "exp"
+x = 4.0  # A carefully chosen point
+problem = nd.ExponentialProblem()
 number_of_digits = 53
-kmin = 3.2e-5
-kmax = 1.0e-2
 plot_ell_ratio(
-    name,
-    function,
+    problem.get_name(),
+    problem.get_function(),
     x,
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    kmin=3.2e-5,
+    kmax=1.0e-2,
     y_logscale=False,
     plot_L_constants=True,
 )
@@ -381,22 +369,18 @@ absolute_precision = sys.float_info.epsilon * function(x)
 print("absolute_precision = %.3e" % (absolute_precision))
 
 # %%
-x = 4.1
-function = problem.get_function()
+x = 4.1  # A carefully chosen point
 relative_precision = sys.float_info.epsilon
-name = "exp"
-function_derivative = problem.get_first_derivative()
-function_third_derivative = problem.get_third_derivative()
-number_of_points = 1000
+number_of_points = 200
 step_array = np.logspace(-15.0, 0.0, number_of_points)
 kmin = 1.0e-5
 kmax = 1.0e-2
 plot_step_sensitivity(
     x,
-    name,
-    function,
-    function_derivative,
-    function_third_derivative,
+    problem.get_name(),
+    problem.get_function(),
+    problem.get_first_derivative(),
+    problem.get_third_derivative(),
     step_array,
     iteration_maximum=20,
     relative_precision=1.0e-15,
@@ -416,22 +400,18 @@ plot_step_sensitivity(
 # Consider the :class:`~numericalderivative.ScaledExponentialProblem`.
 # First, we plot the L ratio.
 
-x = 1.0
 relative_precision = 1.0e-14
-function = nd.ScaledExponentialProblem().get_function()
-name = "scaled exp"
+problem = nd.ScaledExponentialProblem()
 number_of_digits = 53
-kmin = 1.0e-1
-kmax = 1.0e2
 plot_ell_ratio(
-    name,
-    function,
-    x,
+    problem.get_name(),
+    problem.get_function(),
+    problem.get_x(),
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    kmin=1.0e-1,
+    kmax=1.0e2,
     plot_L_constants=True,
 )
 
@@ -439,27 +419,18 @@ plot_ell_ratio(
 # Then plot the error depending on the step size.
 
 # %%
-x = 1.0
-name = "scaled exp"
 problem = nd.ScaledExponentialProblem()
-function = problem.get_function()
-function_derivative = problem.get_first_derivative()
-function_third_derivative = problem.get_third_derivative()
-number_of_points = 1000
 step_array = np.logspace(-7.0, 6.0, number_of_points)
-kmin = 1.0e-2
-kmax = 1.0e2
-relative_precision = 1.0e-15
 plot_step_sensitivity(
-    x,
-    name,
-    function,
-    function_derivative,
-    function_third_derivative,
+    problem.get_x(),
+    problem.get_name(),
+    problem.get_function(),
+    problem.get_first_derivative(),
+    problem.get_third_derivative(),
     step_array,
-    relative_precision=relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    relative_precision=1.0e-15,
+    kmin=1.0e-2,
+    kmax=1.0e2,
 )
 
 # %%
@@ -470,22 +441,19 @@ plot_step_sensitivity(
 # %%
 # Consider the :class:`~numericalderivative.SquareRootProblem`.
 
-x = 1.0
+# %%
 relative_precision = 1.0e-14
-function = nd.SquareRootProblem().get_function()
-name = "sqrt"
+problem = nd.SquareRootProblem()
 number_of_digits = 53
-kmin = 4.3e-5
-kmax = 1.0e-4
 plot_ell_ratio(
-    name,
-    function,
-    x,
+    problem.get_name(),
+    problem.get_function(),
+    problem.get_x(),
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    kmin=4.3e-5,
+    kmax=1.0e-4,
     plot_L_constants=True,
 )
 pl.ylim(-20.0, 20.0)
@@ -543,20 +511,20 @@ print("f3sup = ", f3sup)
 # finite difference formula depending on the step k.
 
 # %%
-number_of_points = 1000
+number_of_points = 200
 function = problem.get_function()
 third_derivative = problem.get_third_derivative()
 k_array = np.logspace(-6.0, -1.0, number_of_points)
 error_array = np.zeros((number_of_points))
+algorithm = nd.ThirdDerivativeCentral(function, x)
 for i in range(number_of_points):
-    algorithm = nd.ThirdDerivativeCentral(function, x)
     f2nde_approx = algorithm.compute(k_array[i])
     error_array[i] = abs(f2nde_approx - third_derivative(x))
 
 # %%
 pl.figure()
 pl.plot(k_array, error_array)
-pl.title("F. D. of 3de derivative for %s" % (name))
+pl.title("F. D. of 3de derivative for %s" % (problem.get_name()))
 pl.xlabel("k")
 pl.ylabel("Error")
 pl.xscale("log")
@@ -578,25 +546,25 @@ pl.tight_layout()
 
 # %%
 problem = nd.SquareRootProblem()
-number_of_points = 1000
+number_of_points = 200
 relative_precision = 1.0e-16
 k_array = np.logspace(-5.0, -4.0, number_of_points)
 f3_array = np.zeros((number_of_points, 3))
 function = problem.get_function()
+algorithm = nd.ThirdDerivativeCentral(function, x)
 for i in range(number_of_points):
     f3inf, f3sup = compute_f3_inf_sup(function, x, k_array[i], relative_precision)
-    algorithm = nd.ThirdDerivativeCentral(function, x)
     f3_approx = algorithm.compute(k_array[i])
     f3_array[i] = [f3inf, f3_approx, f3sup]
 
+# %%
 pl.figure()
 pl.plot(k_array, f3_array[:, 0], ":", label="f3inf")
 pl.plot(k_array, f3_array[:, 1], "-", label="$D^{(3)}_f$")
 pl.plot(k_array, f3_array[:, 2], ":", label="f3sup")
-pl.title("F.D. of 3de derivative for %s" % (name))
+pl.title(f"F.D. of 3de derivative for {problem.get_name()} at x = {x}")
 pl.xlabel("k")
 pl.xscale("log")
-pl.yscale("log")
 pl.legend(bbox_to_anchor=(1.0, 1.0))
 pl.tight_layout(pad=1.2)
 
@@ -604,20 +572,16 @@ pl.tight_layout(pad=1.2)
 # %%
 x = 1.0e-2
 relative_precision = 1.0e-14
-function = problem.get_function()
-name = "sqrt"
 number_of_digits = 53
-kmin = 4.4e-7
-kmax = 1.0e-4
 plot_ell_ratio(
-    name,
-    function,
+    problem.get_name(),
+    problem.get_function(),
     x,
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=kmin,
-    kmax=kmax,
+    kmin=4.4e-7,
+    kmax=1.0e-5,
     plot_L_constants=True,
 )
 pl.ylim(-20.0, 20.0)
@@ -653,6 +617,8 @@ print("L(kmax) = ", ell_kmax)
 
 # %%
 # Consider the :class:`~numericalderivative.SinProblem`.
+
+# %%
 x = 1.0
 relative_precision = 1.0e-14
 problem = nd.SinProblem()
@@ -686,7 +652,6 @@ print("Approx. f''(x) = ", approx_f3d)
 third_derivative = problem.get_third_derivative()
 exact_f3d = third_derivative(x)
 print("Exact f''(x) = ", exact_f3d)
-
 relative_precision = 1.0e-14
 print("relative_precision = ", relative_precision)
 function = problem.get_function()
@@ -737,6 +702,8 @@ print(f"Last step k : {last_step_k}")
 
 # %%
 # Then we compute the exact step, using :meth:`~numericalderivative.ThirdDerivativeCentral.compute_step`.
+
+# %%
 fifth_derivative = problem.get_fifth_derivative()
 fifth_derivative_value = fifth_derivative(x)
 print(f"f^(5)(x) = {fifth_derivative_value}")
@@ -749,6 +716,8 @@ print(f"Optimal step k for f^(3)(x) = {exact_step_k}")
 # %%
 # Plot the absolute error between the exact step k and the intermediate k
 # of the algorithm.
+
+# %%
 error_step_k = [
     abs(step_k_history[i] - exact_step_k) for i in range(len(step_k_history))
 ]

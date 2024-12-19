@@ -134,7 +134,7 @@ step_array = np.logspace(-10.0, 3.0, number_of_points)
 test_ratio_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     test_ratio_array[i] = algorithm.compute_test_ratio(
-        step_array[i], 
+        step_array[i],
     )
 
 # %%
@@ -183,7 +183,7 @@ function = problem.get_function()
 name = problem.get_name()
 x = problem.get_x()
 algorithm = nd.ShiXieXuanNocedalForward(function, x, verbose=True)
-initial_step = 1.e5
+initial_step = 1.0e5
 step, number_of_iterations = algorithm.compute_step(initial_step)
 step_h_history = algorithm.get_step_history()
 print(f"Number of iterations = {number_of_iterations}")

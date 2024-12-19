@@ -206,21 +206,33 @@ class DumontetVignes:
         return [self.ell_3, self.ell_4]
 
     def compute_ell(self, k):
-        """
+        r"""
         Compute the L ratio depending on k.
+
+        A negative L ratio indicates that :math:`f'''_{inf}(x_0)` and :math:`f'''_{sup}(x_0)`
+        do not have the same sign.
+        This is because :math:`f'''_{inf}(x_0) < 0 < f'''_{sup}(x_0)`
+        which can happen if the exact third derivative is zero.
+        In this case, the method cannot perform correctly.
+
+        It may happen that :math:`f'''_{inf}(x_0)` is zero.
+        This prevents from evaluating the L ratio.
+        This might happen if the step k is too small (i.e. too close
+        to zero).
 
         Parameters
         ----------
         k : float, > 0
-            The finite difference step for the second derivative.
+            The finite difference step for the third derivative.
 
         Returns
         -------
         ell : float
-            The ratio f'''sup(x0) / f'''inf(x0).
+            The ratio :math:`\frac{f'''_{sup}(x_0)}{f'''_{inf}(x_0)}`.
+            It is expected that :math:`L(k) \geq 1`.
         f3inf : float
             The lower bound of the third derivative
-        f3sup
+        f3sup : float
             The upper bound of the third derivative
 
         """
@@ -243,6 +255,9 @@ class DumontetVignes:
         f3sup = (
             a / (1 - self.relative_precision) + b / (1 + self.relative_precision)
         ) / (2 * k**3)
+        if self.verbose:
+            if f3sup < f3inf:
+                print(f"Warning: f3inf = {f3inf} > f3sup = {f3sup}")
         if f3inf == 0.0:
             ell = np.inf
             if self.verbose:
@@ -336,27 +351,35 @@ class DumontetVignes:
             raise ValueError("Cannot evaluate L(kmax). Please update kmax.")
 
         if ell_kmin == ell_kmax:
-            raise ValueError("L(kmin) = L(kmax). Please increase the search range.")
+            raise ValueError(
+                f"L(kmin) = L(kmax) with L(kmin) = {ell_kmin} "
+                f"and L(kmax) = {ell_kmax}."
+                "Please increase the search range."
+            )
 
         if ell_kmin > ell_kmax:
             # L is decreasing. The target interval is [L3, L4]
             if ell_kmin < self.ell_3:
                 raise ValueError(
-                    "L is decreasing and L(kmin) < L3. Please reduce kmin."
+                    f"L is decreasing and L(kmin) = {ell_kmin} < L3 = {self.ell_3}. "
+                    "Please reduce kmin."
                 )
             if ell_kmax > self.ell_4:
                 raise ValueError(
-                    "L is decreasing and L(kmax) > L4. Please increase kmax."
+                    f"L is decreasing and L(kmax) = {ell_kmax} > L4 = {self.ell_4}. "
+                    "Please increase kmax."
                 )
         else:
             # L is increasing. The target interval is [L1, L2]
             if ell_kmin > self.ell_2:
                 raise ValueError(
-                    "L is increasing and L(kmin) > L2. Please reduce kmin."
+                    f"L is increasing and L(kmin) = {ell_kmin} > L2 = {self.ell_2}. "
+                    "Please reduce kmin."
                 )
             if ell_kmax < self.ell_1:
                 raise ValueError(
-                    "L is increasing and L(kmax) < L1. Please increase kmax."
+                    f"L is increasing and L(kmax) = {ell_kmax} < L1 = {self.ell_1}. "
+                    "Please increase kmax."
                 )
 
         # Search solution using bissection
@@ -535,6 +558,6 @@ class DumontetVignes:
         -------
         relative_precision : float
             The relative precision of evaluation of f.
-    
+
         """
         return self.relative_precision

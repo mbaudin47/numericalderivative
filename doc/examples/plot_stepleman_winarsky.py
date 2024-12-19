@@ -57,7 +57,9 @@ absolute_error = abs(f_prime_approx - f_prime_exact)
 
 # %%
 problem = nd.ScaledExponentialProblem()
-print(problem)
+problem
+
+# %%
 name = problem.get_name()
 x = problem.get_x()
 third_derivative = problem.get_third_derivative()
