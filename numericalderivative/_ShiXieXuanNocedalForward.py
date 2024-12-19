@@ -67,7 +67,7 @@ class ShiXieXuanNocedalForward:
     - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
 
     Examples
-    ----------
+    --------
     Compute the step of a badly scaled function.
 
     >>> import numericalderivative as nd
@@ -183,7 +183,7 @@ class ShiXieXuanNocedalForward:
 
         .. math::
 
-            h_0 = \frac{2}{\sqrt(3)} \sqrt(\epsilon_f)
+            h_0 = \frac{2}{\sqrt{3}} \sqrt{\epsilon_f}
 
         where :math:`\epsilon_f > 0` is the absolute precision of the
         function evaluation.

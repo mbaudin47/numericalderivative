@@ -87,7 +87,7 @@ class SteplemanWinarsky:
     - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264
 
     Examples
-    ----------
+    --------
     Compute the step of a badly scaled function.
 
     >>> import numericalderivative as nd
