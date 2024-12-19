@@ -5,7 +5,7 @@
 A simple demonstration of the methods
 =====================================
 
-Finds a step which is near to optimal for a centered finite difference 
+Finds a step which is near to optimal for a central finite difference 
 formula.
 
 References
@@ -17,44 +17,66 @@ import numpy as np
 import pylab as pl
 import numericalderivative as nd
 
+# %%
+# Define the function
+# -------------------
 
 # %%
-# Define a function
-# Here, we do not use the ScaledExponentialDerivativeBenchmark class, for demonstration purposes
+# We first define a function.
+# Here, we do not use the :class:`~numericalderivative.ScaledExponentialDerivativeBenchmark`
+# class, for demonstration purposes.
+
+
+# %%
 def scaled_exp(x):
     alpha = 1.0e6
     return np.exp(-x / alpha)
 
 
 # %%
-# Define its exact derivative (for testing purposes only)
+# Define its exact derivative (for testing purposes only).
 def scaled_exp_prime(x):
     alpha = 1.0e6
     return -np.exp(-x / alpha) / alpha
 
 
 # %%
-# Define its exact second derivative (for testing purposes only)
+# Define its exact second derivative (for testing purposes only).
 def scaled_exp_second(x):
     alpha = 1.0e6
     return np.exp(-x / alpha) / alpha**2
 
 
 # %%
-# Function value
-print("+ Function")
-x = 1.0e0
-exact_f_value = scaled_exp(x)
-print("exact_f_value = ", exact_f_value)
-exact_f_prime_value = scaled_exp_prime(x)
-print("exact_f_prime_value = ", exact_f_prime_value)
-exact_f_second_value = scaled_exp_second(x)
-print("exact_f_second_value = ", exact_f_second_value)
+# We evaluate the function, its first and second derivatives at the point x.
 
 # %%
-# Algorithm to detect h*: SteplemanWinarsky
-print("+ SteplemanWinarsky")
-h0 = 1.0e5
+x = 1.0e0
+exact_f_value = scaled_exp(x)
+print("f(x) = ", exact_f_value)
+exact_f_prime_value = scaled_exp_prime(x)
+print("f'(x) = ", exact_f_prime_value)
+exact_f_second_value = scaled_exp_second(x)
+print("f''(x) = ", exact_f_second_value)
+
+# %%
+# SteplemanWinarsky
+# -----------------
+
+# %%
+# In order to compute the first derivative, we use the :class:`~numericalderivative.SteplemanWinarsky`.
+# This class uses the central finite difference formula.
+# In order to compute a step which is approximately optimal,
+# we use the :meth:`~numericalderivative.SteplemanWinarsky.compute_step` method.
+# Then we use the :meth:`~numericalderivative.SteplemanWinarsky.compute_first_derivative` method
+# to compute the approximate first derivative and use the approximately optimal
+# step as input argument.
+# The input argument of :meth:`~numericalderivative.SteplemanWinarsky.compute_step` is
+# an upper bound of the optimal step (but this is not the case for all
+# algorithms).
+
+# %%
+h0 = 1.0e5  # An upper bound of the truly optimal step
 x = 1.0e0
 algorithm = nd.SteplemanWinarsky(scaled_exp, x)
 h_optimal, iterations = algorithm.compute_step(h0)
@@ -72,8 +94,16 @@ relative_error = absolute_error / abs(exact_f_prime_value)
 print(f"Relative error = {relative_error:.3e}")
 
 # %%
-# Algorithm to detect h*: DumontetVignes
-print("+ DumontetVignes")
+# DumontetVignes
+# --------------
+
+# %%
+# In the next example, we use :class:`DumontetVignes` to compute an approximately
+# optimal step.
+# For this algorithm, we must provide an interval which contains the
+# optimal step for the approximation of the third derivative.
+
+# %%
 x = 1.0e0
 algorithm = nd.DumontetVignes(scaled_exp, x)
 h_optimal, _ = algorithm.compute_step(
@@ -94,8 +124,16 @@ relative_error = absolute_error / abs(exact_f_prime_value)
 print(f"Relative error = {relative_error:.3e}")
 
 # %%
-# Algorithm to detect h*: GillMurraySaundersWright
-print("+ GillMurraySaundersWright")
+# GillMurraySaundersWright
+# ------------------------
+
+# %%
+# In the next example, we use :class:`GillMurraySaundersWright` to compute an approximately
+# optimal step.
+# For this algorithm, we must provide an interval which contains the
+# optimal step for the approximation of the second derivative.
+
+# %%
 x = 1.0e0
 absolute_precision = 1.0e-15
 algorithm = nd.GillMurraySaundersWright(scaled_exp, x, absolute_precision)
@@ -116,14 +154,25 @@ print(f"Relative error = {relative_error:.3e}")
 
 
 # %%
-# Define a function with arguments
+# Function with extra arguments
+# -----------------------------
+
+# %%
+# Some function use extra arguments, such as parameters for examples.
+# For such a function, the `args` optionnal argument can be used
+# to pass extra parameters to the function.
+
+
+# %%
+# Define a function with arguments.
 def my_exp_with_args(x, scaling):
     return np.exp(-x / scaling)
 
 
 # %%
-# Compute the derivative of a function with extra input arguments
-print("+ Function with extra input arguments")
+# Compute the derivative of a function with extra input arguments.
+
+# %%
 h0 = 1.0e5
 x = 1.0e0
 scaling = 1.0e6

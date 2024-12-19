@@ -5,8 +5,10 @@
 Benchmark Dumontet & Vignes method
 ==================================
 
-Find a step which is near to optimal for a centered finite difference 
-formula.
+The goal of this example is to benchmark the :class:`~numericalderivative.DumontetVignes`
+on a collection of test problems.
+These problems are created by the :meth:`~numericalderivative.build_benchmark()` 
+static method, which returns a list of problems.
 
 References
 ----------
@@ -17,118 +19,85 @@ import numpy as np
 import tabulate
 import numericalderivative as nd
 
-
 # %%
-def benchmark_DumontetVignes_method(
-    function,
-    derivative_function,
-    test_points,
-    kmin,
-    kmax,
-    relative_precision,
-    verbose=False,
-):
-    """
-    Compute the first derivative using Dumontet & Vignes's method.
+# The next class benchmarks the (Dumontet & Vignes, 1977) algorithm
+# on a given problem and a collection of test points.
 
-    Parameters
-    ----------
-    f : function
-        The function.
-    derivative_function : function
-        The exact first derivative of the function.
-    test_points : list(float)
-        The list of x points where the derivative is to be evaluated
-    kmin : float, > 0
-        The minimum finite difference step
-    kmax : float, > 0
-        The maximum finite difference step
-    relative_precision : float, > 0
-        The relative precision of the function value
-    verbose : bool
-        Set to True to print intermediate messages.
 
-    Returns
-    -------
-    average_relative_error : float, > 0
-        The average relative error between the approximate first derivative
-        and the exact first derivative
-    average_feval : float
-        The average number of function evaluations
-    """
-    number_of_test_points = len(test_points)
-    relative_error_array = np.zeros(number_of_test_points)
-    feval_array = np.zeros(number_of_test_points)
-    for i in range(number_of_test_points):
-        x = test_points[i]
-        try:
-            algorithm = nd.DumontetVignes(
-                function, x, relative_precision=relative_precision, verbose=verbose
-            )
-            step, _ = algorithm.compute_step(kmin=kmin, kmax=kmax)
-            f_prime_approx = algorithm.compute_first_derivative(step)
-            number_of_function_evaluations = (
-                algorithm.get_number_of_function_evaluations()
-            )
-            exact_first_derivative = derivative_function(x)
-            absolute_error = abs(f_prime_approx - exact_first_derivative)
-            relative_error = absolute_error / abs(exact_first_derivative)
-        except:
-            number_of_function_evaluations = np.nan
-            relative_error = np.nan
-        if verbose:
-            print(
-                "x = %.3f, abs. error = %.3e, rel. error = %.3e, Func. eval. = %d"
-                % (x, absolute_error, relative_error, number_of_function_evaluations)
-            )
-        relative_error_array[i] = relative_error
-        feval_array[i] = number_of_function_evaluations
+class DumontetVignesMethod:
+    def __init__(self, relative_precision, kmin, kmax):
+        """
+        Create a Dumontet & Vignes method to compute the approximate first derivative
 
-    average_relative_error = np.mean(relative_error_array)
-    average_feval = np.mean(feval_array)
-    if verbose:
-        print("Average rel. error =", average_relative_error)
-        print("Average number of function evaluations =", average_feval)
-    return average_relative_error, average_feval
+        Parameters
+        ----------
+        relative_precision : float, > 0, optional
+            The relative precision of evaluation of f.
+        kmin : float, kmin > 0
+            A minimum bound for the finite difference step of the third derivative.
+            If no value is provided, the default is to compute the smallest
+            possible kmin using number_of_digits and x.
+        kmax : float, kmax > kmin > 0
+            A maximum bound for the finite difference step of the third derivative.
+            If no value is provided, the default is to compute the largest
+            possible kmax using number_of_digits and x.
+        """
+        self.relative_precision = relative_precision
+        self.kmin = kmin
+        self.kmax = kmax
+
+    def compute_first_derivative(self, function, x):
+        """
+        Compute the first derivative using Dumontet & Vignes
+
+        Parameters
+        ----------
+        function : function
+            The function
+        x : float
+            The test point
+
+        Returns
+        -------
+        f_prime_approx : float
+            The approximate value of the first derivative of the function at point x
+        number_of_function_evaluations : int
+            The number of function evaluations.
+        """
+        algorithm = nd.DumontetVignes(
+            function,
+            x,
+            relative_precision=self.relative_precision,
+        )
+        step, _ = algorithm.compute_step(kmin=self.kmin, kmax=self.kmax)
+        f_prime_approx = algorithm.compute_first_derivative(step)
+        number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+        return f_prime_approx, number_of_function_evaluations
 
 
 # %%
-x = 1.1
-benchmark = nd.LogarithmicProblem()
-f = benchmark.function
-f_prime = benchmark.get_first_derivative()
-kmin = 1.0e-9
-kmax = 1.0e-3
-relative_precision = 1.0e-14
-absolute_error, feval = benchmark_DumontetVignes_method(
-    f,
-    f_prime,
-    [x],
-    kmin,
-    kmax,
-    relative_precision,
-    verbose=True,
-)
-print(f"absolute_error = {absolute_error}")
-print(f"feval = {feval}")
+# The next example computes the approximate derivative on the
+# :class:`~numericalderivative.ExponentialProblem` on a set of points.
 
 # %%
-print("+ Benchmark on several points")
-number_of_test_points = 100
-test_points = np.linspace(0.01, 12.5, number_of_test_points)
-benchmark = nd.ExponentialProblem()
+number_of_test_points = 20
+problem = nd.ExponentialProblem()
+interval = problem.get_interval()
+test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 kmin = 1.0e-9
 kmax = 1.0e0
 relative_precision = 1.0e-14
-average_relative_error, average_feval = benchmark_DumontetVignes_method(
-    benchmark.function,
-    benchmark.first_derivative,
+method = DumontetVignesMethod(relative_precision, kmin, kmax)
+average_relative_error, average_feval, data = nd.benchmark_method(
+    problem.get_function(),
+    problem.get_first_derivative(),
     test_points,
-    kmin,
-    kmax,
-    relative_precision,
-    verbose=True,
+    method.compute_first_derivative,
+    verbose=False,
 )
+print("Average rel. error =", average_relative_error)
+print("Average number of function evaluations =", average_feval)
+tabulate.tabulate(data, headers=["x", "Rel. err.", "F. Eval."], tablefmt="html")
 
 # %%
 # Map from the problem name to kmax
@@ -155,11 +124,14 @@ kmax_map = {
 
 
 # %%
-# Benchmark DumontetVignes
+# Benchmark the :class:`~numericalderivative.DumontetVignes` class
+# on a collection of problems.
+
+# %%
 number_of_test_points = 100
 relative_precision = 1.0e-14
 data = []
-function_list = nd.BuildBenchmark()
+function_list = nd.build_benchmark()
 number_of_functions = len(function_list)
 average_relative_error_list = []
 average_feval_list = []
@@ -173,13 +145,15 @@ for i in range(number_of_functions):
     interval = problem.get_interval()
     test_points = np.linspace(interval[0], interval[1], number_of_test_points)
     print(f"Function #{i}, {name}")
-    average_relative_error, average_feval = benchmark_DumontetVignes_method(
+    if name == "polynomial":
+        # Skip this problem (see below)
+        continue
+    method = DumontetVignesMethod(relative_precision, kmin, kmax)
+    average_relative_error, average_feval, _ = nd.benchmark_method(
         function,
         first_derivative,
         test_points,
-        kmin,
-        kmax,
-        relative_precision,
+        method.compute_first_derivative,
         verbose=False,
     )
     average_relative_error_list.append(average_relative_error)
@@ -209,3 +183,7 @@ tabulate.tabulate(
     tablefmt="html",
 )
 # %%
+# Notice that the method does not perform correctly for the :class:`~numericalderivative.PolynomialProblem`.
+# Indeed, this function as a zero third derivative.
+# This produces a L ratio which is negative, so that there is no value of the
+# step :math:`k` such that the condition is satisfied.

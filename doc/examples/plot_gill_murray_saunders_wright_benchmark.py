@@ -5,8 +5,10 @@
 Benchmark Gill, Murray, Saunders and Wright method
 ==================================================
 
-Find a step which is near to optimal for a centered finite difference 
-formula.
+The goal of this example is to benchmark the :class:`~numericalderivative.GillMurraySaundersWright`
+on a collection of test problems.
+These problems are created by the :meth:`~numericalderivative.build_benchmark()` 
+static method, which returns a list of problems.
 
 References
 ----------
@@ -20,79 +22,80 @@ import tabulate
 import numericalderivative as nd
 
 
+class GillMurraySaundersWrightMethod:
+    def __init__(self, relative_precision, kmin, kmax):
+        """
+        Create a GillMurraySaundersWright method to compute the approximate first derivative
+
+        Parameters
+        ----------
+        relative_precision : float, > 0, optional
+            The relative precision of evaluation of f.
+        kmin : float, kmin > 0
+            A minimum bound for the finite difference step of the third derivative.
+            If no value is provided, the default is to compute the smallest
+            possible kmin using number_of_digits and x.
+        kmax : float, kmax > kmin > 0
+            A maximum bound for the finite difference step of the third derivative.
+            If no value is provided, the default is to compute the largest
+            possible kmax using number_of_digits and x.
+        """
+        self.relative_precision = relative_precision
+        self.kmin = kmin
+        self.kmax = kmax
+
+    def compute_first_derivative(self, function, x):
+        """
+        Compute the first derivative using GillMurraySaundersWright
+
+        Parameters
+        ----------
+        function : function
+            The function
+        x : float
+            The test point
+
+        Returns
+        -------
+        f_prime_approx : float
+            The approximate value of the first derivative of the function at point x
+        number_of_function_evaluations : int
+            The number of function evaluations.
+        """
+        algorithm = nd.GillMurraySaundersWright(
+            function, x, relative_precision=self.relative_precision
+        )
+        step, _ = algorithm.compute_step(kmin, kmax)
+        f_prime_approx = algorithm.compute_first_derivative(step)
+        number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+        return f_prime_approx, number_of_function_evaluations
+
+
 # %%
-def benchmark_GMSW_method(
-    function, derivative_function, test_points, kmin, kmax, verbose=False
-):
-    """
-    Apply Stepleman & Winarsky method to compute the approximate first
-    derivative using finite difference formula.
-
-    Parameters
-    ----------
-    function : function
-        The function.
-    derivative_function : function
-        The exact first derivative of the function
-    test_points : list(float)
-        The list of x points where the benchmark must be performed.
-    verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
-
-    Returns
-    -------
-    average_relative_error : float, > 0
-        The average relative error between the approximate first derivative
-        and the true first derivative.
-    feval : int
-        The number of function evaluations.
-
-    """
-    number_of_test_points = len(test_points)
-    relative_error_array = np.zeros(number_of_test_points)
-    feval_array = np.zeros(number_of_test_points)
-    for i in range(number_of_test_points):
-        x = test_points[i]
-        if verbose:
-            print(f"x = {x:.3f}")
-        try:
-            algorithm = nd.GillMurraySaundersWright(function, x, verbose=verbose)
-            step, _ = algorithm.compute_step(kmin, kmax)
-            f_prime_approx = algorithm.compute_first_derivative(step)
-            number_of_function_evaluations = (
-                algorithm.get_number_of_function_evaluations()
-            )
-            absolute_error = abs(f_prime_approx - derivative_function(x))
-            relative_error = absolute_error / abs(derivative_function(x))
-        except:
-            number_of_function_evaluations = np.nan
-            relative_error = np.nan
-        if verbose:
-            print(
-                "x = %.3f, abs. error = %.3e, rel. error = %.3e, Func. eval. = %d"
-                % (x, absolute_error, relative_error, number_of_function_evaluations)
-            )
-        relative_error_array[i] = relative_error
-        feval_array[i] = number_of_function_evaluations
-
-    average_relative_error = np.mean(relative_error_array)
-    average_feval = np.mean(feval_array)
-    if verbose:
-        print("Average error =", average_relative_error)
-        print("Average number of function evaluations =", average_feval)
-    return average_relative_error, average_feval
-
+# The next example computes the approximate derivative on the
+# :class:`~numericalderivative.ExponentialProblem`.
 
 # %%
 print("+ Benchmark on several points")
-number_of_test_points = 100
-test_points = np.linspace(0.01, 12.2, number_of_test_points)
+number_of_test_points = 20
 kmin = 1.0e-16
 kmax = 1.0e-1
-benchmark = nd.ExponentialProblem()
-average_relative_error, average_feval = benchmark_GMSW_method(
-    benchmark.function, benchmark.first_derivative, test_points, kmin, kmax, True
+problem = nd.ExponentialProblem()
+print(problem)
+interval = problem.get_interval()
+test_points = np.linspace(interval[0], interval[1], number_of_test_points)
+relative_precision = 1.0e-16
+method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+average_relative_error, average_feval, data = nd.benchmark_method(
+    problem.get_function(),
+    problem.get_first_derivative(),
+    test_points,
+    method.compute_first_derivative,
+    True,
 )
+print("Average relative error =", average_relative_error)
+print("Average number of function evaluations =", average_feval)
+tabulate.tabulate(data, headers=["x", "Rel. err.", "F. Eval."], tablefmt="html")
 
 
 # %%
@@ -119,10 +122,15 @@ kmax_map = {
 }
 
 # %%
-# Benchmark GillMurraySaundersWright
+# Benchmark the :class:`~numericalderivative.GillMurraySaundersWright` class
+# on a collection of problems.
+
+# %%
 number_of_test_points = 100
+relative_precision = 1.0e-15
+delta_x = 1.0e-9
 data = []
-function_list = nd.BuildBenchmark()
+function_list = nd.build_benchmark()
 number_of_functions = len(function_list)
 average_relative_error_list = []
 average_feval_list = []
@@ -133,15 +141,20 @@ for i in range(number_of_functions):
     name = problem.get_name()
     kmax = kmax_map[name]
     kmin = 1.0e-16 * kmax
-    interval = problem.get_interval()
-    test_points = np.linspace(interval[0], interval[1], number_of_test_points)
+    lower_x_bound, upper_x_bound = problem.get_interval()
+    if name == "sin":
+        # Change the lower and upper bound so that the points +/-pi
+        # are excluded (see below for details).
+        lower_x_bound += delta_x
+        upper_x_bound -= delta_x
+    test_points = np.linspace(lower_x_bound, upper_x_bound, number_of_test_points)
     print(f"Function #{i}, {name}")
-    average_relative_error, average_feval = benchmark_GMSW_method(
+    method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+    average_relative_error, average_feval, _ = nd.benchmark_method(
         function,
         first_derivative,
         test_points,
-        kmin,
-        kmax,
+        method.compute_first_derivative,
     )
     average_relative_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)
@@ -170,3 +183,13 @@ tabulate.tabulate(
 )
 
 # %%
+# Notice that the method cannot perform correctly for the sin function
+# at the point
+# Indeed, this function is such that :math:`f''(x) = 0` if :math:`x = \pm \pi`.
+# In this case, the condition error is infinite and the method
+# cannot work.
+# Therefore, we make so that the points :math:`\pm \pi` are excluded from the benchmark.
+# The same problem appears at the point :math:`x = 0`.
+# This point is not included in the test set if the number of points is even
+# (e.g. with `number_of_test_points = 100`), but it might appear if the
+# number of test points is odd.
