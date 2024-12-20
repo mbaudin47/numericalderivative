@@ -1388,7 +1388,7 @@ def benchmark_method(
     verbose=False,
 ):
     """
-    Compute the first derivative using Dumontet & Vignes's method.
+    Compute the first derivative on a set of test points
 
     Parameters
     ----------
@@ -1415,7 +1415,8 @@ def benchmark_method(
     average_feval : float
         The average number of function evaluations
     data : list(floats)
-        For each test point, a list of 3 floats: x, relative error, feval.
+        For each test point, a list of 3 floats: x, relative error, number of
+        function evaluations.
     """
     number_of_test_points = len(test_points)
     relative_error_array = np.zeros(number_of_test_points)
