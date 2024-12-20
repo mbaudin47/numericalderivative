@@ -2,10 +2,25 @@
 
 ## 0.3 release (in-progress)
 
-### Changes
-
 ### Added
 - New ShiXieXuanNocedalForward.
+- New benchmark_method.
+- DumontetVignes: new get_ell_min_max.
+- DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
+  new get_step_history.
+
+### Changes
+- DerivativeBenchmark: new print and pretty-print.
+- DerivativeBenchmark: create any problem from the test point and the
+  interval. This can be useful to create a list of test points
+  depending on each problem.
+- ScaledExponentialProblem: change parametrization.
+- DumontetVignes: parametrize depending on ell3 and ell4 instead
+  of ell1 and ell2.
+
+### Documentation
+- DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
+  briefly introduce the method and its criteria.
 
 ## 0.2 release (2024-12-9)
 
