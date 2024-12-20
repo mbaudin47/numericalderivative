@@ -31,9 +31,13 @@ class DumontetVignes:
     .. math::
 
         h^\star 
-        = \left( \frac{3 \epsilon_f \left|f(x)\right|}{\left|f^{(3)}(x)\right|} \right)^{1/3}
+        = \left( \frac{3 \epsilon_r \left|f(x)\right|}{\left|f^{(3)}(x)\right|} \right)^{1/3}
 
-    where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
+    if :math:`f^{(3)}(x) \neq 0`, where :math:`\epsilon_r > 0` is the relative
+    error of the function evaluation.
+    Notice that (Dumontet & Vignes, 1977) use the non-classical constant
+    1.67 instead of 3 in the previous equation, but this does not have
+    a significant impact on the result.
     The goal of the method is to compute :math:`h^\star` using 
     function evaluations only.
 
@@ -68,22 +72,24 @@ class DumontetVignes:
         A = \sum_{i = 1}^4 \max(T_i, 0),  \quad
         B = \sum_{i = 1}^4 \min(T_i, 0). \tag{16}
 
-    The lower and upper bounds of :math:`f^{(3)}_k(x)` are computed 
+    The lower and upper bounds of :math:`f^{(3)}(x)` are computed 
     from (see (Dumontet & Vignes, 1977) eq. 30 page 20):
 
     .. math::
     
         f^{(3)}_{inf}(x_0)
-        = \frac{\frac{A}{1 + \epsilon_f} + \frac{B}{1 - \epsilon_f}}{2 k^3}, \qquad
+        = \frac{\frac{A}{1 + \epsilon_r} + \frac{B}{1 - \epsilon_r}}{2 k^3}, \qquad
         f^{(3)}_{sup}(x_0)
-        = \frac{\frac{A}{1 - \epsilon_f} + \frac{B}{1 + \epsilon_f}}{2 k^3}. 
+        = \frac{\frac{A}{1 - \epsilon_r} + \frac{B}{1 + \epsilon_r}}{2 k^3}. 
 
     We introduce the ratio (see (Dumontet & Vignes, 1977) eq. 32 page 20):
 
     .. math::
     
-        L(k) = \frac{f^{(3)}_{sup}(x)}{f^{(3)}_{inf}(x)} \geq 1.
+        L(k) = \frac{f^{(3)}_{sup}(x)}{f^{(3)}_{inf}(x)}.
 
+    If :math:`^{(3)}(x) > 0`, then :math:`L(k) > 1`.
+    If :math:`^{(3)}(x) < 0`, then :math:`L(k) < 1`.
     We search for :math:`k` such that the ratio :math:`L` is:
 
     - neither too close to 1 because it would mean that :math:`k` is too large
