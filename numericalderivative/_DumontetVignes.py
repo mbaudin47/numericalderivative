@@ -35,7 +35,7 @@ class DumontetVignes:
 
     if :math:`f^{(3)}(x) \neq 0`, where :math:`\epsilon_r > 0` is the relative
     error of the function evaluation.
-    Notice that (Dumontet & Vignes, 1977) use the non-classical constant
+    Notice that (Dumontet & Vignes, 1977) uses the non-classical constant
     1.67 instead of 3 in the previous equation, but this does not have
     a significant impact on the result.
     The goal of the method is to compute :math:`h^\star` using 
@@ -55,7 +55,7 @@ class DumontetVignes:
 
     .. math::
     
-        f^{(3)}_{inf}(x) \leq f^{(3)}_k(x_0) \leq f^{(3)}_{sup}(x).
+        f^{(3)}_{inf}(x) \leq f^{(3)}_k(x) \leq f^{(3)}_{sup}(x).
 
     We evaluate the function on 4 points (see (Dumontet & Vignes, 1977) eq. 28 
     page 19, with 2 errors corrected with respect to the original paper):
@@ -70,17 +70,17 @@ class DumontetVignes:
     .. math::
     
         A = \sum_{i = 1}^4 \max(T_i, 0),  \quad
-        B = \sum_{i = 1}^4 \min(T_i, 0). \tag{16}
+        B = \sum_{i = 1}^4 \min(T_i, 0).
 
     The lower and upper bounds of :math:`f^{(3)}(x)` are computed 
     from (see (Dumontet & Vignes, 1977) eq. 30 page 20):
 
     .. math::
     
-        f^{(3)}_{inf}(x_0)
-        = \frac{\frac{A}{1 + \epsilon_r} + \frac{B}{1 - \epsilon_r}}{2 k^3}, \qquad
-        f^{(3)}_{sup}(x_0)
-        = \frac{\frac{A}{1 - \epsilon_r} + \frac{B}{1 + \epsilon_r}}{2 k^3}. 
+        f^{(3)}_{inf}(x)
+        = \frac{1}{2 k^3} \left(\frac{A}{1 + \epsilon_r} + \frac{B}{1 - \epsilon_r}\right), \qquad
+        f^{(3)}_{sup}(x)
+        = \frac{1}{2 k^3} \left(\frac{A}{1 - \epsilon_r} + \frac{B}{1 + \epsilon_r}\right). 
 
     We introduce the ratio (see (Dumontet & Vignes, 1977) eq. 32 page 20):
 
@@ -88,8 +88,10 @@ class DumontetVignes:
     
         L(k) = \frac{f^{(3)}_{sup}(x)}{f^{(3)}_{inf}(x)}.
 
-    If :math:`^{(3)}(x) > 0`, then :math:`L(k) > 1`.
-    If :math:`^{(3)}(x) < 0`, then :math:`L(k) < 1`.
+    If :math:`0 < f^{(3)}_{inf}(x) < f^{(3)}_{sup}(x)`, then :math:`L(k) > 1`.
+    If :math:`f^{(3)}_{inf}(x) < f^{(3)}_{sup}(x) < 0`, then :math:`L(k) < 1`.
+    Moreover, if :math:`k \rightarrow 0`, then :math:`L(k) \rightarrow -1`.
+
     We search for :math:`k` such that the ratio :math:`L` is:
 
     - neither too close to 1 because it would mean that :math:`k` is too large
@@ -110,6 +112,9 @@ class DumontetVignes:
 
     - :math:`L_3 = 2` and :math:`L_2 = \frac{1}{L_3}`,
     - :math:`L_4 = 15` and :math:`L_1 = \frac{1}{L_4}`.
+
+    This method cannot manage the case where :math:`f(x) = 0`.
+    This is because the relative error has no meaning in this case.
 
     This method does not perform correctly if the third derivative is 
     zero or is close to zero (see (Dumontet & Vignes, 1977) remark page 22).
@@ -222,13 +227,13 @@ class DumontetVignes:
         r"""
         Compute the L ratio depending on k.
 
-        A negative L ratio indicates that :math:`f'''_{inf}(x_0)` and :math:`f'''_{sup}(x_0)`
+        A negative L ratio indicates that :math:`f'''_{inf}(x)` and :math:`f'''_{sup}(x)`
         do not have the same sign.
-        This is because :math:`f'''_{inf}(x_0) < 0 < f'''_{sup}(x_0)`
-        which can happen if the exact third derivative is zero.
+        This is because :math:`f'''_{inf}(x) < 0 < f'''_{sup}(x)`.
+        This can happen if the exact third derivative is zero.
         In this case, the method cannot perform correctly.
 
-        It may happen that :math:`f'''_{inf}(x_0)` is zero.
+        It may happen that :math:`f'''_{inf}(x)` is zero.
         This prevents from evaluating the L ratio.
         This might happen if the step k is too small (i.e. too close
         to zero).
@@ -241,8 +246,7 @@ class DumontetVignes:
         Returns
         -------
         ell : float
-            The ratio :math:`\frac{f'''_{sup}(x_0)}{f'''_{inf}(x_0)}`.
-            It is expected that :math:`L(k) \geq 1`.
+            The ratio :math:`\frac{f'''_{sup}(x)}{f'''_{inf}(x)}`.
         f3inf : float
             The lower bound of the third derivative
         f3sup : float
@@ -505,7 +509,15 @@ class DumontetVignes:
         )
         # Compute the approximate optimal step for the first derivative
         function_value = self.function(self.x)
+        if function_value == 0.0:
+            raise ValueError(
+                f"The function value at x = {self.x} is zero. "
+                f"This method cannot perform correctly in this case."
+            )
         absolute_precision = self.relative_precision * abs(function_value)
+        if self.verbose:
+            print(f"f(x) = {function_value}")
+            print(f"absolute_precision = {absolute_precision}")
         step, _ = nd.FirstDerivativeCentral.compute_step(
             third_derivative_value, absolute_precision
         )
