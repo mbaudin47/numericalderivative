@@ -287,34 +287,68 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
             return x**self.alpha
 
         def function_prime(x):
-            return self.alpha * x ** (self.alpha - 1)
+            if self.alpha == 0.0:
+                y = 0.0
+            else:
+                y = self.alpha * x ** (self.alpha - 1)
+            return y
 
         def function_2nd_derivative(x):
-            return self.alpha * (self.alpha - 1) * x ** (self.alpha - 2)
+            if self.alpha == 0.0 or self.alpha == 1.0:
+                y = 0.0
+            else:
+                y = self.alpha * (self.alpha - 1) * x ** (self.alpha - 2)
+            return y
 
         def function_3d_derivative(x):
-            return (
-                self.alpha * (self.alpha - 1) * (self.alpha - 2) * x ** (self.alpha - 3)
-            )
+            if self.alpha == 0.0 or self.alpha == 1.0 or self.alpha == 2.0:
+                y = 0.0
+            else:
+                y = (
+                    self.alpha
+                    * (self.alpha - 1)
+                    * (self.alpha - 2)
+                    * x ** (self.alpha - 3)
+                )
+            return y
 
         def function_4th_derivative(x):
-            return (
-                self.alpha
-                * (self.alpha - 1)
-                * (self.alpha - 2)
-                * (self.alpha - 3)
-                * x ** (self.alpha - 4)
-            )
+            if (
+                self.alpha == 0.0
+                or self.alpha == 1.0
+                or self.alpha == 2.0
+                or self.alpha == 3.0
+            ):
+                y = 0.0
+            else:
+                y = (
+                    self.alpha
+                    * (self.alpha - 1)
+                    * (self.alpha - 2)
+                    * (self.alpha - 3)
+                    * x ** (self.alpha - 4)
+                )
+            return y
 
         def function_5th_derivative(x):
-            return (
-                self.alpha
-                * (self.alpha - 1)
-                * (self.alpha - 2)
-                * (self.alpha - 3)
-                * (self.alpha - 4)
-                * x ** (self.alpha - 5)
-            )
+            if (
+                self.alpha == 0.0
+                or self.alpha == 1.0
+                or self.alpha == 2.0
+                or self.alpha == 3.0
+                or self.alpha == 4.0
+            ):
+                y = 0.0
+            else:
+                y = (
+                    self.alpha
+                    * (self.alpha - 1)
+                    * (self.alpha - 2)
+                    * (self.alpha - 3)
+                    * (self.alpha - 4)
+                    * x ** (self.alpha - 5)
+                )
+            return y
 
         if alpha == 0.0:
             raise ValueError(f"The parameter alpha = {alpha} must be nonzero.")
