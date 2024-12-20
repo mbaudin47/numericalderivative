@@ -68,6 +68,24 @@ pip install numericalderivative
   RAIRO. Analyse numérique, 11 (1), 13-25.
 
 ## Roadmap
+- See why the Dumontet & Vignes method fails on the polynomial function.
+- See why the Gill, Murray, Saunders & Wright method fails on the sin function.
+- In DumontetVignes.compute_third_derivative, set kmin and kmax as a list
+  with two floats. This simplifies the API by reducing the number of input arguments.
+- In class GillMurraySaundersWright.compute_step_for_second_derivative, set kmin and kmax as a list
+  with two floats. This simplifies the API by reducing the number of input arguments.
+- In ShiXieXuanNocedalForward, set minimum_test_ratio and maximum_test_ratio 
+  as a list of two floats. This simplifies the API by reducing the number of input arguments.
 - Implement the method of:
 
 Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. _SIAM Journal on Scientific Computing_, _44_(4), A2302-A2321.
+
+- Implement a method to compute the absolute error of evaluation of the function f, 
+  for example :
+
+J. J. Moré and S. M. Wild, _Estimating computational noise_, _SIAM Journal on Scientific Computing_, 33 (2011), pp. 1292–1314.
+
+- Make sure that the API help page of each method has a paragraph on the
+  cases of failure.
+  Also, add a paragraph on an alternative method using compute_step of F.D. formula,
+  with some extra assumption.

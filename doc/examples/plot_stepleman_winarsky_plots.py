@@ -5,7 +5,7 @@
 Plot Stepleman & Winarsky's method
 ==================================
 
-Find a step which is near to optimal for a centered finite difference 
+Find a step which is near to optimal for a central finite difference 
 formula.
 
 References
@@ -26,15 +26,15 @@ import numericalderivative as nd
 # Plot the number of lost digits for exp
 number_of_points = 100
 x = 1.0
-h_array = np.logspace(-15.0, 1.0, number_of_points)
+step_array = np.logspace(-15.0, 1.0, number_of_points)
 n_digits_array = np.zeros((number_of_points))
 algorithm = nd.SteplemanWinarsky(np.exp, x)
 for i in range(number_of_points):
-    h = h_array[i]
+    h = step_array[i]
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
 pl.figure()
-pl.plot(h_array, n_digits_array)
+pl.plot(step_array, n_digits_array)
 pl.title(r"Number of digits lost by F.D.. $f(x) = \exp(x)$")
 pl.xlabel("h")
 pl.ylabel("$N(h)$")
@@ -43,16 +43,16 @@ pl.xscale("log")
 # %%
 # Plot the number of lost digits for sin
 x = 1.0
-h_array = np.logspace(-7.0, 2.0, number_of_points)
+step_array = np.logspace(-7.0, 2.0, number_of_points)
 n_digits_array = np.zeros((number_of_points))
 algorithm = nd.SteplemanWinarsky(np.sin, x)
 for i in range(number_of_points):
-    h = h_array[i]
+    h = step_array[i]
     n_digits_array[i] = algorithm.number_of_lost_digits(h)
 
 # %%
 pl.figure()
-pl.plot(h_array, n_digits_array)
+pl.plot(step_array, n_digits_array)
 pl.title(r"Number of digits lost by F.D.. $f(x) = \sin(x)$")
 pl.xlabel("h")
 pl.ylabel("$N(h)$")
@@ -65,13 +65,35 @@ pl.xscale("log")
 
 # %%
 def plot_error_vs_h_with_SW_steps(
-    name, function, function_derivative, x, h_array, h_min, h_max, verbose=False
+    name, function, function_derivative, x, step_array, h_min, h_max, verbose=False
 ):
+    """
+    Plot the computed error depending on the step for an array of F.D. steps
+
+    Parameters
+    ----------
+    name : str
+        The name of the problem
+    function : function
+        The function.
+    first_derivative : function
+        The exact first derivative of the function
+    x : float
+        The input point where the test is done
+    step_array : list(float)
+        The array of finite difference steps
+    h_min : float, > 0
+        The lower bound to bracket the initial differentiation step.
+    h_max : float, > kmin
+        The upper bound to bracket the initial differentiation step.
+    verbose : bool, optional
+        Set to True to print intermediate messages. The default is False.
+    """
     algorithm = nd.SteplemanWinarsky(function, x)
-    number_of_points = len(h_array)
+    number_of_points = len(step_array)
     error_array = np.zeros((number_of_points))
     for i in range(number_of_points):
-        h = h_array[i]
+        h = step_array[i]
         f_prime_approx = algorithm.compute_first_derivative(h)
         error_array[i] = abs(f_prime_approx - function_derivative(x))
 
@@ -93,7 +115,7 @@ def plot_error_vs_h_with_SW_steps(
     maximum_error = np.nanmax(error_array)
 
     pl.figure()
-    pl.plot(h_array, error_array)
+    pl.plot(step_array, error_array)
     pl.plot(
         [h_min] * 2,
         [minimum_error, maximum_error],
@@ -124,13 +146,31 @@ def plot_error_vs_h_with_SW_steps(
 
 
 # %%
-def plot_error_vs_h_benchmark(benchmark, x, h_array, h_min, h_max, verbose=False):
+def plot_error_vs_h_benchmark(problem, x, step_array, h_min, h_max, verbose=False):
+    """
+    Plot the computed error depending on the step for an array of F.D. steps
+
+    Parameters
+    ----------
+    problem : nd.BenchmarkProblem
+        The problem
+    x : float
+        The input point where the test is done
+    step_array : list(float)
+        The array of finite difference steps
+    kmin : float, > 0
+        The minimum step k for the second derivative.
+    kmax : float, > kmin
+        The maximum step k for the second derivative.
+    verbose : bool, optional
+        Set to True to print intermediate messages. The default is False.
+    """
     plot_error_vs_h_with_SW_steps(
-        benchmark.name,
-        benchmark.function,
-        benchmark.first_derivative,
+        problem.get_name(),
+        problem.get_function(),
+        problem.get_first_derivative(),
         x,
-        h_array,
+        step_array,
         h_min,
         h_max,
         True,
@@ -138,56 +178,58 @@ def plot_error_vs_h_benchmark(benchmark, x, h_array, h_min, h_max, verbose=False
 
 
 # %%
-benchmark = nd.ExponentialProblem()
+problem = nd.ExponentialProblem()
 x = 1.0
 number_of_points = 1000
-h_array = np.logspace(-15.0, 1.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-10, 1.0e0, True)
+step_array = np.logspace(-15.0, 1.0, number_of_points)
+plot_error_vs_h_benchmark(problem, x, step_array, 1.0e-10, 1.0e0, True)
 
 # %%
 x = 12.0
-h_array = np.logspace(-15.0, 1.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-10, 1.0e0)
+step_array = np.logspace(-15.0, 1.0, number_of_points)
+plot_error_vs_h_benchmark(problem, x, step_array, 1.0e-10, 1.0e0)
 
 if False:
-    benchmark = nd.LogarithmicProblem()
+    problem = nd.LogarithmicProblem()
     x = 1.0
-    plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e0, True)
+    plot_error_vs_h_benchmark(problem, x, step_array, 1.0e-15, 1.0e0, True)
 
 # %%
-benchmark = nd.LogarithmicProblem()
+problem = nd.LogarithmicProblem()
 x = 1.1
-h_array = np.logspace(-15.0, -1.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-14, 1.0e-1, True)
+step_array = np.logspace(-15.0, -1.0, number_of_points)
+plot_error_vs_h_benchmark(problem, x, step_array, 1.0e-14, 1.0e-1, True)
 
 # %%
-benchmark = nd.SinProblem()
+problem = nd.SinProblem()
 x = 1.0
-h_array = np.logspace(-15.0, 0.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0)
+step_array = np.logspace(-15.0, 0.0, number_of_points)
+plot_error_vs_h_benchmark(problem, x, step_array, 1.0e-15, 1.0e-0)
 
 # %%
-benchmark = nd.SquareRootProblem()
+problem = nd.SquareRootProblem()
 x = 1.0
-h_array = np.logspace(-15.0, 0.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0, True)
+step_array = np.logspace(-15.0, 0.0, number_of_points)
+plot_error_vs_h_benchmark(problem, x, step_array, 1.0e-15, 1.0e-0, True)
 
 # %%
-benchmark = nd.AtanProblem()
+problem = nd.AtanProblem()
 x = 1.0
-h_array = np.logspace(-15.0, 0.0, number_of_points)
-plot_error_vs_h_benchmark(benchmark, x, h_array, 1.0e-15, 1.0e-0)
+step_array = np.logspace(-15.0, 0.0, number_of_points)
+plot_error_vs_h_benchmark(problem, x, step_array, 1.0e-15, 1.0e-0)
 
 # %%
-benchmark = nd.ExponentialProblem()
+problem = nd.ExponentialProblem()
 print("+ Sensitivity of SW step depending on h0")
 print("Case 1 : exp")
 x = 1.0
+function = problem.get_function()
+third_derivative = problem.get_third_derivative()
 algorithm = nd.SteplemanWinarsky(
-    benchmark.function,
+    function,
     x,
 )
-third_derivative_value = benchmark.third_derivative(benchmark.x)
+third_derivative_value = third_derivative(x)
 optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
     third_derivative_value
 )
@@ -201,9 +243,12 @@ print("Case 2 : Scaled exp")
 x = 1.0
 
 # %%
-benchmark = nd.ScaledExponentialProblem()
-algorithm = nd.SteplemanWinarsky(benchmark.function, x)
-third_derivative_value = benchmark.third_derivative(benchmark.x)
+problem = nd.ScaledExponentialProblem()
+function = problem.get_function()
+third_derivative = problem.get_third_derivative()
+x = problem.get_x()
+algorithm = nd.SteplemanWinarsky(function, x)
+third_derivative_value = third_derivative(x)
 optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
     third_derivative_value
 )

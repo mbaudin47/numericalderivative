@@ -20,10 +20,20 @@ import numpy as np
 # %%
 # First, we create an use a single problem.
 # We create the problem and get the function and its
-# first derivative
+# first derivative.
+# Printing the object evaluates the function and its
+# derivatives at the test point.
 
 # %%
 problem = nd.ExponentialProblem()
+print(problem)
+
+# %%
+# We can also use the pretty-print.
+problem
+
+# %%
+# Get the data from the problem
 x = problem.get_x()
 function = problem.get_function()
 first_derivative = problem.get_first_derivative()
@@ -71,7 +81,7 @@ print(f"Absolute error = {absolute_error}")
 # We can use a collection of benchmark problems.
 
 # %%
-benchmark = nd.BuildBenchmark()
+benchmark = nd.build_benchmark()
 number_of_problems = len(benchmark)
 data = []
 for i in range(number_of_problems):
@@ -94,11 +104,23 @@ tabulate.tabulate(
     headers=["Index", "Name", "x", "xmin", "xmax"],
     tablefmt="html",
 )
+
+# %%
+# Print each benchmark problems.
+
+# %%
+benchmark = nd.build_benchmark()
+number_of_problems = len(benchmark)
+for i in range(number_of_problems):
+    problem = benchmark[i]
+    print(problem)
+
+
 # %%
 # Plot the benchmark problems.
 
 # %%
-benchmark = nd.BuildBenchmark()
+benchmark = nd.build_benchmark()
 number_of_problems = len(benchmark)
 number_of_columns = 3
 number_of_rows = math.ceil(number_of_problems / number_of_columns)

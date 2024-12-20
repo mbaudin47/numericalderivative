@@ -19,11 +19,13 @@ from ._DerivativeBenchmark import (
     OliverProblem1,
     OliverProblem2,
     OliverProblem3,
-    BuildBenchmark,
+    build_benchmark,
+    benchmark_method,
 )
 from ._DumontetVignes import DumontetVignes
 from ._GillMurraySaundersWright import GillMurraySaundersWright
 from ._SteplemanWinarsky import SteplemanWinarsky
+from ._ShiXieXuanNocedalForward import ShiXieXuanNocedalForward
 from ._FiniteDifferenceFormula import (
     FiniteDifferenceFormula,
     FirstDerivativeForward,
@@ -57,10 +59,12 @@ __all__ = [
     "OliverProblem1",
     "OliverProblem2",
     "OliverProblem3",
+    "build_benchmark",
+    "benchmark_method",
     "DumontetVignes",
     "GillMurraySaundersWright",
     "SteplemanWinarsky",
-    "BuildBenchmark",
+    "ShiXieXuanNocedalForward",
     "GeneralFiniteDifference",
 ]
 __version__ = "1.0"

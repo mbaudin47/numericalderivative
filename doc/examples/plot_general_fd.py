@@ -134,7 +134,7 @@ _ = compute_absolute_error(step, True)
 
 # %%
 # Compute the coefficients of several central F.D. formulas
-# =========================================================
+# ---------------------------------------------------------
 
 # %%
 # We would like to compute the coefficients of a collection of central
@@ -239,7 +239,7 @@ pl.tight_layout()
 
 # %%
 # Compute the coefficients of several forward F.D. formulas
-# =========================================================
+# ---------------------------------------------------------
 
 # %%
 # We would like to compute the coefficients of a collection of forward

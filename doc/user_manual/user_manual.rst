@@ -3,6 +3,7 @@ User manual
 
 .. currentmodule:: numericalderivative
 
+
 Algorithms for optimal step
 ---------------------------
 
@@ -12,6 +13,7 @@ Algorithms for optimal step
        DumontetVignes
        GillMurraySaundersWright
        SteplemanWinarsky
+       ShiXieXuanNocedalForward
 
 Finite Differences
 ------------------
@@ -43,7 +45,6 @@ Benchmark problems
        SinProblem
        ScaledExponentialProblem
        GMSWExponentialProblem
-       BuildBenchmark
        SXXNProblem1
        SXXNProblem2
        SXXNProblem3
@@ -51,3 +52,12 @@ Benchmark problems
        OliverProblem1
        OliverProblem2
        OliverProblem3
+
+Benchmark features
+------------------
+
+.. autosummary::
+   :toctree: _generated/
+
+       build_benchmark
+       benchmark_method

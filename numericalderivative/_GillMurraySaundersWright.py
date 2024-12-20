@@ -9,17 +9,65 @@ import numericalderivative as nd
 
 
 class GillMurraySaundersWright:
-    """
+    r"""
     Compute an approximately optimal step for the forward F.D. formula of the first derivative
 
     The method is based on three steps:
 
-    - compute an approximate optimal step for the second derivative using central finite difference formula,
-    - compute the approximate second derivative using central finite difference formula,
-    - compute the approximate optimal step for the first derivative using the forward finite difference formula.
+    - compute an approximate optimal step :math:`h_\Phi` for the second
+      derivative using central finite difference formula,
+    - compute the approximate second derivative using central finite
+      difference formula,
+    - compute the approximate optimal step for the first derivative using the
+      forward finite difference formula.
 
     Finally, this approximately optimal step can be use to compute the
     first derivative using the forward finite difference formula.
+
+    The goal of the method is to compute the approximation of :math:`f'(x)`
+    using the forward finite difference formula (see (G, M, S & W, 1983) eq. 1 page 311):
+
+    .. math::
+
+        f'(x) \approx \frac{f(x + h) - f(x)}{h}
+
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the
+    input point and :math:`h > 0` is the step.
+    If :math:`f''(x) \neq 0`, then the step which minimizes the total error is:
+
+    .. math::
+
+        h^\star = 2 \sqrt{\frac{\epsilon_f}{\left|f''(x)\right|}}
+
+    where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
+    The goal of the method is to compute :math:`h^\star` using
+    function evaluations only.
+    An approximate value of the second derivative can be computed from the
+    central finite difference formula (see (G, M, S & W, 1983) eq. 8 page 314):
+
+    .. math::
+
+        f''(x) \approx \Phi(h_\Phi)
+        = \frac{f(x + h_\Phi) - 2 f(x) + f(x - h_\Phi)}{h_\Phi^2}.
+
+    where :math:`\Phi` is the approximation of :math:`f''(x)` from the
+    central finite difference formula and :math:`h_\Phi > 0` is the step of
+    the second derivative finite difference formula.
+    The method is based on the condition error (see (G, M, S & W, 1983) eq. 1 page 315):
+
+    .. math::
+
+        c(h_\Phi) = \frac{4 \epsilon_f}{h_\Phi^2 |\Phi|}.
+
+    The condition error is a decreasing function of :math:`h_\Phi`.
+    The algorithm searches for a step :math:`h_\Phi` such that:
+
+    .. math::
+
+        c_{\min} \leq c(h_\Phi) \leq c_{\max}
+
+    where :math:`c_{\min}` and :math:`c_{\max}` are thresholds defined by the
+    user.
 
     This algorithm is a simplified version of the algorithm published in
     (Gill, Murray, Saunders & Wright, 1983) section 3.2 page 316.
@@ -28,6 +76,19 @@ class GillMurraySaundersWright:
     first derivative and the central formula for the second derivative,
     this algorithm only searches for the optimal step for the central
     formula for the second derivative.
+
+    The algorithm can fail in the case where the function is odd
+    or approximately linear.
+    For example, the function :math:`\sin` is linear at point :math:`x = \pm \pi`.
+    In this case, the second derivative is zero, which produces a
+    value of :math:`\Phi` zero or close to zero.
+    This produces an infinite value of the condition error.
+    The same problem appears at :math:`x = 0`.
+
+    In this algorithm fails to produce a consistent step, one can compute
+    an approximately optimal step using :meth:`~numericalderivative.FirstDerivativeForward.compute_step`.
+    Since the value of the second derivative is unknown, we can make the
+    hypothesis that :math:`f''(x) \approx 1`.
 
     Parameters
     ----------
@@ -109,19 +170,32 @@ class GillMurraySaundersWright:
         self.y = self.function(self.x)
         self.absolute_precision = abs(relative_precision * self.y)
         self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
+        self.step_history = []
+
+    def get_threshold_min_max(self):
+        """
+        Return the threshold min and max of the condition error
+
+        Returns
+        -------
+        c_threshold_min : float, > 0
+            The minimum value of the threshold of the condition error.
+        c_threshold_max : float, > 0
+            The maxiimum value of the threshold of the condition error.
+        """
+        return [self.c_threshold_min, self.c_threshold_max]
 
     def compute_condition(self, k):
         r"""
         Compute the condition error for given step k.
 
-        This is the condition error of the finite difference formula
-        of the second derivative finite difference :
+        This function evaluates the condition error :math:`c(h_\Phi)` of the
+        finite difference formula of the second derivative finite difference
+        depending on the step :math:`h_\Phi`:
 
         .. math::
 
-            f''(x) \approx \frac{f(x + k) - 2 f(x) + f(x - k)}{k^2}
-
-        The condition error is a decreasing function of k.
+            c(h_\Phi) = \frac{4 \epsilon_f}{h_\Phi^2 |\Phi|}.
 
         Parameters
         ----------
@@ -151,11 +225,32 @@ class GillMurraySaundersWright:
     def compute_step_for_second_derivative(
         self, kmin, kmax, iteration_maximum=50, logscale=True
     ):
-        """
+        r"""
         Compute the optimal step k suitable to approximate the second derivative.
 
         Then the approximate value of the second derivative can be computed using
-        compute_2nd_derivative().
+        this step.
+
+        The update formula depends on `logscale`.
+        If it is true, then the logarithmic scale is used:
+
+        .. math::
+
+            h = \exp\left(\frac{\log(k_{\min}) + \log(k_{\max})}{2}\right)
+
+        where :math:`k_\min` is the current lower bound of the search
+        interval and :math:`k_\max` is the current upper bound.
+        This implies that the update is the geometrical mean:
+
+        .. math::
+
+            h = \sqrt{k_{\min} k_{\max}}.
+
+        Otherwise, we use the arithmetic mean:
+
+        .. math::
+
+            h = \frac{k_{\min} + k_{\max}}{2}.
 
         Parameters
         ----------
@@ -216,6 +311,7 @@ class GillMurraySaundersWright:
                 step_second_derivative = np.exp(logk)
             else:
                 step_second_derivative = (kmin + kmax) / 2.0
+            self.step_history.append(step_second_derivative)
             c = self.compute_condition(step_second_derivative)
             if self.verbose:
                 print(
@@ -243,8 +339,9 @@ class GillMurraySaundersWright:
         if not found:
             raise ValueError(
                 f"Unable to find satisfactory step_second_derivative "
-                f"after {iteration_maximum} iterations."
-                "Please increase iteration_maximum"
+                f"after {iteration_maximum} iterations. "
+                f"The function might be odd or approximately linear. "
+                f"Please increase iteration_maximum = {iteration_maximum}."
             )
         return step_second_derivative, number_of_iterations
 
@@ -254,7 +351,7 @@ class GillMurraySaundersWright:
 
         This method computes the approximately optimal step for the second derivative.
         Then the approximate value of the second derivative can be computed using
-        compute_2nd_derivative().
+        this step.
 
         Parameters
         ----------
@@ -336,3 +433,28 @@ class GillMurraySaundersWright:
             second_derivative_central_feval + first_derivative_forward + function_eval
         )
         return total_feval
+
+    def get_step_history(self):
+        """
+        Return the history of steps during the search.
+
+        Returns
+        -------
+        step_history : list(float)
+            The list of steps h during intermediate iterations of the search.
+            This is updated by :meth:`compute_step_for_second_derivative`.
+
+        """
+        return self.step_history
+
+    def get_relative_precision(self):
+        """
+        Return the relative precision of the function evaluation
+
+        Returns
+        -------
+        relative_precision : float
+            The relative precision of evaluation of f.
+
+        """
+        return self.relative_precision
