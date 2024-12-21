@@ -40,7 +40,7 @@ class ShiXieXuanNocedalForward:
     x : float
         The point where the derivative is to be evaluated.
     absolute_precision : float, > 0, optional
-        The absolute precision of evaluation of f. The default is 1.0e-16.
+        The absolute precision of evaluation of f.
         If the function value is close to zero (e.g. for the sin function
         at x = np.pi where f(x) is close to 1.0e-32), then the absolute
         precision cannot always be computed from the relative precision.
@@ -56,7 +56,7 @@ class ShiXieXuanNocedalForward:
         the function must be y = function(x, arg1, arg2, ...) where
         arg1, arg2, ..., are the items in the args list.
     verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
+        Set to True to print intermediate messages.
 
     Returns
     -------
@@ -80,13 +80,13 @@ class ShiXieXuanNocedalForward:
     >>> algorithm = nd.ShiXieXuanNocedalForward(
     >>>     scaled_exp, x,
     >>> )
-    >>> h_optimal, number_of_iterations = algorithm.compute_step()
+    >>> h_optimal, number_of_iterations = algorithm.find_step()
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 
     Set the initial step.
 
     >>> initial_step = 1.0e8
-    >>> h_optimal, number_of_iterations = algorithm.compute_step(initial_step)
+    >>> h_optimal, number_of_iterations = algorithm.find_step(initial_step)
     """
 
     def __init__(
@@ -166,7 +166,7 @@ class ShiXieXuanNocedalForward:
         test_ratio = abs(f4 - 4 * f1 + 3 * f0) / (8 * self.absolute_precision)
         return test_ratio
 
-    def compute_step(
+    def find_step(
         self,
         initial_step=None,
         iteration_maximum=50,
@@ -195,7 +195,7 @@ class ShiXieXuanNocedalForward:
         initial_step : float, > 0
             The initial step in the algorithm.
         iteration_maximum : int, optional
-            The number of number_of_iterations. The default is 53.
+            The number of number_of_iterations.
         logscale : bool, optional
             Set to True to use a logarithmic scale when updating the step k
             during the search. Set to False to use a linear scale when
@@ -356,7 +356,7 @@ class ShiXieXuanNocedalForward:
         -------
         step_history : list(float)
             The list of steps k during intermediate iterations of the bissection search.
-            This is updated by :meth:`compute_step`.
+            This is updated by :meth:`find_step`.
 
         """
         return self.step_history

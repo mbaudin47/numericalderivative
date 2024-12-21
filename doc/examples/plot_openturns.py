@@ -61,7 +61,7 @@ def functionStrain(strain, r, c, gamma):
 h0 = 1.0e0
 args = [meanR, meanC, meanGamma]
 algorithm = nd.SteplemanWinarsky(functionStrain, meanStrain, args=args, verbose=True)
-h_optimal, iterations = algorithm.compute_step(h0)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", h_optimal)
 print("iterations =", iterations)
@@ -86,7 +86,7 @@ args = [meanStrain, meanC, meanGamma]
 algorithm = nd.SteplemanWinarsky(
     functionR, meanR, args=args, relative_precision=1.0e-14, verbose=True
 )
-h_optimal, iterations = algorithm.compute_step(h0)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print(f"Optimum h = {h_optimal:e}")
 print("iterations =", iterations)
@@ -111,7 +111,7 @@ args = [meanStrain, meanR, meanGamma]
 algorithm = nd.SteplemanWinarsky(
     functionR, meanC, args=args, relative_precision=1.0e-14, verbose=True
 )
-h_optimal, iterations = algorithm.compute_step(h0)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print(f"Optimum h = {h_optimal:e}")
 print("iterations =", iterations)
@@ -136,7 +136,7 @@ args = [meanStrain, meanR, meanC]
 algorithm = nd.SteplemanWinarsky(
     functionGamma, meanGamma, args=args, relative_precision=1.0e-14, verbose=True
 )
-h_optimal, iterations = algorithm.compute_step(h0)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print(f"Optimum h = {h_optimal:e}")
 print("iterations =", iterations)
@@ -180,7 +180,7 @@ for xIndex in range(inputDimension):
         relative_precision=1.0e-12,
         verbose=True,
     )
-    h_optimal, iterations = algorithm.compute_step(initialStep[xIndex])
+    h_optimal, iterations = algorithm.find_step(initialStep[xIndex])
     number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
     print(f"    Optimum h = {h_optimal:e}")
     print("    Iterations =", iterations)
@@ -294,7 +294,7 @@ def computeSteplemanWinarskyStep(
             relative_precision=relative_precision,
             verbose=verbose,
         )
-        h_optimal, iterations = algorithm.compute_step(
+        h_optimal, iterations = algorithm.find_step(
             initial_step[xIndex],
             beta=beta,
         )

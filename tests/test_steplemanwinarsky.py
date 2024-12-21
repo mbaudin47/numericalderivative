@@ -48,7 +48,7 @@ class CheckStepleman(unittest.TestCase):
         x = 1.0e0
         # Check approximate optimal h
         algorithm = nd.SteplemanWinarsky(exp, x, verbose=True)
-        computed_step, iterations = algorithm.compute_step()
+        computed_step, number_of_iterations = algorithm.find_step()
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
@@ -58,7 +58,7 @@ class CheckStepleman(unittest.TestCase):
             third_derivative_value
         )
         print("exact_step = ", exact_step)
-        print("iterations =", iterations)
+        print("number_of_iterations =", number_of_iterations)
         np.testing.assert_allclose(computed_step, exact_step, rtol=1.0e1)
         # Check approximate f'(x)
         f_prime_approx = algorithm.compute_first_derivative(computed_step)
@@ -75,7 +75,7 @@ class CheckStepleman(unittest.TestCase):
         # Check approximate optimal h
         algorithm = nd.SteplemanWinarsky(scaled_exp, x, verbose=True)
         initial_step = 1.0e8
-        computed_step, iterations = algorithm.compute_step(initial_step)
+        computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
@@ -85,12 +85,13 @@ class CheckStepleman(unittest.TestCase):
             third_derivative_value
         )
         print("exact_step = ", exact_step)
-        print("iterations =", iterations)
+        print("number_of_iterations =", number_of_iterations)
         np.testing.assert_allclose(computed_step, exact_step, atol=1.0e2)
         # Check approximate f'(x)
         f_prime_approx = algorithm.compute_first_derivative(computed_step)
         print("f_prime_approx = ", f_prime_approx)
         f_prime_exact = scaled_exp_prime(x)
+        print("f_prime_exact = ", f_prime_exact)
         absolute_error = abs(f_prime_approx - f_prime_exact)
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
@@ -99,7 +100,7 @@ class CheckStepleman(unittest.TestCase):
         print("test_compute_step_with_bisection")
         x = 1.0e0
         algorithm = nd.SteplemanWinarsky(scaled_exp, x, verbose=True)
-        initial_h, number_of_iterations = algorithm.search_step_with_bisection(
+        initial_h, number_of_iterations = algorithm.find_initial_step(
             1.0e-10,
             1.0e8,
         )
@@ -108,8 +109,39 @@ class CheckStepleman(unittest.TestCase):
         third_derivative_value = scaled_exp_3d_derivative(x)
         exact_step, _ = nd.FirstDerivativeCentral.compute_step(third_derivative_value)
         print("exact_step = ", exact_step)
-        print("iterations =", number_of_iterations)
+        print("number_of_iterations =", number_of_iterations)
         np.testing.assert_allclose(initial_h, exact_step, atol=1.0e8)
+
+    def test_sin_at_zero(self):
+        """
+        Consider f(x) = sin(x). At x = 0, we have f(x) = 0 and f'(x) = 1.
+        Therefore, the algorithm must perform correctly.
+        """
+        print("test_sin_at_zero")
+        x = 0.0e0
+        # Check approximate optimal h
+        algorithm = nd.SteplemanWinarsky(np.sin, x, verbose=True)
+        initial_step = 1.0e0
+        computed_step, number_of_iterations = algorithm.find_step(initial_step)
+        number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+        print("Function evaluations =", number_of_function_evaluations)
+        assert number_of_function_evaluations > 0
+        print("Optimum h =", computed_step)
+        third_derivative_value = -np.cos(x)
+        exact_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+            third_derivative_value
+        )
+        print("exact_step = ", exact_step)
+        print("number_of_iterations =", number_of_iterations)
+        np.testing.assert_allclose(computed_step, exact_step, atol=1.0e2)
+        # Check approximate f'(x)
+        f_prime_approx = algorithm.compute_first_derivative(computed_step)
+        print("f_prime_approx = ", f_prime_approx)
+        f_prime_exact = np.cos(x)
+        print("f_prime_exact = ", f_prime_exact)
+        absolute_error = abs(f_prime_approx - f_prime_exact)
+        print("Absolute error = ", absolute_error)
+        np.testing.assert_allclose(f_prime_approx, f_prime_exact, rtol=1.0e-7)
 
 
 if __name__ == "__main__":

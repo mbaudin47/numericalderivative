@@ -27,7 +27,7 @@ from matplotlib.ticker import MaxNLocator
 # %%
 # In the next example, we use the algorithm on the exponential function.
 # We create the :class:`~numericalderivative.ShiXieXuanNocedalForward` algorithm using the function and the point x.
-# Then we use the :meth:`~numericalderivative.ShiXieXuanNocedalForward.compute_step()` method to compute the step,
+# Then we use the :meth:`~numericalderivative.ShiXieXuanNocedalForward.find_step()` method to compute the step,
 # using an upper bound of the step as an initial point of the algorithm.
 # Finally, use the :meth:`~numericalderivative.ShiXieXuanNocedalForward.compute_first_derivative()` method to compute
 # an approximate value of the first derivative using finite differences.
@@ -38,7 +38,7 @@ from matplotlib.ticker import MaxNLocator
 x = 1.0
 algorithm = nd.ShiXieXuanNocedalForward(np.exp, x, verbose=True)
 initial_step = 1.0
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.find_step(initial_step)
 f_prime_approx = algorithm.compute_first_derivative(step)
 feval = algorithm.get_number_of_function_evaluations()
 f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
@@ -106,7 +106,7 @@ pl.tight_layout()
 algorithm = nd.ShiXieXuanNocedalForward(function, x, verbose=True)
 x = 1.0e0
 initial_step = 1.0
-h_optimal, iterations = algorithm.compute_step(initial_step)
+h_optimal, iterations = algorithm.find_step(initial_step)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", h_optimal)
 print("iterations =", iterations)
@@ -184,7 +184,7 @@ name = problem.get_name()
 x = problem.get_x()
 algorithm = nd.ShiXieXuanNocedalForward(function, x, verbose=True)
 initial_step = 1.0e5
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.find_step(initial_step)
 step_h_history = algorithm.get_step_history()
 print(f"Number of iterations = {number_of_iterations}")
 print(f"History of steps h : {step_h_history}")

@@ -168,7 +168,6 @@ class GeneralFiniteDifference:
         direction : str, optional
             The direction of the formula.
             The direction can be "forward", "backward" or "central".
-            The default is "central".
         args : list
             A list of optional arguments that the function takes as inputs.
             By default, there is no extra argument and calling sequence of

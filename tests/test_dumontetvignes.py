@@ -33,7 +33,7 @@ class CheckDumontetVignes(unittest.TestCase):
         x = 1.0e0
         # Check the step
         algorithm = nd.DumontetVignes(scaled_exp, x)
-        h_optimal, number_of_iterations = algorithm.compute_step(
+        h_optimal, number_of_iterations = algorithm.find_step(
             kmin=1.0e-2,
             kmax=1.0e2,
         )

@@ -67,7 +67,7 @@ class SteplemanWinarsky:
     x : float
         The point where the derivative is to be evaluated.
     relative_precision : float, > 0, optional
-        The relative precision of evaluation of f. The default is 1.0e-16.
+        The relative precision of evaluation of f.
     args : list
         A list of optional arguments that the function takes as inputs.
         By default, there is no extra argument and calling sequence of
@@ -76,7 +76,7 @@ class SteplemanWinarsky:
         the function must be y = function(x, arg1, arg2, ...) where
         arg1, arg2, ..., are the items in the args list.
     verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
+        Set to True to print intermediate messages.
 
     Returns
     -------
@@ -101,7 +101,7 @@ class SteplemanWinarsky:
     >>> algorithm = nd.SteplemanWinarsky(
     >>>     scaled_exp, x,
     >>> )
-    >>> h_optimal, number_of_iterations = algorithm.compute_step(initial_step)
+    >>> h_optimal, number_of_iterations = algorithm.find_step(initial_step)
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
 
@@ -121,7 +121,7 @@ class SteplemanWinarsky:
         self.step_history = []
         return
 
-    def compute_step(self, initial_step=None, iteration_maximum=53, beta=4.0):
+    def find_step(self, initial_step=None, iteration_maximum=53, beta=4.0):
         r"""
         Compute an approximate optimum step for central derivative using monotony properties.
 
@@ -132,15 +132,17 @@ class SteplemanWinarsky:
         ----------
         initial_step : float, > 0.0
             The initial value of the differentiation step.
-            The default initial step is :math:`\beta \epsilon_r^{1/3} |x|`
+            The (heuristic) default initial step is :math:`\beta \epsilon_r^{1/3} |x|`
             where :math:`\beta > 0` is the reduction factor,
             :math:`\epsilon_r` is the relative error and :math:`x` is the
             current point.
+            This heuristic is based on the hypothesis that the absolute value of
+            the third derivative is close to 1.
             The algorithm produces a sequence of decreasing steps.
             Hence, the initial step should be an upper bound of the true
             optimal step.
         iteration_maximum : int, optional
-            The number of iterations. The default is 53.
+            The number of iterations.
         beta : float, > 1.0
             The reduction factor of h at each iteration.
             A value of beta closer to 1 can improve the accuracy of the optimum
@@ -155,7 +157,7 @@ class SteplemanWinarsky:
 
         """
         if self.verbose:
-            print("+ compute_step()")
+            print("+ find_step()")
         if beta <= 1.0:
             raise ValueError(f"beta must be greater than 1. Here beta = {beta}.")
         if initial_step is None:
@@ -259,7 +261,7 @@ class SteplemanWinarsky:
         number_of_digits = -np.log10(delta)
         return number_of_digits
 
-    def search_step_with_bisection(
+    def find_initial_step(
         self,
         h_min,
         h_max,
@@ -270,7 +272,7 @@ class SteplemanWinarsky:
         r"""
         Compute the initial step using bisection.
 
-        The initial step initial_step is chosen so that:
+        The initial step :math:`h_0` is chosen such that:
 
         .. math::
 
@@ -279,11 +281,13 @@ class SteplemanWinarsky:
         where :math:`N` is the number of lost digits (as computed by
         :meth:`number_of_lost_digits()`), :math:`h_0` is the initial step and
         :math:`\epsilon_r` is the relative precision of the function evaluation.
+        This heuristic is based on the hypothesis that the absolute value of
+        the third derivative is close to 1.
 
-        This algorithm can be effective compared to :meth:`compute_step()`
+        This algorithm can be effective compared to :meth:`find_step()`
         in the cases where it is difficult to find an initial step.
-        In this case, the step returned by :meth:`search_step_with_bisection()`
-        can be used as the initial step for compute_step().
+        In this case, the step returned by :meth:`find_initial_step()`
+        can be used as the initial step for find_step().
         This can require several extra function evaluations.
 
         This algorithm can fail if the required finite difference step is
@@ -298,11 +302,11 @@ class SteplemanWinarsky:
             The upper bound to bracket the initial differentiation step.
             We must have N(h_min) > N(h_max) where N is the number of lost digits.
         maximum_bisection : int, optional
-            The maximum number of bisection iterations. The default is 53.
+            The maximum number of bisection iterations.
         beta : float, > 1, optional
-            The reduction of h at each iteration. The default is 4.0.
+            The reduction of h at each iteration.
         log_scale : bool, optional
-            Set to True to bisect in log scale. The default is True.
+            Set to True to bisect in log scale.
 
         Returns
         -------
@@ -313,7 +317,7 @@ class SteplemanWinarsky:
 
         """
         if self.verbose:
-            print("+ search_step_with_bisection()")
+            print("+ find_initial_step()")
         if h_min <= 0.0:
             raise ValueError(f"h_min  = {h_min} must be greater than zero.")
         if h_min >= h_max:
@@ -456,7 +460,7 @@ class SteplemanWinarsky:
         -------
         step_history : list(float)
             The list of steps h during intermediate iterations of the search.
-            This is updated by :meth:`compute_step`.
+            This is updated by :meth:`find_step`.
 
         """
         return self.step_history
