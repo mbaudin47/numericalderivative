@@ -133,7 +133,6 @@ def plot_step_sensitivity(
     print("Exact f'''(x) = %.3e" % (function_third_derivative(x)))
     estim_step, _ = algorithm.compute_step(
         iteration_maximum=iteration_maximum,
-        markdown=False,
         kmin=kmin,
         kmax=kmax,
     )

@@ -289,7 +289,6 @@ class DumontetVignes:
         kmin=None,
         kmax=None,
         logscale=False,
-        markdown=False,
     ):
         r"""
         Compute an approximate third derivative of the function
@@ -324,8 +323,6 @@ class DumontetVignes:
             Set to True to use a logarithmic scale when updating the step k
             during the search. Set to False to use a linear scale when
             updating the step k during the search.
-        markdown : bool, optional
-            If True, then prints a Markdown table of the iterations.
 
         Returns
         -------
@@ -344,10 +341,6 @@ class DumontetVignes:
         if self.verbose:
             print("x = %.3e" % (self.x))
             print(f"iteration_maximum = {iteration_maximum}")
-
-        if markdown:
-            print("| Iteration | kmin | kmax | k | f3inf | f3sup | ell |")
-            print("|---|---|---|---|---|---|---|")
 
         if kmin is None:
             kmin = self.x * 2 ** (-self.number_of_digits + 1)  # Eq. 26
@@ -399,7 +392,7 @@ class DumontetVignes:
                     "Please increase kmax."
                 )
 
-        # Search solution using bissection
+        # Search solution using bisection
         k = kmin
         found = False
         self.step_history = []
@@ -420,11 +413,6 @@ class DumontetVignes:
             if self.verbose:
                 print(
                     f"  k = {k:.3e}, f3inf = {f3inf:.3e}, f3sup = {f3sup:.3e}, ell = {ell:.3e}"
-                )
-            if markdown:
-                print(
-                    "| %d | %.1e | %.1e | %.1e | %.1e | %.1e | %.1e |"
-                    % (number_of_iterations, kmin, kmax, k, f3inf, f3sup, ell)
                 )
             if ell > self.ell_1 and ell < self.ell_4:
                 if ell > self.ell_2 and ell < self.ell_3:
@@ -455,7 +443,6 @@ class DumontetVignes:
         kmin=None,
         kmax=None,
         logscale=False,
-        markdown=False,
     ):
         r"""
         Compute an approximate optimum step for the first derivative
@@ -489,8 +476,6 @@ class DumontetVignes:
             Set to False to use a linear scale when updating
             the step k during the search.
             The default is False.
-        markdown : bool, optional
-            If True, then prints a Markdown table of the iterations.
 
         Returns
         -------
@@ -505,7 +490,6 @@ class DumontetVignes:
             kmin,
             kmax,
             logscale,
-            markdown,
         )
         # Compute the approximate optimal step for the first derivative
         function_value = self.function(self.x)
