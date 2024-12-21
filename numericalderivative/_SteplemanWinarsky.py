@@ -67,7 +67,7 @@ class SteplemanWinarsky:
     x : float
         The point where the derivative is to be evaluated.
     relative_precision : float, > 0, optional
-        The relative precision of evaluation of f. The default is 1.0e-16.
+        The relative precision of evaluation of f.
     args : list
         A list of optional arguments that the function takes as inputs.
         By default, there is no extra argument and calling sequence of
@@ -76,7 +76,7 @@ class SteplemanWinarsky:
         the function must be y = function(x, arg1, arg2, ...) where
         arg1, arg2, ..., are the items in the args list.
     verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
+        Set to True to print intermediate messages.
 
     Returns
     -------
@@ -302,11 +302,11 @@ class SteplemanWinarsky:
             The upper bound to bracket the initial differentiation step.
             We must have N(h_min) > N(h_max) where N is the number of lost digits.
         maximum_bisection : int, optional
-            The maximum number of bisection iterations. The default is 53.
+            The maximum number of bisection iterations.
         beta : float, > 1, optional
-            The reduction of h at each iteration. The default is 4.0.
+            The reduction of h at each iteration.
         log_scale : bool, optional
-            Set to True to bisect in log scale. The default is True.
+            Set to True to bisect in log scale.
 
         Returns
         -------

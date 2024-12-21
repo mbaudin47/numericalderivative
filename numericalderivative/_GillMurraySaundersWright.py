@@ -268,7 +268,6 @@ class GillMurraySaundersWright:
         logscale : bool, optional
             Set to True to use a logarithmic scale to update k.
             Set to False to use a linear scale.
-            The default is True.
 
         Returns
         -------
@@ -365,11 +364,10 @@ class GillMurraySaundersWright:
         kmax : float, > kmin
             The maximum step k for the second derivative.
         iteration_maximum : in, optional
-            The maximum number of iterations. The default is 50.
+            The maximum number of iterations.
         logscale : bool, optional
             Set to True to use a logarithmic scale to update k.
             Set to False to use a linear scale.
-            The default is True.
 
         Returns
         -------

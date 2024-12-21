@@ -21,7 +21,7 @@ class FunctionWithArguments:
         the function must be y = function(x, arg1, arg2, ...) where
         arg1, arg2, ..., are the items in the args list.
     verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
+        Set to True to print intermediate messages.
 
     Returns
     -------

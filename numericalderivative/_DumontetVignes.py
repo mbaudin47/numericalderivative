@@ -145,7 +145,7 @@ class DumontetVignes:
         the function must be y = function(x, arg1, arg2, ...) where
         arg1, arg2, ..., are the items in the args list.
     verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
+        Set to True to print intermediate messages.
 
     References
     ----------
@@ -310,13 +310,13 @@ class DumontetVignes:
         Parameters
         ----------
         iteration_maximum : int, optional
-            The number of number_of_iterations. The default is 53.
+            The number of number_of_iterations.
         kmin : float, kmin > 0
-            A minimum bound for k. The default is None.
+            A minimum bound for k.
             If no value is provided, the default is to compute the smallest
             possible kmin using number_of_digits and x.
         kmax : float, kmax > kmin > 0
-            A maximum bound for k. The default is None.
+            A maximum bound for k.
             If no value is provided, the default is to compute the largest
             possible kmax using number_of_digits and x.
         logscale : bool, optional
@@ -461,7 +461,7 @@ class DumontetVignes:
         Parameters
         ----------
         iteration_maximum : int, optional
-            The number of number_of_iterations. The default is 53.
+            The number of number_of_iterations.
         kmin : float, kmin > 0
             A minimum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the smallest
@@ -475,7 +475,6 @@ class DumontetVignes:
             the step k during the search.
             Set to False to use a linear scale when updating
             the step k during the search.
-            The default is False.
 
         Returns
         -------
