@@ -136,7 +136,7 @@ class GillMurraySaundersWright:
     >>> algorithm = nd.GillMurraySaundersWright(
     >>>     scaled_exp, x,
     >>> )
-    >>> h_optimal, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+    >>> h_optimal, number_of_iterations = algorithm.find_step(kmin=kmin, kmax=kmax)
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
 
@@ -345,7 +345,7 @@ class GillMurraySaundersWright:
             )
         return step_second_derivative, number_of_iterations
 
-    def compute_step(self, kmin, kmax, iteration_maximum=50, logscale=True):
+    def find_step(self, kmin, kmax, iteration_maximum=50, logscale=True):
         """
         Compute the optimal step suitable to approximate the fist derivative.
 

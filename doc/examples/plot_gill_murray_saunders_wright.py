@@ -26,7 +26,7 @@ from matplotlib.ticker import MaxNLocator
 # %%
 # In the next example, we use the algorithm on the exponential function.
 # We create the :class:`~numericalderivative.GillMurraySaundersWright` algorithm using the function and the point x.
-# Then we use the :meth:`~numericalderivative.GillMurraySaundersWright.compute_step()` method to compute the step,
+# Then we use the :meth:`~numericalderivative.GillMurraySaundersWright.find_step()` method to compute the step,
 # using an upper bound of the step as an initial point of the algorithm.
 # Finally, use the :meth:`~numericalderivative.GillMurraySaundersWright.compute_first_derivative()` method to compute
 # an approximate value of the first derivative using finite differences.
@@ -38,7 +38,7 @@ x = 1.0
 algorithm = nd.GillMurraySaundersWright(np.exp, x, verbose=True)
 kmin = 1.0e-10
 kmax = 1.0e0
-step, number_of_iterations = algorithm.compute_step(kmin, kmax)
+step, number_of_iterations = algorithm.find_step(kmin, kmax)
 f_prime_approx = algorithm.compute_first_derivative(step)
 feval = algorithm.get_number_of_function_evaluations()
 f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
@@ -97,7 +97,7 @@ class GillMurraySaundersWrightMethod:
         algorithm = nd.GillMurraySaundersWright(
             function, x, relative_precision=self.relative_precision
         )
-        step, _ = algorithm.compute_step(kmin, kmax)
+        step, _ = algorithm.find_step(kmin, kmax)
         f_prime_approx = algorithm.compute_first_derivative(step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         return f_prime_approx, number_of_function_evaluations
@@ -377,7 +377,7 @@ def plot_error_vs_h_with_GMSW_steps(
         f_prime_approx = algorithm.compute_first_derivative(step_array[i])
         error_array[i] = abs(f_prime_approx - first_derivative(x))
 
-    step, number_of_iterations = algorithm.compute_step(kmin, kmax)
+    step, number_of_iterations = algorithm.find_step(kmin, kmax)
 
     if verbose:
         print(name)
@@ -526,7 +526,7 @@ def plot_GMSW_step_history(problem, kmin, kmax, logscale):
     name = problem.get_name()
     x = problem.get_x()
     algorithm = nd.GillMurraySaundersWright(function, x, verbose=True)
-    step, number_of_iterations = algorithm.compute_step(
+    step, number_of_iterations = algorithm.find_step(
         kmin=kmin, kmax=kmax, logscale=logscale
     )
     step_k_history = algorithm.get_step_history()

@@ -67,11 +67,11 @@ print("f''(x) = ", exact_f_second_value)
 # In order to compute the first derivative, we use the :class:`~numericalderivative.SteplemanWinarsky`.
 # This class uses the central finite difference formula.
 # In order to compute a step which is approximately optimal,
-# we use the :meth:`~numericalderivative.SteplemanWinarsky.compute_step` method.
+# we use the :meth:`~numericalderivative.SteplemanWinarsky.find_step` method.
 # Then we use the :meth:`~numericalderivative.SteplemanWinarsky.compute_first_derivative` method
 # to compute the approximate first derivative and use the approximately optimal
 # step as input argument.
-# The input argument of :meth:`~numericalderivative.SteplemanWinarsky.compute_step` is
+# The input argument of :meth:`~numericalderivative.SteplemanWinarsky.find_step` is
 # an upper bound of the optimal step (but this is not the case for all
 # algorithms).
 
@@ -79,7 +79,7 @@ print("f''(x) = ", exact_f_second_value)
 h0 = 1.0e5  # An upper bound of the truly optimal step
 x = 1.0e0
 algorithm = nd.SteplemanWinarsky(scaled_exp, x)
-h_optimal, iterations = algorithm.compute_step(h0)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", h_optimal)
 print("iterations =", iterations)
@@ -106,7 +106,7 @@ print(f"Relative error = {relative_error:.3e}")
 # %%
 x = 1.0e0
 algorithm = nd.DumontetVignes(scaled_exp, x)
-h_optimal, _ = algorithm.compute_step(
+h_optimal, _ = algorithm.find_step(
     kmin=1.0e-2,
     kmax=1.0e2,
 )
@@ -139,7 +139,7 @@ absolute_precision = 1.0e-15
 algorithm = nd.GillMurraySaundersWright(scaled_exp, x, absolute_precision)
 kmin = 1.0e-2
 kmax = 1.0e7
-step, number_of_iterations = algorithm.compute_step(kmin, kmax)
+step, number_of_iterations = algorithm.find_step(kmin, kmax)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h for f'=", step)
 print("Function evaluations =", number_of_function_evaluations)
@@ -177,7 +177,7 @@ h0 = 1.0e5
 x = 1.0e0
 scaling = 1.0e6
 algorithm = nd.SteplemanWinarsky(my_exp_with_args, x, args=[scaling])
-h_optimal, iterations = algorithm.compute_step(h0)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h for f''=", h_optimal)
 print("iterations =", iterations)

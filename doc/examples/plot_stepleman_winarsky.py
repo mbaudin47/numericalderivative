@@ -27,7 +27,7 @@ from matplotlib.ticker import MaxNLocator
 # %%
 # In the next example, we use the algorithm on the exponential function.
 # We create the :class:`~numericalderivative.SteplemanWinarsky` algorithm using the function and the point x.
-# Then we use the :meth:`~numericalderivative.SteplemanWinarsky.compute_step()` method to compute the step,
+# Then we use the :meth:`~numericalderivative.SteplemanWinarsky.find_step()` method to compute the step,
 # using an upper bound of the step as an initial point of the algorithm.
 # Finally, use the :meth:`~numericalderivative.SteplemanWinarsky.compute_first_derivative()` method to compute
 # an approximate value of the first derivative using finite differences.
@@ -38,7 +38,7 @@ from matplotlib.ticker import MaxNLocator
 x = 1.0
 algorithm = nd.SteplemanWinarsky(np.exp, x, verbose=True)
 initial_step = 1.0e0
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.find_step(initial_step)
 f_prime_approx = algorithm.compute_first_derivative(step)
 feval = algorithm.get_number_of_function_evaluations()
 f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
@@ -110,7 +110,7 @@ first_derivative = problem.get_first_derivative()
 algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
 initial_step = 1.0e8
 x = problem.get_x()
-h_optimal, iterations = algorithm.compute_step(initial_step)
+h_optimal, iterations = algorithm.find_step(initial_step)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", h_optimal)
 print("iterations =", iterations)
@@ -244,7 +244,7 @@ initial_step, iterations = algorithm.find_initial_step(
 print("initial_step = ", initial_step)
 print("iterations = ", iterations)
 
-estim_step, iterations = algorithm.compute_step(initial_step, beta=1.5)
+estim_step, iterations = algorithm.find_step(initial_step, beta=1.5)
 print("estim_step = ", estim_step)
 print("iterations = ", iterations)
 
@@ -357,7 +357,7 @@ initial_step, estim_relative_error = algorithm.find_initial_step(
     100.0 * x,
     beta=4.0,
 )
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.find_step(initial_step)
 f_prime_approx = algorithm.compute_first_derivative(step)
 absolute_error = abs(f_prime_approx - first_derivative(x))
 feval = algorithm.get_number_of_function_evaluations()
@@ -400,7 +400,7 @@ name = problem.get_name()
 x = problem.get_x()
 algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
 initial_step = 1.0e0
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.find_step(initial_step)
 step_h_history = algorithm.get_step_history()
 print(f"Number of iterations = {number_of_iterations}")
 print(f"History of steps h : {step_h_history}")
@@ -409,7 +409,7 @@ last_step_h = step_h_history[-2]
 print(f"Last step h : {last_step_h}")
 
 # %%
-# Then we compute the exact step, using :meth:`~numericalderivative.ThirdDerivativeCentral.compute_step`.
+# Then we compute the exact step, using :meth:`~numericalderivative.ThirdDerivativeCentral.find_step`.
 third_derivative = problem.get_third_derivative()
 third_derivative_value = third_derivative(x)
 print(f"f^(3)(x) = {third_derivative_value}")

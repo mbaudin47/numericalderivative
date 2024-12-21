@@ -48,7 +48,7 @@ class CheckStepleman(unittest.TestCase):
         x = 1.0e0
         # Check approximate optimal h
         algorithm = nd.SteplemanWinarsky(exp, x, verbose=True)
-        computed_step, iterations = algorithm.compute_step()
+        computed_step, iterations = algorithm.find_step()
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
@@ -75,7 +75,7 @@ class CheckStepleman(unittest.TestCase):
         # Check approximate optimal h
         algorithm = nd.SteplemanWinarsky(scaled_exp, x, verbose=True)
         initial_step = 1.0e8
-        computed_step, iterations = algorithm.compute_step(initial_step)
+        computed_step, iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
@@ -122,7 +122,7 @@ class CheckStepleman(unittest.TestCase):
         # Check approximate optimal h
         algorithm = nd.SteplemanWinarsky(np.sin, x, verbose=True)
         initial_step = 1.0e0
-        computed_step, iterations = algorithm.compute_step(initial_step)
+        computed_step, iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0

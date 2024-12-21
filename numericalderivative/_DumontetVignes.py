@@ -167,7 +167,7 @@ class DumontetVignes:
     >>> algorithm = nd.DumontetVignes(
     >>>     scaled_exp, x,
     >>> )
-    >>> h_optimal, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+    >>> h_optimal, number_of_iterations = algorithm.find_step(kmin=kmin, kmax=kmax)
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
 
@@ -437,7 +437,7 @@ class DumontetVignes:
             )
         return third_derivative, number_of_iterations
 
-    def compute_step(
+    def find_step(
         self,
         iteration_maximum=50,
         kmin=None,

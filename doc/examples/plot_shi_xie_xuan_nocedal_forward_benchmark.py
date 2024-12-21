@@ -62,7 +62,7 @@ class ShiXieXuanNocedalForwardMethod:
             x,
             absolute_precision,
         )
-        step, _ = algorithm.compute_step(self.initial_step)
+        step, _ = algorithm.find_step(self.initial_step)
         f_prime_approx = algorithm.compute_first_derivative(step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         return f_prime_approx, number_of_function_evaluations

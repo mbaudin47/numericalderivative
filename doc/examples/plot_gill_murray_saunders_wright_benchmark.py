@@ -65,7 +65,7 @@ class GillMurraySaundersWrightMethod:
         algorithm = nd.GillMurraySaundersWright(
             function, x, relative_precision=self.relative_precision
         )
-        step, _ = algorithm.compute_step(kmin, kmax)
+        step, _ = algorithm.find_step(kmin, kmax)
         f_prime_approx = algorithm.compute_first_derivative(step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         return f_prime_approx, number_of_function_evaluations

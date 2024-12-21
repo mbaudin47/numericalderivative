@@ -41,7 +41,7 @@ class CheckGillMurraySaunders(unittest.TestCase):
         algorithm = nd.GillMurraySaundersWright(scaled_exp, x, relative_precision)
         kmin = 1.0e-2
         kmax = 1.0e7
-        step, number_of_iterations = algorithm.compute_step(kmin, kmax)
+        step, number_of_iterations = algorithm.find_step(kmin, kmax)
         assert number_of_iterations > 0
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Optimum h for f'=", step)
@@ -117,7 +117,7 @@ class CheckGillMurraySaunders(unittest.TestCase):
         )
         kmin = 1.0e-10
         kmax = 1.0e0
-        step, _ = algorithm.compute_step(kmin, kmax)
+        step, _ = algorithm.find_step(kmin, kmax)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Optimum h for f'=", step)
         print("Function evaluations =", number_of_function_evaluations)

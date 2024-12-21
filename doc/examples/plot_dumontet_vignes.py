@@ -25,7 +25,7 @@ from matplotlib.ticker import MaxNLocator
 # %%
 # In the next example, we use the algorithm on the exponential function.
 # We create the :class:`~numericalderivative.DumontetVignes` algorithm using the function and the point x.
-# Then we use the :meth:`~numericalderivative.DumontetVignes.compute_step()` method to compute the step,
+# Then we use the :meth:`~numericalderivative.DumontetVignes.find_step()` method to compute the step,
 # using an upper bound of the step as an initial point of the algorithm.
 # Finally, use the :meth:`~numericalderivative.DumontetVignes.compute_first_derivative()` method to compute
 # an approximate value of the first derivative using finite differences.
@@ -37,7 +37,7 @@ x = 1.0
 kmin = 1.0e-10
 kmax = 1.0e0
 algorithm = nd.DumontetVignes(np.exp, x, verbose=True)
-step, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+step, number_of_iterations = algorithm.find_step(kmin=kmin, kmax=kmax)
 f_prime_approx = algorithm.compute_first_derivative(step)
 feval = algorithm.get_number_of_function_evaluations()
 f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
@@ -131,7 +131,7 @@ def plot_step_sensitivity(
     # 2. Algorithm to detect h*
     algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
     print("Exact f'''(x) = %.3e" % (function_third_derivative(x)))
-    estim_step, _ = algorithm.compute_step(
+    estim_step, _ = algorithm.find_step(
         iteration_maximum=iteration_maximum,
         kmin=kmin,
         kmax=kmax,
@@ -369,7 +369,7 @@ plot_step_sensitivity(
 # In the previous figure, we see that the error reaches
 # a minimum, which is indicated by the green point labeled :math:`h^\star`.
 # The vertical dotted line represents the approximately optimal step :math:`\widetilde{h}`
-# returned by the :meth:`~numericalderivative.DumontetVignes.compute_step` method.
+# returned by the :meth:`~numericalderivative.DumontetVignes.find_step` method.
 # We see that the method correctly computes an approximation of the the optimal step.
 
 
@@ -557,7 +557,7 @@ function = problem.get_function()
 algorithm = nd.DumontetVignes(
     function, x, relative_precision=relative_precision, verbose=verbose
 )
-h_optimal, _ = algorithm.compute_step(kmax=kmax)
+h_optimal, _ = algorithm.find_step(kmax=kmax)
 print("h optimal = %.3e" % (h_optimal))
 number_of_feval = algorithm.get_number_of_function_evaluations()
 print(f"number_of_feval = {number_of_feval}")
@@ -651,7 +651,7 @@ x = problem.get_x()
 algorithm = nd.DumontetVignes(function, x, verbose=True)
 kmin = 1.0e-10
 kmax = 1.0e0
-step, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+step, number_of_iterations = algorithm.find_step(kmin=kmin, kmax=kmax)
 step_k_history = algorithm.get_step_history()
 print(f"Number of iterations = {number_of_iterations}")
 print(f"History of steps k : {step_k_history}")

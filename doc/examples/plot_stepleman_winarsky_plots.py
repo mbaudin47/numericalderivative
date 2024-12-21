@@ -100,13 +100,13 @@ def plot_error_vs_h_with_SW_steps(
     bisection_h0_step, bisection_h0_iteration = algorithm.find_initial_step(
         h_min, h_max
     )
-    step, bisection_iterations = algorithm.compute_step(bisection_h0_step)
+    step, bisection_iterations = algorithm.find_step(bisection_h0_step)
 
     if verbose:
         print(name)
         print(f"h_min = {h_min:.3e}, h_max = {h_max:.3e}")
         print(
-            "Bisection h0 = %.3e using %d iterations"
+            "Bisection initial_step = %.3e using %d iterations"
             % (bisection_h0_step, bisection_h0_iteration)
         )
         print("Bisection h* = %.3e using %d iterations" % (step, bisection_iterations))
@@ -220,7 +220,7 @@ plot_error_vs_h_benchmark(problem, x, step_array, 1.0e-15, 1.0e-0)
 
 # %%
 problem = nd.ExponentialProblem()
-print("+ Sensitivity of SW step depending on h0")
+print("+ Sensitivity of SW step depending on initial_step")
 print("Case 1 : exp")
 x = 1.0
 function = problem.get_function()
@@ -235,9 +235,9 @@ optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
 )
 print("Exact h* = %.3e" % (optimal_step))
 print("absolute_error = %.3e" % (absolute_error))
-for h0 in np.logspace(-4, 0, 10):
-    estim_step, iterations = algorithm.compute_step(h0)
-    print("h0 = %.3e, Approx. h* = %.3e (%d iterations)" % (h0, estim_step, iterations))
+for initial_step in np.logspace(-4, 0, 10):
+    estim_step, iterations = algorithm.find_step(initial_step)
+    print("initial_step = %.3e, Approx. h* = %.3e (%d iterations)" % (initial_step, estim_step, iterations))
 
 print("Case 2 : Scaled exp")
 x = 1.0
@@ -254,8 +254,8 @@ optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
 )
 print("Exact h* = %.3e" % (optimal_step))
 print("absolute_error = %.3e" % (absolute_error))
-for h0 in np.logspace(0, 6, 10):
-    estim_step, iterations = algorithm.compute_step(h0)
-    print("h0 = %.3e, Approx. h* = %.3e (%d iterations)" % (h0, estim_step, iterations))
+for initial_step in np.logspace(0, 6, 10):
+    estim_step, iterations = algorithm.find_step(initial_step)
+    print("initial_step = %.3e, Approx. h* = %.3e (%d iterations)" % (initial_step, estim_step, iterations))
 
 # %%

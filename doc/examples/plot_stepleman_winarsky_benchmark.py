@@ -63,7 +63,7 @@ class SteplemanWinarskyMethod:
             The number of function evaluations.
         """
         algorithm = nd.SteplemanWinarsky(function, x)
-        step, _ = algorithm.compute_step(
+        step, _ = algorithm.find_step(
             self.initial_step,
         )
         f_prime_approx = algorithm.compute_first_derivative(step)

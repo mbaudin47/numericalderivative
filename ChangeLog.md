@@ -17,6 +17,9 @@
 - ScaledExponentialProblem: change parametrization.
 - DumontetVignes: parametrize depending on ell3 and ell4 instead
   of ell1 and ell2.
+- DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
+  Renamed compute_step into find_step to avoid confusion.
+- SteplemanWinarsky: Rename search_step_with_bisection into find_initial_step
 
 ### Documentation
 - DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:

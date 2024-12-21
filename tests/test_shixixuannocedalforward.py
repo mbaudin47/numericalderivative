@@ -60,7 +60,7 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         # Check approximate optimal h
         algorithm = nd.ShiXieXuanNocedalForward(my_exp, x, verbose=True)
         initial_step = 1.0e0
-        step_computed, iterations = algorithm.compute_step(initial_step)
+        step_computed, iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
@@ -87,7 +87,7 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         # Check approximate optimal h
         algorithm = nd.ShiXieXuanNocedalForward(scaled_exp, x, verbose=True)
         initial_step = 1.0e0
-        step_computed, iterations = algorithm.compute_step(initial_step)
+        step_computed, iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0

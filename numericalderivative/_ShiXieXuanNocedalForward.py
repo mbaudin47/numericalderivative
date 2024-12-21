@@ -80,13 +80,13 @@ class ShiXieXuanNocedalForward:
     >>> algorithm = nd.ShiXieXuanNocedalForward(
     >>>     scaled_exp, x,
     >>> )
-    >>> h_optimal, number_of_iterations = algorithm.compute_step()
+    >>> h_optimal, number_of_iterations = algorithm.find_step()
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 
     Set the initial step.
 
     >>> initial_step = 1.0e8
-    >>> h_optimal, number_of_iterations = algorithm.compute_step(initial_step)
+    >>> h_optimal, number_of_iterations = algorithm.find_step(initial_step)
     """
 
     def __init__(
@@ -166,7 +166,7 @@ class ShiXieXuanNocedalForward:
         test_ratio = abs(f4 - 4 * f1 + 3 * f0) / (8 * self.absolute_precision)
         return test_ratio
 
-    def compute_step(
+    def find_step(
         self,
         initial_step=None,
         iteration_maximum=50,
@@ -356,7 +356,7 @@ class ShiXieXuanNocedalForward:
         -------
         step_history : list(float)
             The list of steps k during intermediate iterations of the bissection search.
-            This is updated by :meth:`compute_step`.
+            This is updated by :meth:`find_step`.
 
         """
         return self.step_history
