@@ -136,7 +136,7 @@ class SteplemanWinarsky:
             where :math:`\beta > 0` is the reduction factor,
             :math:`\epsilon_r` is the relative error and :math:`x` is the
             current point.
-            This heuristic is based on the hypothesis that the absolute value of 
+            This heuristic is based on the hypothesis that the absolute value of
             the third derivative is close to 1.
             The algorithm produces a sequence of decreasing steps.
             Hence, the initial step should be an upper bound of the true
@@ -281,7 +281,7 @@ class SteplemanWinarsky:
         where :math:`N` is the number of lost digits (as computed by
         :meth:`number_of_lost_digits()`), :math:`h_0` is the initial step and
         :math:`\epsilon_r` is the relative precision of the function evaluation.
-        This heuristic is based on the hypothesis that the absolute value of 
+        This heuristic is based on the hypothesis that the absolute value of
         the third derivative is close to 1.
 
         This algorithm can be effective compared to :meth:`find_step()`

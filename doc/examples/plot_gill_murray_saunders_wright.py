@@ -53,16 +53,49 @@ absolute_error = abs(f_prime_approx - f_prime_exact)
 # Test the method on the exponential problem
 # ------------------------------------------
 
+# %%
+# The next function is an oracle which returns the absolute precision
+# of the value of the function.
 
+
+# %%
+def absolute_precision_oracle(function, x, relative_precision):
+    """
+    Return the absolute precision of the function value
+
+    This oracle may fail if the function value is zero.
+
+    Parameters
+    ----------
+    function : function
+        The function
+    x : float
+        The test point
+    relative_precision : float, > 0, optional
+        The relative precision of evaluation of f.
+
+    Returns
+    -------
+    absolute_precision : float, >= 0
+        The absolute precision
+    """
+    function_value = function(x)
+    if function_value == 0.0:
+        raise ValueError(
+            "The function value is zero: " "cannot compute the absolute precision"
+        )
+    absolute_precision = relative_precision * abs(function_value)
+    return absolute_precision
+
+
+# %%
 class GillMurraySaundersWrightMethod:
-    def __init__(self, relative_precision, kmin, kmax):
+    def __init__(self, kmin, kmax, relative_precision):
         """
         Create a GillMurraySaundersWright method to compute the approximate first derivative
 
         Parameters
         ----------
-        relative_precision : float, > 0, optional
-            The relative precision of evaluation of f.
         kmin : float, kmin > 0
             A minimum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the smallest
@@ -71,10 +104,12 @@ class GillMurraySaundersWrightMethod:
             A maximum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the largest
             possible kmax using number_of_digits and x.
+        relative_precision : float, > 0, optional
+            The relative precision of evaluation of f.
         """
-        self.relative_precision = relative_precision
         self.kmin = kmin
         self.kmax = kmax
+        self.relative_precision = relative_precision
 
     def compute_first_derivative(self, function, x):
         """
@@ -94,8 +129,11 @@ class GillMurraySaundersWrightMethod:
         number_of_function_evaluations : int
             The number of function evaluations.
         """
+        absolute_precision = absolute_precision_oracle(
+            function, x, self.relative_precision
+        )
         algorithm = nd.GillMurraySaundersWright(
-            function, x, relative_precision=self.relative_precision
+            function, x, absolute_precision=absolute_precision
         )
         step, _ = algorithm.find_step(kmin, kmax)
         f_prime_approx = algorithm.compute_first_derivative(step)
@@ -128,6 +166,8 @@ def compute_first_derivative_GMSW(
         The minimum step k for the second derivative.
     kmax : float, > kmin
         The maximum step k for the second derivative.
+    relative_precision : float, > 0, optional
+        The relative precision of evaluation of f.
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
 
@@ -141,7 +181,7 @@ def compute_first_derivative_GMSW(
         The number of function evaluations.
     """
 
-    method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+    method = GillMurraySaundersWrightMethod(kmin, kmax, relative_precision)
     f_prime_approx, number_of_function_evaluations = method.compute_first_derivative(
         function, x
     )
@@ -227,7 +267,7 @@ test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 kmin = 1.0e-12
 kmax = 1.0e1
 relative_precision = 1.0e-15
-method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+method = GillMurraySaundersWrightMethod(kmin, kmax, relative_precision)
 average_error, average_feval, _ = nd.benchmark_method(
     problem.get_function(),
     problem.get_fifth_derivative(),
@@ -307,7 +347,7 @@ test_points = np.linspace(
 kmin = 1.0e-12
 kmax = 1.0e1
 relative_precision = 1.0e-15
-method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+method = GillMurraySaundersWrightMethod(kmin, kmax, relative_precision)
 average_error, average_feval, _ = nd.benchmark_method(
     problem.get_function(),
     problem.get_fifth_derivative(),
@@ -346,7 +386,15 @@ plot_condition_error(name, function, x, kmin, kmax)
 
 # %%
 def plot_error_vs_h_with_GMSW_steps(
-    name, function, first_derivative, x, step_array, kmin, kmax, verbose=False
+    name,
+    function,
+    first_derivative,
+    x,
+    step_array,
+    kmin,
+    kmax,
+    relative_precision=1.0e-15,
+    verbose=False,
 ):
     """
     Plot the computed error depending on the step for an array of F.D. steps
@@ -367,10 +415,21 @@ def plot_error_vs_h_with_GMSW_steps(
         The minimum step k for the second derivative.
     kmax : float, > kmin
         The maximum step k for the second derivative.
+    relative_precision : float, optional
+        The relative precision of the function f at the point x.
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
     """
-    algorithm = nd.GillMurraySaundersWright(function, x)
+
+    function_value = function(x)
+    if function_value == 0.0:
+        raise ValueError(
+            "The function value is zero: cannot compute "
+            "the absolute precision from the relative precision. "
+            "Please set the absolute precision specifically."
+        )
+    absolute_precision = relative_precision * abs(function_value)
+    algorithm = nd.GillMurraySaundersWright(function, x, absolute_precision)
     number_of_points = len(step_array)
     error_array = np.zeros((number_of_points))
     for i in range(number_of_points):
@@ -405,7 +464,9 @@ def plot_error_vs_h_with_GMSW_steps(
 
 
 # %%
-def plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, verbose=False):
+def plot_error_vs_h_benchmark(
+    problem, x, step_array, kmin, kmax, relative_precision=1.0e-15, verbose=False
+):
     """
     Plot the computed error depending on the step for an array of F.D. steps
 
@@ -421,6 +482,8 @@ def plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, verbose=False)
         The minimum step k for the second derivative.
     kmax : float, > kmin
         The maximum step k for the second derivative.
+    relative_precision : float, optional
+        The relative error of the function f at the point x.
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
     """
@@ -432,6 +495,7 @@ def plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, verbose=False)
         step_array,
         kmin,
         kmax,
+        relative_precision,
         verbose,
     )
 
@@ -443,7 +507,8 @@ number_of_points = 200
 step_array = np.logspace(-15.0, -1.0, number_of_points)
 kmin = 1.0e-15
 kmax = 1.0e-1
-plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, True)
+relative_precision = 1.0e-15
+plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, relative_precision, True)
 
 # %%
 x = 12.0
@@ -464,7 +529,7 @@ x = 1.1
 kmin = 1.0e-14
 kmax = 1.0e-1
 step_array = np.logspace(-15.0, -1.0, number_of_points)
-plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, True)
+plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, relative_precision, True)
 
 # %%
 problem = nd.SinProblem()
@@ -480,7 +545,7 @@ x = 1.0
 kmin = 1.0e-15
 kmax = 1.0e-1
 step_array = np.logspace(-15.0, -1.0, number_of_points)
-plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, True)
+plot_error_vs_h_benchmark(problem, x, step_array, kmin, kmax, relative_precision, True)
 
 # %%
 problem = nd.AtanProblem()

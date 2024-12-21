@@ -20,6 +20,8 @@
 - DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
   Renamed compute_step into find_step to avoid confusion.
 - SteplemanWinarsky: Rename search_step_with_bisection into find_initial_step
+- GillMurraySaundersWright: Changed parametrization from relative precision
+  of the function value into absolute precision to enable a zero function value.
 
 ### Documentation
 - DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:

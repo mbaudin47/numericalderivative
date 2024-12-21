@@ -237,7 +237,10 @@ print("Exact h* = %.3e" % (optimal_step))
 print("absolute_error = %.3e" % (absolute_error))
 for initial_step in np.logspace(-4, 0, 10):
     estim_step, iterations = algorithm.find_step(initial_step)
-    print("initial_step = %.3e, Approx. h* = %.3e (%d iterations)" % (initial_step, estim_step, iterations))
+    print(
+        "initial_step = %.3e, Approx. h* = %.3e (%d iterations)"
+        % (initial_step, estim_step, iterations)
+    )
 
 print("Case 2 : Scaled exp")
 x = 1.0
@@ -256,6 +259,9 @@ print("Exact h* = %.3e" % (optimal_step))
 print("absolute_error = %.3e" % (absolute_error))
 for initial_step in np.logspace(0, 6, 10):
     estim_step, iterations = algorithm.find_step(initial_step)
-    print("initial_step = %.3e, Approx. h* = %.3e (%d iterations)" % (initial_step, estim_step, iterations))
+    print(
+        "initial_step = %.3e, Approx. h* = %.3e (%d iterations)"
+        % (initial_step, estim_step, iterations)
+    )
 
 # %%

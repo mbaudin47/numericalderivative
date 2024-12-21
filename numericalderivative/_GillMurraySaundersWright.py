@@ -77,8 +77,9 @@ class GillMurraySaundersWright:
     this algorithm only searches for the optimal step for the central
     formula for the second derivative.
 
-    The algorithm can fail in the case where the function is odd
-    or approximately linear.
+    The algorithm can fail in the case where the function is
+    linear or approximately linear because the second derivative is zero or
+    close to zero.
     For example, the function :math:`\sin` is linear at point :math:`x = \pm \pi`.
     In this case, the second derivative is zero, which produces a
     value of :math:`\Phi` zero or close to zero.
@@ -96,8 +97,13 @@ class GillMurraySaundersWright:
         The function to differentiate.
     x : float
         The point where the derivative is approximated.
-    relative_precision : float, optional
-        The relative error of the function f at the point x.
+    absolute_precision : float, optional
+        The absolute error of the value of the function f at the point x.
+        If the absolute precision is unknown and if the function
+        value at point x is nonzero, then the absolute precision
+        can be computed from the relative precision using the equation :
+        :math:`\epsilon_f = \epsilon_r |f(x)|` where
+        :math:`\epsilon_r > 0` is the relative precision.
     c_threshold_min : float, optional, > 0
         The minimum value of the condition error.
     c_threshold_max : float, optional, > c_threshold_min
@@ -144,18 +150,18 @@ class GillMurraySaundersWright:
         self,
         function,
         x,
-        relative_precision=1.0e-16,
+        absolute_precision=1.0e-15,
         c_threshold_min=0.001,
         c_threshold_max=0.1,
         args=None,
         verbose=False,
     ):
-        if relative_precision <= 0.0:
+        if absolute_precision <= 0.0:
             raise ValueError(
                 f"The relative precision must be > 0. "
-                f"here relative precision = {relative_precision}"
+                f"here relative precision = {absolute_precision}"
             )
-        self.relative_precision = relative_precision
+        self.absolute_precision = absolute_precision
         if c_threshold_max <= c_threshold_min:
             raise ValueError(
                 f"c_threshold_max = {c_threshold_max} must be greater than "
@@ -168,7 +174,6 @@ class GillMurraySaundersWright:
         self.second_derivative_central = nd.SecondDerivativeCentral(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
         self.y = self.function(self.x)
-        self.absolute_precision = abs(relative_precision * self.y)
         self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
         self.step_history = []
 
@@ -340,7 +345,7 @@ class GillMurraySaundersWright:
             raise ValueError(
                 f"Unable to find satisfactory step_second_derivative "
                 f"after {iteration_maximum} iterations. "
-                f"The function might be odd or approximately linear. "
+                f"The function might be linear or approximately linear. "
                 f"Please increase iteration_maximum = {iteration_maximum}."
             )
         return step_second_derivative, number_of_iterations
@@ -447,14 +452,14 @@ class GillMurraySaundersWright:
         """
         return self.step_history
 
-    def get_relative_precision(self):
+    def get_absolute_precision(self):
         """
-        Return the relative precision of the function evaluation
+        Return the absolute precision of the function evaluation
 
         Returns
         -------
-        relative_precision : float
-            The relative precision of evaluation of f.
+        absolute_precision : float
+            The absolute precision of evaluation of f.
 
         """
-        return self.relative_precision
+        return self.absolute_precision

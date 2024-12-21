@@ -21,16 +21,53 @@ import pylab as pl
 import tabulate
 import numericalderivative as nd
 
+# %%
+# The next function is an oracle which returns the absolute precision
+# of the value of the function.
+
+
+# %%
+def absolute_precision_oracle(function, x, relative_precision):
+    """
+    Return the absolute precision of the function value
+
+    This oracle may fail if the function value is zero.
+
+    Parameters
+    ----------
+    function : function
+        The function
+    x : float
+        The test point
+    relative_precision : float, > 0, optional
+        The relative precision of evaluation of f.
+
+    Returns
+    -------
+    absolute_precision : float, >= 0
+        The absolute precision
+    """
+    function_value = function(x)
+    if function_value == 0.0:
+        raise ValueError(
+            "The function value is zero: " "cannot compute the absolute precision"
+        )
+    absolute_precision = relative_precision * abs(function_value)
+    return absolute_precision
+
 
 class GillMurraySaundersWrightMethod:
-    def __init__(self, relative_precision, kmin, kmax):
+    def __init__(self, kmin, kmax, relative_precision):
         """
         Create a GillMurraySaundersWright method to compute the approximate first derivative
 
+        Notice that the algorithm is parametrized here based on
+        the relative precision of the value of the function f.
+        Then an oracle computes the absolute precision depending on
+        the function, the point x and the relative precision.
+
         Parameters
         ----------
-        relative_precision : float, > 0, optional
-            The relative precision of evaluation of f.
         kmin : float, kmin > 0
             A minimum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the smallest
@@ -39,10 +76,12 @@ class GillMurraySaundersWrightMethod:
             A maximum bound for the finite difference step of the third derivative.
             If no value is provided, the default is to compute the largest
             possible kmax using number_of_digits and x.
+        relative_precision : float, > 0, optional
+            The relative precision of evaluation of f.
         """
-        self.relative_precision = relative_precision
         self.kmin = kmin
         self.kmax = kmax
+        self.relative_precision = relative_precision
 
     def compute_first_derivative(self, function, x):
         """
@@ -62,8 +101,11 @@ class GillMurraySaundersWrightMethod:
         number_of_function_evaluations : int
             The number of function evaluations.
         """
+        absolute_precision = absolute_precision_oracle(
+            function, x, self.relative_precision
+        )
         algorithm = nd.GillMurraySaundersWright(
-            function, x, relative_precision=self.relative_precision
+            function, x, absolute_precision=absolute_precision
         )
         step, _ = algorithm.find_step(kmin, kmax)
         f_prime_approx = algorithm.compute_first_derivative(step)
@@ -84,8 +126,8 @@ problem = nd.ExponentialProblem()
 print(problem)
 interval = problem.get_interval()
 test_points = np.linspace(interval[0], interval[1], number_of_test_points)
-relative_precision = 1.0e-16
-method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+relative_precision = 1.0e-15
+method = GillMurraySaundersWrightMethod(kmin, kmax, relative_precision)
 average_relative_error, average_feval, data = nd.benchmark_method(
     problem.get_function(),
     problem.get_first_derivative(),
@@ -149,7 +191,7 @@ for i in range(number_of_functions):
         upper_x_bound -= delta_x
     test_points = np.linspace(lower_x_bound, upper_x_bound, number_of_test_points)
     print(f"Function #{i}, {name}")
-    method = GillMurraySaundersWrightMethod(relative_precision, kmin, kmax)
+    method = GillMurraySaundersWrightMethod(kmin, kmax, relative_precision)
     average_relative_error, average_feval, _ = nd.benchmark_method(
         function,
         first_derivative,
