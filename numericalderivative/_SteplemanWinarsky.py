@@ -140,7 +140,7 @@ class SteplemanWinarsky:
             Hence, the initial step should be an upper bound of the true
             optimal step.
         iteration_maximum : int, optional
-            The number of iterations. The default is 53.
+            The number of iterations.
         beta : float, > 1.0
             The reduction factor of h at each iteration.
             A value of beta closer to 1 can improve the accuracy of the optimum
@@ -259,7 +259,7 @@ class SteplemanWinarsky:
         number_of_digits = -np.log10(delta)
         return number_of_digits
 
-    def search_step_with_bisection(
+    def find_initial_step(
         self,
         h_min,
         h_max,
@@ -282,7 +282,7 @@ class SteplemanWinarsky:
 
         This algorithm can be effective compared to :meth:`compute_step()`
         in the cases where it is difficult to find an initial step.
-        In this case, the step returned by :meth:`search_step_with_bisection()`
+        In this case, the step returned by :meth:`find_initial_step()`
         can be used as the initial step for compute_step().
         This can require several extra function evaluations.
 
@@ -313,7 +313,7 @@ class SteplemanWinarsky:
 
         """
         if self.verbose:
-            print("+ search_step_with_bisection()")
+            print("+ find_initial_step()")
         if h_min <= 0.0:
             raise ValueError(f"h_min  = {h_min} must be greater than zero.")
         if h_min >= h_max:

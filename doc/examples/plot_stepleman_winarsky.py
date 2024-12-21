@@ -237,14 +237,14 @@ print("Number of lost digits = ", n_digits)
 threshold = np.log10(p ** (-1.0 / 3.0) / beta)
 print("Threshold = ", threshold)
 
-step_zero, iterations = algorithm.search_step_with_bisection(
+initial_step, iterations = algorithm.find_initial_step(
     1.0e-5,
     1.0e7,
 )
-print("step_zero = ", step_zero)
+print("initial_step = ", initial_step)
 print("iterations = ", iterations)
 
-estim_step, iterations = algorithm.compute_step(step_zero, beta=1.5)
+estim_step, iterations = algorithm.compute_step(initial_step, beta=1.5)
 print("estim_step = ", estim_step)
 print("iterations = ", iterations)
 
@@ -261,7 +261,7 @@ y_max = algorithm.number_of_lost_digits(h_reference)
 pl.figure()
 pl.plot(step_array, n_digits_array, label="$N(h)$")
 pl.plot([h_reference] * 2, [0.0, y_max], "--", label=r"$h_{ref}$")
-pl.plot([step_zero] * 2, [0.0, y_max], "--", label=r"$h^{(0)}$")
+pl.plot([initial_step] * 2, [0.0, y_max], "--", label=r"$h^{(0)}$")
 pl.plot([estim_step] * 2, [0.0, y_max], "--", label=r"$h^\star$")
 pl.plot(
     step_array,
@@ -280,7 +280,7 @@ pl.tight_layout()
 # %%
 pl.figure()
 pl.plot(step_array, error_array)
-pl.plot([step_zero] * 2, [0.0, 1.0e-9], "--", label=r"$h^{(0)}$")
+pl.plot([initial_step] * 2, [0.0, 1.0e-9], "--", label=r"$h^{(0)}$")
 pl.plot([estim_step] * 2, [0.0, 1.0e-9], "--", label=r"$h^\star$")
 pl.title("Finite difference")
 pl.xlabel("h")
@@ -307,7 +307,7 @@ pl.tight_layout()
 
 # %%
 x = 1.0
-f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(
+f_prime_approx, number_of_iterations = algorithm.find_initial_step(
     1.0e-7,
     1.0e7,
 )
@@ -324,7 +324,7 @@ print("Func. eval = ", feval)
 x = 1.0
 maximum_bisection = 53
 print("+ No log scale.")
-h0, iterations = algorithm.search_step_with_bisection(
+h0, iterations = algorithm.find_initial_step(
     1.0e-7,
     1.0e1,
     maximum_bisection=53,
@@ -332,7 +332,7 @@ h0, iterations = algorithm.search_step_with_bisection(
 )
 print("Pas initial = ", h0, ", iterations = ", iterations)
 print("+ Log scale.")
-h0, iterations = algorithm.search_step_with_bisection(
+h0, iterations = algorithm.find_initial_step(
     1.0e-7,
     1.0e1,
     maximum_bisection=53,
@@ -352,7 +352,7 @@ function = problem.get_function()
 first_derivative = problem.get_first_derivative()
 x = 1.0
 algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
-initial_step, estim_relative_error = algorithm.search_step_with_bisection(
+initial_step, estim_relative_error = algorithm.find_initial_step(
     1.0e-6,
     100.0 * x,
     beta=4.0,

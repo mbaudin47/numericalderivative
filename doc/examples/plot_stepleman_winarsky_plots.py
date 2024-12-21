@@ -97,7 +97,7 @@ def plot_error_vs_h_with_SW_steps(
         f_prime_approx = algorithm.compute_first_derivative(h)
         error_array[i] = abs(f_prime_approx - function_derivative(x))
 
-    bisection_h0_step, bisection_h0_iteration = algorithm.search_step_with_bisection(
+    bisection_h0_step, bisection_h0_iteration = algorithm.find_initial_step(
         h_min, h_max
     )
     step, bisection_iterations = algorithm.compute_step(bisection_h0_step)

@@ -91,12 +91,12 @@ optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
 )
 print("Exact h* = %.3e" % (optimal_step))
 
-h0, iterations = algorithm.search_step_with_bisection(
+initial_step, iterations = algorithm.find_initial_step(
     1.0e-7,
     1.0e1,
 )
-print("Pas initial = ", h0, ", iterations = ", iterations)
-lost_digits = algorithm.number_of_lost_digits(h0)
+print("Pas initial = ", initial_step, ", iterations = ", iterations)
+lost_digits = algorithm.number_of_lost_digits(initial_step)
 print("lost_digits = ", lost_digits)
 initial_step = 1.0e1
 function = problem.get_function()
@@ -206,7 +206,7 @@ data.append(
 )
 tabulate.tabulate(
     data,
-    headers=["Name", "h0", "Average rel. error", "Average func. eval"],
+    headers=["Name", "initial_step", "Average rel. error", "Average func. eval"],
     tablefmt="html",
 )
 
