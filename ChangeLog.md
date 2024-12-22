@@ -8,22 +8,27 @@
 - DumontetVignes: new get_ell_min_max.
 - DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
   new get_step_history.
+- New SteplemanWinarkyInitialize: compute initial step for SteplemanWinarsky.
 
 ### Changes
+- Removed SteplemanWinarsky.search_step_with_bisection: please use
+  SteplemanWinarkyInitialize.find_initial_step().
 - DerivativeBenchmark: new print and pretty-print.
 - DerivativeBenchmark: create any problem from the test point and the
-  interval. This can be useful to create a list of test points
-  depending on each problem.
+  interval. This can be useful to create a list of test points depending on
+  each problem.
 - ScaledExponentialProblem: change parametrization.
 - DumontetVignes: parametrize depending on ell3 and ell4 instead
   of ell1 and ell2.
 - DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
   Renamed compute_step into find_step to avoid confusion.
-- SteplemanWinarsky: Rename search_step_with_bisection into find_initial_step
 - GillMurraySaundersWright: Changed parametrization from relative precision
   of the function value into absolute precision to enable a zero function value.
 - Set relative_precision to 1.0e-15 in all algorithms
 - Set iteration_maximum to 53 in all algorithms
+- PolynomialProblem: Fixed higher derivatives for alpha different from 2.
+- DumontetVignes: Added a separate absolute precision parameter to manage
+  cases where f(x) = 0.
 
 ### Documentation
 - DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
