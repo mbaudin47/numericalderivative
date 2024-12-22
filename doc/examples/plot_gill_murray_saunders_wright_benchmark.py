@@ -168,7 +168,7 @@ kmax_map = {
 # on a collection of problems.
 
 # %%
-number_of_test_points = 100
+number_of_test_points = 100  # This value can significantly change the results
 relative_precision = 1.0e-15
 delta_x = 1.0e-9
 data = []

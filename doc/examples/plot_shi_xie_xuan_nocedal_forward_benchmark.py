@@ -113,7 +113,7 @@ print(
 
 # %%
 print("+ Benchmark on several points")
-number_of_test_points = 21
+number_of_test_points = 21  # This number of test points is odd
 problem = nd.PolynomialProblem()
 print(problem)
 interval = problem.get_interval()
@@ -136,6 +136,21 @@ print("Average number of function evaluations =", average_feval)
 tabulate.tabulate(data, headers=["x", "Rel. err.", "F. Eval."], tablefmt="html")
 
 # %%
+# Notice that the method does not perform correctly for the point
+# :math:`x = 0` for the polynomial problem.
+# This test point appears only if the number of test points is odd,
+# because the test interval is symmetric with respect to :math:`x = 0`.
+# For this problem, the method does not perform correctly
+# because the value of the function is zero at :math:`x = 0`.
+# The method can perform correctly in this case, if it is
+# provided a consistent value of the absolute error of the function
+# value.
+# Here, we compute the absolute error depending on the relative
+# error and the absolute value of the value of the function.
+# If the value of the function is zero, then the computed
+# absolute error is zero, which produces a failure of the method.
+
+# %%
 # Map from the problem name to the initial step.
 
 # %%
@@ -150,7 +165,7 @@ initial_step_map = {
     "scaled exp": 1.0e5,
     "GMSW": 1.0e0,
     "SXXN1": 1.0e0,
-    "SXXN2": 1.0e0,  # Fails
+    "SXXN2": 1.0e0,
     "SXXN3": 1.0e0,
     "SXXN4": 1.0e0,
     "Oliver1": 1.0e0,
@@ -163,13 +178,14 @@ initial_step_map = {
 # using the :class:`~numericalderivative.ShiXieXuanNocedalForward` class.
 
 # %%
-number_of_test_points = 100
+number_of_test_points = 100  # This value can significantly change the results
 data = []
 function_list = nd.build_benchmark()
 number_of_functions = len(function_list)
 average_absolute_error_list = []
 average_feval_list = []
 relative_precision = 1.0e-15
+delta_x = 1.0e-9
 for i in range(number_of_functions):
     problem = function_list[i]
     name = problem.get_name()
@@ -177,8 +193,14 @@ for i in range(number_of_functions):
     function = problem.get_function()
     first_derivative = problem.get_first_derivative()
     interval = problem.get_interval()
-    test_points = np.linspace(interval[0], interval[1], number_of_test_points)
+    lower_x_bound, upper_x_bound = problem.get_interval()
     print(f"Function #{i}, {name}")
+    if name == "sin":
+        # Change the lower and upper bound so that the points +/-pi
+        # are excluded (see below for details).
+        lower_x_bound += delta_x
+        upper_x_bound -= delta_x
+    test_points = np.linspace(lower_x_bound, upper_x_bound, number_of_test_points)
     method = ShiXieXuanNocedalForwardMethod(relative_precision, initial_step)
     average_relative_error, average_feval, _ = nd.benchmark_method(
         function, first_derivative, test_points, method.compute_first_derivative
@@ -206,3 +228,12 @@ tabulate.tabulate(
 )
 
 # %%
+# Notice that the method cannot perform correctly for the sin function
+# at the point
+# Indeed, this function is such that :math:`f''(x) = 0` if :math:`x = \pm \pi`.
+# In this case, the test ratio and the method cannot work.
+# Therefore, we make so that the points :math:`\pm \pi` are excluded from the benchmark.
+# The same problem appears at the point :math:`x = 0`.
+# This point is not included in the test set if the number of points is even
+# (e.g. with `number_of_test_points = 100`), but it might appear if the
+# number of test points is odd.

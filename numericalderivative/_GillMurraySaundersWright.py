@@ -81,7 +81,8 @@ class GillMurraySaundersWright:
     The algorithm can fail in the case where the function is
     linear or approximately linear because the second derivative is zero or
     close to zero.
-    For example, the function :math:`\sin` is linear at point :math:`x = \pm \pi`.
+    For example, the function :math:`f(x) = \sin(x)` for any real number
+    :math:`x` is linear at the point :math:`x = \pm \pi`.
     In this case, the second derivative is zero, which produces a
     value of :math:`\Phi` zero or close to zero.
     This produces an infinite value of the condition error.
@@ -91,6 +92,12 @@ class GillMurraySaundersWright:
     an approximately optimal step using :meth:`~numericalderivative.FirstDerivativeForward.compute_step`.
     Since the value of the second derivative is unknown, we can make the
     hypothesis that :math:`f''(x) \approx 1`.
+
+    The method can fail if the absolute precision of the function value
+    is set to zero.
+    This can happen if the user computes it depending on the relative precision
+    and the absolute value of the function: if the value of the function
+    at point :math:`x` is zero, then the absolute precision is zero.
 
     Parameters
     ----------

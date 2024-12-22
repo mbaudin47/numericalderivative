@@ -142,7 +142,7 @@ class SteplemanWinarsky:
             an heuristic designed by the authors of the method.
             If the order of magnitude of the third derivative can be guessed, then
             :meth:`~numericalderivative.FirstDerivativeCentral.compute_step` can be used.
-            Moreover, :meth:`~numericalderivative.SteplemanWinarskyInitialize.find_initial_step` 
+            Moreover, :meth:`~numericalderivative.SteplemanWinarskyInitialize.find_initial_step`
             can help to find an appropriate initial step.
         iteration_maximum : int, optional
             The number of iterations.
@@ -353,7 +353,7 @@ class SteplemanWinarskyInitialize:
 
     Examples
     --------
-    
+
     The next example computes the step of a badly scaled function.
     We first compute an appropriate initial step using :meth:`~numericalderivative.SteplemanWinarskyInitialize.find_initial_step`
     and set it as the input of :meth:`~numericalderivative.SteplemanWinarsky.find_step`.

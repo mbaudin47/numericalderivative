@@ -29,7 +29,7 @@ class ShiXieXuanNocedalForward:
         h^\star = 2 \sqrt{\frac{\epsilon_f}{\left|f''(x)\right|}}
 
     where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
-    If the order of magnitude of the second derivative can be guessed, 
+    If the order of magnitude of the second derivative can be guessed,
     then :meth:`~numericalderivative.FirstDerivativeForward.compute_step` can be used.
     Alternatively, the goal of :class:`~numericalderivative.ShiXieXuanNocedalForward`
     is to compute :math:`h^\star` using
@@ -67,6 +67,22 @@ class ShiXieXuanNocedalForward:
     .. math::
 
         \widetilde{h} \in \left[0.41, 1.5\right] h^\star.
+
+    This method can fail if the value of the second derivative of the function
+    is equal to zero.
+    In this case, the test ratio is zero and there is no value of the
+    step :math:`h` which satisfies the required inequalities.
+    For example, the function :math:`f(x) = \sin(x)` for any
+    real number :math:`x` has a zero derivative at the point :math:`x = \pm \pi`.
+    This algorithm will fail to compute a suitable step in this case.
+
+    The method can fail if the absolute precision of the function value
+    is set to zero.
+    This can happen if the user computes it depending on the relative precision
+    and the absolute value of the function: if the value of the function
+    at point :math:`x` is zero, then the absolute precision is zero.
+    For example, the function :math:`f(x) = x^2` for any
+    real number :math:`x` has a zero value at the point :math:`x = 0`.
 
     Parameters
     ----------

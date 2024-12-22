@@ -127,6 +127,12 @@ class DumontetVignes:
     This happens for example for the :class:`~numericalderivative.PolynomialProblem`,
     which has a zero third derivative for any :math:`x`.
 
+    The method can fail if the absolute precision of the function value 
+    is set to zero.
+    This can happen if the user computes it depending on the relative precision 
+    and the absolute value of the function: if the value of the function 
+    at point :math:`x` is zero, then the absolute precision is zero.
+    
     Parameters
     ----------
     function : function
