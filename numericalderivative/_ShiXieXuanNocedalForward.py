@@ -13,17 +13,36 @@ class ShiXieXuanNocedalForward:
     r"""
     Compute an approximately optimal step for the forward F.D. formula of the first derivative
 
-    Uses forward finite difference to compute an approximate value of f'(x).
-
-    The algorithm considers the test ratio:
+    Uses forward finite difference to compute an approximate value of f'(x):
 
     .. math::
 
-        r(h) = \frac{\left|f(x + 4h) - 4f(x + h) + 3f(x)\right|]}{8 \epsilon_f}
+        f'(x) \approx \frac{f(x + h) - f(x)}{h}
+
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point 
+    and :math:`h > 0` is the differentiation step.
+    If :math:`f''(x) \neq 0`, then the step which minimizes the total error is
+    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.2 page 4):
+
+    .. math::
+
+        h^\star = 2 \sqrt{\frac{\epsilon_f}{\left|f''(x)\right|}}
+
+    where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
+    The goal of the method is to compute :math:`h^\star` using
+    function evaluations only and without estimating :math:`f''(x)`.
+
+    The algorithm considers the test ratio 
+    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.3 page 4):
+
+    .. math::
+
+        r(h) = \frac{\left|f(x + 4h) - 4f(x + h) + 3f(x)\right|}{8 \epsilon_f}
 
     where :math:`h > 0` is the step and :math:`\epsilon_f> 0` is the absolute precision of evaluation
     of the function.
-    The goal of the algorithm is to find the step such that:
+    The goal of the algorithm is to find the step such that
+    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.4 page 4):
 
     .. math::
 
@@ -32,6 +51,19 @@ class ShiXieXuanNocedalForward:
     where :math:`r_\ell > 0` is the lower bound of the test ratio
     and :math:`r_u` is the upper bound.
     The algorithm is based on bisection.
+
+    If the algorithm succeeds, the method produces a step 
+    :math:`\widetilde{h}` such that:
+
+    .. math::
+
+        \widetilde{h} \in \frac{1}{\sqrt{3}} \left[\sqrt{r_\ell - 1}, \sqrt{r_u + 1}\right] h^\star.
+    
+    With :math:`r_\ell = 1.5` and :math:`r_u = 6`, the previous interval is:
+
+    .. math::
+
+        \widetilde{h} \in \left[0.41, 1.5\right] h^\star.
 
     Parameters
     ----------
