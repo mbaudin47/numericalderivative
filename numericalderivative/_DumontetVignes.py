@@ -32,9 +32,9 @@ class DumontetVignes:
     .. math::
 
         h^\star 
-        = \left( \frac{3 \epsilon_r \left|f(x)\right|}{\left|f^{(3)}(x)\right|} \right)^{1/3}
+        = \left( \frac{3 \epsilon_f}{\left|f^{(3)}(x)\right|} \right)^{1/3}
 
-    if :math:`f^{(3)}(x) \neq 0`, where :math:`\epsilon_r > 0` is the relative
+    if :math:`f^{(3)}(x) \neq 0`, where :math:`\epsilon_f > 0` is the absolute 
     error of the function evaluation.
     Notice that (Dumontet & Vignes, 1977) uses the non-classical constant
     1.67 instead of 3 in the previous equation, but this does not have
@@ -83,6 +83,7 @@ class DumontetVignes:
         f^{(3)}_{sup}(x)
         = \frac{1}{2 k^3} \left(\frac{A}{1 - \epsilon_r} + \frac{B}{1 + \epsilon_r}\right). 
 
+    where :math:`\epsilon_r > 0` is the relative error of the function evaluation.
     We introduce the ratio (see (Dumontet & Vignes, 1977) eq. 32 page 20):
 
     .. math::
