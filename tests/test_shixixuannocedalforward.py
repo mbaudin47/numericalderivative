@@ -139,5 +139,6 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, rtol=1.0e-7)
 
+
 if __name__ == "__main__":
     unittest.main()

@@ -29,9 +29,10 @@ x = 1.0
 step_array = np.logspace(-15.0, 1.0, number_of_points)
 n_digits_array = np.zeros((number_of_points))
 algorithm = nd.SteplemanWinarsky(np.exp, x)
+initialize = nd.SteplemanWinarskyInitialize(algorithm)
 for i in range(number_of_points):
     h = step_array[i]
-    n_digits_array[i] = algorithm.number_of_lost_digits(h)
+    n_digits_array[i] = initialize.number_of_lost_digits(h)
 
 pl.figure()
 pl.plot(step_array, n_digits_array)
@@ -46,9 +47,10 @@ x = 1.0
 step_array = np.logspace(-7.0, 2.0, number_of_points)
 n_digits_array = np.zeros((number_of_points))
 algorithm = nd.SteplemanWinarsky(np.sin, x)
+initialize = nd.SteplemanWinarskyInitialize(algorithm)
 for i in range(number_of_points):
     h = step_array[i]
-    n_digits_array[i] = algorithm.number_of_lost_digits(h)
+    n_digits_array[i] = initialize.number_of_lost_digits(h)
 
 # %%
 pl.figure()
@@ -90,6 +92,7 @@ def plot_error_vs_h_with_SW_steps(
         Set to True to print intermediate messages. The default is False.
     """
     algorithm = nd.SteplemanWinarsky(function, x)
+    initialize = nd.SteplemanWinarskyInitialize(algorithm)
     number_of_points = len(step_array)
     error_array = np.zeros((number_of_points))
     for i in range(number_of_points):
@@ -97,7 +100,7 @@ def plot_error_vs_h_with_SW_steps(
         f_prime_approx = algorithm.compute_first_derivative(h)
         error_array[i] = abs(f_prime_approx - function_derivative(x))
 
-    bisection_h0_step, bisection_h0_iteration = algorithm.find_initial_step(
+    bisection_h0_step, bisection_h0_iteration = initialize.find_initial_step(
         h_min, h_max
     )
     step, bisection_iterations = algorithm.find_step(bisection_h0_step)

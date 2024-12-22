@@ -66,8 +66,10 @@ class SteplemanWinarsky:
         The function to differentiate.
     x : float
         The point where the derivative is to be evaluated.
-    relative_precision : float, > 0, optional
-        The relative precision of evaluation of f.
+    beta : float, > 1.0
+        The reduction factor of h at each iteration.
+        A value of beta closer to 1 can improve the accuracy of the optimum
+        step, but may increase the number of iterations.
     args : list
         A list of optional arguments that the function takes as inputs.
         By default, there is no extra argument and calling sequence of
@@ -105,23 +107,20 @@ class SteplemanWinarsky:
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
 
-    def __init__(
-        self, function, x, relative_precision=1.0e-16, args=None, verbose=False
-    ):
-        if relative_precision <= 0.0:
-            raise ValueError(
-                f"The relative precision must be > 0. "
-                f"here precision = {relative_precision}"
-            )
-        self.relative_precision = relative_precision
-        self.verbose = verbose
+    def __init__(self, function, x, beta=4.0, args=None, verbose=False):
         self.first_derivative_central = nd.FirstDerivativeCentral(function, x, args)
-        self.function = nd.FunctionWithArguments(function, args)
-        self.x = x
+        self.functionwithargs = nd.FunctionWithArguments(function, args)
         self.step_history = []
+        self.function = function
+        self.x = x
+        self.args = args
+        self.verbose = verbose
+        if beta <= 1.0:
+            raise ValueError(f"beta must be greater than 1. Here beta = {beta}.")
+        self.beta = beta
         return
 
-    def find_step(self, initial_step=None, iteration_maximum=53, beta=4.0):
+    def find_step(self, initial_step, iteration_maximum=53):
         r"""
         Compute an approximate optimum step for central derivative using monotony properties.
 
@@ -132,21 +131,11 @@ class SteplemanWinarsky:
         ----------
         initial_step : float, > 0.0
             The initial value of the differentiation step.
-            The (heuristic) default initial step is :math:`\beta \epsilon_r^{1/3} |x|`
-            where :math:`\beta > 0` is the reduction factor,
-            :math:`\epsilon_r` is the relative error and :math:`x` is the
-            current point.
-            This heuristic is based on the hypothesis that the absolute value of
-            the third derivative is close to 1.
             The algorithm produces a sequence of decreasing steps.
             Hence, the initial step should be an upper bound of the true
             optimal step.
         iteration_maximum : int, optional
             The number of iterations.
-        beta : float, > 1.0
-            The reduction factor of h at each iteration.
-            A value of beta closer to 1 can improve the accuracy of the optimum
-            step, but may increase the number of iterations.
 
         Returns
         -------
@@ -155,14 +144,18 @@ class SteplemanWinarsky:
         number_of_iterations : int
             The number of iterations required to reach that optimum.
 
+        Examples
+        --------
+        # The following heuristic can be used to set the initial
+        # step (see (Stepleman and Winarsky, 1979) eq. 3.9 page 1261):
+
+        >>> beta = 4.0
+        >>> relative_precision = 1.0e-16
+        >>> x = 1.0
+        >>> initial_step = beta * relative_precision ** (1.0 / 3.0) * abs(x)
         """
         if self.verbose:
             print("+ find_step()")
-        if beta <= 1.0:
-            raise ValueError(f"beta must be greater than 1. Here beta = {beta}.")
-        if initial_step is None:
-            # eq. 3.9 page 1261
-            initial_step = beta * self.relative_precision ** (1.0 / 3.0) * abs(self.x)
         if initial_step <= 0.0:
             raise ValueError(
                 f"initial_step must be greater than 0. Here initial_step = {initial_step}."
@@ -181,7 +174,7 @@ class SteplemanWinarsky:
         found_monotony_break = False
         self.step_history = [initial_step]
         for number_of_iterations in range(iteration_maximum):
-            h_current = h_previous / beta
+            h_current = h_previous / self.beta
             self.step_history.append(h_current)
             f_prime_approx_current = self.first_derivative_central.compute(h_current)
             # eq. 2.3
@@ -196,7 +189,7 @@ class SteplemanWinarsky:
                     print("  Stop because zero difference.")
                 found_monotony_break = True
                 # Zero difference achieved at step h : go back one step
-                estim_step = h_current * beta
+                estim_step = h_current * self.beta
                 break
 
             if diff_previous < diff_current:
@@ -204,7 +197,7 @@ class SteplemanWinarsky:
                     print("  Stop because no monotony anymore.")
                 found_monotony_break = True
                 # Monotony breaked at step h : go back one step
-                estim_step = h_current * beta
+                estim_step = h_current * self.beta
                 break
 
             f_prime_approx_previous = f_prime_approx_current
@@ -216,6 +209,149 @@ class SteplemanWinarsky:
                 "No monotony break was found after %d iterations." % (iteration_maximum)
             )
         return estim_step, number_of_iterations
+
+    def compute_first_derivative(self, step):
+        """
+        Compute an approximate value of f'(x) using central finite difference.
+
+        The denominator is, however, implemented using the equation 3.4
+        in Stepleman & Winarsky (1979).
+
+        Parameters
+        ----------
+        step : float, > 0
+            The step size.
+
+        Returns
+        -------
+        f_prime_approx : float
+            The approximation of f'(x).
+        """
+        f_prime_approx = self.first_derivative_central.compute(step)
+        return f_prime_approx
+
+    def get_number_of_function_evaluations(self):
+        """
+        Returns the number of function evaluations.
+
+        Returns
+        -------
+        number_of_function_evaluations : int
+            The number of function evaluations.
+        """
+        finite_difference_feval = (
+            self.first_derivative_central.get_function().get_number_of_evaluations()
+        )
+        function_eval = self.functionwithargs.get_number_of_evaluations()
+        total_feval = finite_difference_feval + function_eval
+        return total_feval
+
+    def get_step_history(self):
+        """
+        Return the history of steps during the search.
+
+        Let n be the number of iterations.
+        The best step h is not the last one (with index n-1), since this is the step
+        which breaks the monotony.
+        The best step has index n - 2.
+
+        Returns
+        -------
+        step_history : list(float)
+            The list of steps h during intermediate iterations of the search.
+            This is updated by :meth:`find_step`.
+
+        """
+        return self.step_history
+
+    def get_function(self):
+        """
+        Return the function
+
+        Returns
+        -------
+        function : function
+            The function to differentiate.
+        """
+        return self.function
+
+    def get_x(self):
+        """
+        Return the point
+
+        Returns
+        -------
+        x : float
+            The point where the derivative is to be evaluated.
+        """
+        return self.x
+
+    def get_args(self):
+        """
+        Return the arguments
+
+        Returns
+        -------
+        args : list
+            A list of optional arguments that the function takes as inputs.
+            By default, there is no extra argument and calling sequence of
+            the function must be y = function(x).
+            If there are extra arguments, then the calling sequence of
+            the function must be y = function(x, arg1, arg2, ...) where
+            arg1, arg2, ..., are the items in the args list.
+        """
+        return self.args
+
+    def get_beta(self):
+        """
+        Return the multiplier
+
+        Returns
+        -------
+        beta : float, > 1.0
+            The reduction factor of h at each iteration.
+            A value of beta closer to 1 can improve the accuracy of the optimum
+            step, but may increase the number of iterations.
+        """
+        return self.beta
+
+
+class SteplemanWinarskyInitialize:
+    r"""
+    Compute an initial step for a search algorithm
+
+    Parameters
+    ----------
+    algorithm : SteplemanWinarsky
+        An SteplemanWinarsky algorithm to find a step
+    relative_precision : float, > 0, optional
+        The relative precision of evaluation of f.
+
+    Returns
+    -------
+    None.
+
+    References
+    ----------
+    - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264
+    """
+
+    def __init__(self, algorithm, relative_precision=1.0e-16, verbose=False):
+        if relative_precision <= 0.0:
+            raise ValueError(
+                f"The relative precision must be > 0. "
+                f"here precision = {relative_precision}"
+            )
+        self.relative_precision = relative_precision
+        self.algorithm = algorithm
+        self.x = algorithm.get_x()
+        self.function = algorithm.get_function()
+        self.args = algorithm.get_args()
+        self.functionwithargs = nd.FunctionWithArguments(self.function, self.args)
+        self.verbose = verbose
+        # Initialize step history
+        self.step_history = []
+        return
 
     def number_of_lost_digits(self, h):
         r"""
@@ -250,8 +386,8 @@ class SteplemanWinarsky:
             The number of digits lost by cancellation.
 
         """
-        d = self.first_derivative_central.compute(h)
-        function_value = self.function(self.x)
+        d = self.algorithm.compute_first_derivative(h)
+        function_value = self.functionwithargs(self.x)
         # eq. 3.10 page 1261
         if function_value == 0.0:
             delta = abs(2 * h * d)
@@ -266,7 +402,6 @@ class SteplemanWinarsky:
         h_min,
         h_max,
         maximum_bisection=53,
-        beta=4.0,
         log_scale=True,
     ):
         r"""
@@ -303,8 +438,6 @@ class SteplemanWinarsky:
             We must have N(h_min) > N(h_max) where N is the number of lost digits.
         maximum_bisection : int, optional
             The maximum number of bisection iterations.
-        beta : float, > 1, optional
-            The reduction of h at each iteration.
         log_scale : bool, optional
             Set to True to bisect in log scale.
 
@@ -324,8 +457,7 @@ class SteplemanWinarsky:
             raise ValueError(
                 f"h_min  = {h_min} > h_max = {h_max}." "Please update the bounds."
             )
-        if beta <= 1.0:
-            raise ValueError(f"beta must be greater than 1. Here beta = {beta}.")
+        beta = self.algorithm.get_beta()
         if maximum_bisection <= 0:
             raise ValueError(
                 f"maximum_bisection  = {maximum_bisection} must be greater than 1."
@@ -374,6 +506,7 @@ class SteplemanWinarsky:
 
         # Now : n_min > n_treshold > 0 > n_max
         found = False
+        self.step_history = []
         for number_of_iterations in range(maximum_bisection):
             if self.verbose:
                 print(
@@ -385,6 +518,7 @@ class SteplemanWinarsky:
                 initial_step = 10 ** ((np.log10(h_max) + np.log10(h_min)) / 2.0)
             else:
                 initial_step = (h_max + h_min) / 2.0
+            self.step_history.append(initial_step)
             n_digits = self.number_of_lost_digits(initial_step)
             if self.verbose:
                 print(
@@ -411,26 +545,6 @@ class SteplemanWinarsky:
             )
         return initial_step, number_of_iterations
 
-    def compute_first_derivative(self, step):
-        """
-        Compute an approximate value of f'(x) using central finite difference.
-
-        The denominator is, however, implemented using the equation 3.4
-        in Stepleman & Winarsky (1979).
-
-        Parameters
-        ----------
-        step : float, > 0
-            The step size.
-
-        Returns
-        -------
-        f_prime_approx : float
-            The approximation of f'(x).
-        """
-        f_prime_approx = self.first_derivative_central.compute(step)
-        return f_prime_approx
-
     def get_number_of_function_evaluations(self):
         """
         Returns the number of function evaluations.
@@ -443,7 +557,7 @@ class SteplemanWinarsky:
         finite_difference_feval = (
             self.first_derivative_central.get_function().get_number_of_evaluations()
         )
-        function_eval = self.function.get_number_of_evaluations()
+        function_eval = self.functionwithargs.get_number_of_evaluations()
         total_feval = finite_difference_feval + function_eval
         return total_feval
 

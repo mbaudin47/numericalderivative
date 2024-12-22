@@ -48,7 +48,8 @@ class CheckStepleman(unittest.TestCase):
         x = 1.0e0
         # Check approximate optimal h
         algorithm = nd.SteplemanWinarsky(exp, x, verbose=True)
-        computed_step, number_of_iterations = algorithm.find_step()
+        initial_step = 1.0
+        computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
@@ -96,25 +97,10 @@ class CheckStepleman(unittest.TestCase):
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
 
-    def test_compute_step_with_bisection(self):
-        print("test_compute_step_with_bisection")
-        x = 1.0e0
-        algorithm = nd.SteplemanWinarsky(scaled_exp, x, verbose=True)
-        initial_h, number_of_iterations = algorithm.find_initial_step(
-            1.0e-10,
-            1.0e8,
-        )
-        print("number_of_iterations =", number_of_iterations)
-        print("initial_h =", initial_h)
-        third_derivative_value = scaled_exp_3d_derivative(x)
-        exact_step, _ = nd.FirstDerivativeCentral.compute_step(third_derivative_value)
-        print("exact_step = ", exact_step)
-        print("number_of_iterations =", number_of_iterations)
-        np.testing.assert_allclose(initial_h, exact_step, atol=1.0e8)
-
     def test_sin_at_zero(self):
         """
-        Consider f(x) = sin(x). At x = 0, we have f(x) = 0 and f'(x) = 1.
+        Consider f(x) = sin(x). At x = 0, we have f(x) = 0 and f'(x) = cos(x) = cos(0) = 1.
+        We have f''(x) = -sin(x) = -sin(0) = 0.
         Therefore, the algorithm must perform correctly.
         """
         print("test_sin_at_zero")
@@ -142,6 +128,24 @@ class CheckStepleman(unittest.TestCase):
         absolute_error = abs(f_prime_approx - f_prime_exact)
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, rtol=1.0e-7)
+
+    def test_find_initial_step(self):
+        print("test_find_initial_step")
+        x = 1.0e0
+        algorithm = nd.SteplemanWinarsky(scaled_exp, x, verbose=True)
+        relative_precision = 1.0e-15
+        initialize = nd.SteplemanWinarskyInitialize(algorithm, relative_precision)
+        initial_h, number_of_iterations = initialize.find_initial_step(
+            1.0e-10,
+            1.0e8,
+        )
+        print("number_of_iterations =", number_of_iterations)
+        print("initial_h =", initial_h)
+        third_derivative_value = scaled_exp_3d_derivative(x)
+        exact_step, _ = nd.FirstDerivativeCentral.compute_step(third_derivative_value)
+        print("exact_step = ", exact_step)
+        print("number_of_iterations =", number_of_iterations)
+        np.testing.assert_allclose(initial_h, exact_step, atol=1.0e8)
 
 
 if __name__ == "__main__":

@@ -349,7 +349,7 @@ class GillMurraySaundersWright:
             )
         return step_second_derivative, number_of_iterations
 
-    def find_step(self, kmin, kmax, iteration_maximum=50, logscale=True):
+    def find_step(self, kmin, kmax, iteration_maximum=53, logscale=True):
         """
         Compute the optimal step suitable to approximate the fist derivative.
 

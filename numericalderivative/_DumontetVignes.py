@@ -285,9 +285,9 @@ class DumontetVignes:
 
     def compute_third_derivative(
         self,
-        iteration_maximum=50,
         kmin=None,
         kmax=None,
+        iteration_maximum=53,
         logscale=False,
     ):
         r"""
@@ -439,9 +439,9 @@ class DumontetVignes:
 
     def find_step(
         self,
-        iteration_maximum=50,
         kmin=None,
         kmax=None,
+        iteration_maximum=53,
         logscale=False,
     ):
         r"""

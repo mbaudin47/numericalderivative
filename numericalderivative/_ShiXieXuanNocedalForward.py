@@ -19,7 +19,7 @@ class ShiXieXuanNocedalForward:
 
         f'(x) \approx \frac{f(x + h) - f(x)}{h}
 
-    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point 
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point
     and :math:`h > 0` is the differentiation step.
     If :math:`f''(x) \neq 0`, then the step which minimizes the total error is
     (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.2 page 4):
@@ -32,7 +32,7 @@ class ShiXieXuanNocedalForward:
     The goal of the method is to compute :math:`h^\star` using
     function evaluations only and without estimating :math:`f''(x)`.
 
-    The algorithm considers the test ratio 
+    The algorithm considers the test ratio
     (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.3 page 4):
 
     .. math::
@@ -52,13 +52,13 @@ class ShiXieXuanNocedalForward:
     and :math:`r_u` is the upper bound.
     The algorithm is based on bisection.
 
-    If the algorithm succeeds, the method produces a step 
+    If the algorithm succeeds, the method produces a step
     :math:`\widetilde{h}` such that:
 
     .. math::
 
         \widetilde{h} \in \frac{1}{\sqrt{3}} \left[\sqrt{r_\ell - 1}, \sqrt{r_u + 1}\right] h^\star.
-    
+
     With :math:`r_\ell = 1.5` and :math:`r_u = 6`, the previous interval is:
 
     .. math::
@@ -201,7 +201,7 @@ class ShiXieXuanNocedalForward:
     def find_step(
         self,
         initial_step=None,
-        iteration_maximum=50,
+        iteration_maximum=53,
         logscale=True,
     ):
         r"""

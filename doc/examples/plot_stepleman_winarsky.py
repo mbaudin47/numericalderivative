@@ -225,26 +225,27 @@ print("Suggested h0 = ", h_reference)
 # -------------------------------
 
 # %%
-# The :meth:`~numericalderivative.SteplemanWinarsky.number_of_lost_digits` method
+# The :meth:`~numericalderivative.SteplemanWinarskyInitialize.number_of_lost_digits` method
 # computes the number of lost digits in the approximated derivative
 # depending on the step.
 
 # %%
 h = 1.0e4
 print("Starting h = ", h)
-n_digits = algorithm.number_of_lost_digits(h)
+initialize = nd.SteplemanWinarskyInitialize(algorithm)
+n_digits = initialize.number_of_lost_digits(h)
 print("Number of lost digits = ", n_digits)
 threshold = np.log10(p ** (-1.0 / 3.0) / beta)
 print("Threshold = ", threshold)
 
-initial_step, iterations = algorithm.find_initial_step(
+initial_step, iterations = initialize.find_initial_step(
     1.0e-5,
     1.0e7,
 )
 print("initial_step = ", initial_step)
 print("iterations = ", iterations)
 
-estim_step, iterations = algorithm.find_step(initial_step, beta=1.5)
+estim_step, iterations = algorithm.find_step(initial_step)
 print("estim_step = ", estim_step)
 print("iterations = ", iterations)
 
@@ -254,10 +255,10 @@ step_array = np.logspace(-7.0, 7.0, number_of_points)
 n_digits_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     h = step_array[i]
-    n_digits_array[i] = algorithm.number_of_lost_digits(h)
+    n_digits_array[i] = initialize.number_of_lost_digits(h)
 
 # %%
-y_max = algorithm.number_of_lost_digits(h_reference)
+y_max = initialize.number_of_lost_digits(h_reference)
 pl.figure()
 pl.plot(step_array, n_digits_array, label="$N(h)$")
 pl.plot([h_reference] * 2, [0.0, y_max], "--", label=r"$h_{ref}$")
@@ -307,7 +308,7 @@ pl.tight_layout()
 
 # %%
 x = 1.0
-f_prime_approx, number_of_iterations = algorithm.find_initial_step(
+f_prime_approx, number_of_iterations = initialize.find_initial_step(
     1.0e-7,
     1.0e7,
 )
@@ -324,7 +325,7 @@ print("Func. eval = ", feval)
 x = 1.0
 maximum_bisection = 53
 print("+ No log scale.")
-h0, iterations = algorithm.find_initial_step(
+h0, iterations = initialize.find_initial_step(
     1.0e-7,
     1.0e1,
     maximum_bisection=53,
@@ -332,7 +333,7 @@ h0, iterations = algorithm.find_initial_step(
 )
 print("Pas initial = ", h0, ", iterations = ", iterations)
 print("+ Log scale.")
-h0, iterations = algorithm.find_initial_step(
+h0, iterations = initialize.find_initial_step(
     1.0e-7,
     1.0e1,
     maximum_bisection=53,
@@ -352,10 +353,10 @@ function = problem.get_function()
 first_derivative = problem.get_first_derivative()
 x = 1.0
 algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
-initial_step, estim_relative_error = algorithm.find_initial_step(
+initialize = nd.SteplemanWinarskyInitialize(algorithm)
+initial_step, estim_relative_error = initialize.find_initial_step(
     1.0e-6,
     100.0 * x,
-    beta=4.0,
 )
 step, number_of_iterations = algorithm.find_step(initial_step)
 f_prime_approx = algorithm.compute_first_derivative(step)
