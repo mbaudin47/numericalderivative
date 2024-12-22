@@ -6,6 +6,7 @@ Class to define Dumontet and Vignes algorithm
 
 import numpy as np
 import numericalderivative as nd
+import math
 
 
 class DumontetVignes:
@@ -131,6 +132,8 @@ class DumontetVignes:
         The point where the derivative is to be evaluated.
     relative_precision : float, > 0, optional
         The relative precision of evaluation of f.
+    absolute_precision : float, > 0, optional
+        The absolute precision of evaluation of f.
     number_of_digits : int
         The maximum number of digits of the floating point system.
     ell_3 : float
@@ -175,7 +178,8 @@ class DumontetVignes:
         self,
         function,
         x,
-        relative_precision=1.0e-14,
+        relative_precision=1.0e-15,
+        absolute_precision=1.0e-15,
         number_of_digits=53,
         ell_3=2.0,
         ell_4=15.0,
@@ -188,6 +192,12 @@ class DumontetVignes:
                 f"here relative precision = {relative_precision}"
             )
         self.relative_precision = relative_precision
+        if absolute_precision <= 0.0:
+            raise ValueError(
+                f"The absolute precision must be > 0. "
+                f"here absolute precision = {absolute_precision}"
+            )
+        self.absolute_precision = absolute_precision
         self.number_of_digits = number_of_digits
         if ell_4 <= ell_3:
             raise ValueError(
@@ -338,6 +348,12 @@ class DumontetVignes:
                 f"The maximum number of iterations must be > 1, "
                 f"but iteration_maximum = {iteration_maximum}"
             )
+        fractional_part, _ = math.modf(iteration_maximum)
+        if fractional_part != 0.0:
+            raise ValueError(
+                f"The maximum number of iterations must be an integer, "
+                f"but its fractional part is {fractional_part}"
+            )
         if self.verbose:
             print("x = %.3e" % (self.x))
             print(f"iteration_maximum = {iteration_maximum}")
@@ -485,24 +501,14 @@ class DumontetVignes:
 
         """
         third_derivative_value, number_of_iterations = self.compute_third_derivative(
-            iteration_maximum,
             kmin,
             kmax,
+            iteration_maximum,
             logscale,
         )
         # Compute the approximate optimal step for the first derivative
-        function_value = self.function(self.x)
-        if function_value == 0.0:
-            raise ValueError(
-                f"The function value at x = {self.x} is zero. "
-                f"This method cannot perform correctly in this case."
-            )
-        absolute_precision = self.relative_precision * abs(function_value)
-        if self.verbose:
-            print(f"f(x) = {function_value}")
-            print(f"absolute_precision = {absolute_precision}")
         step, _ = nd.FirstDerivativeCentral.compute_step(
-            third_derivative_value, absolute_precision
+            third_derivative_value, self.absolute_precision
         )
         return step, number_of_iterations
 

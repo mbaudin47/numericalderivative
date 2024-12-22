@@ -6,6 +6,7 @@ Class to define Stepleman and Winarsky algorithm
 
 import numpy as np
 import numericalderivative as nd
+import math
 
 
 class SteplemanWinarsky:
@@ -160,10 +161,16 @@ class SteplemanWinarsky:
             raise ValueError(
                 f"initial_step must be greater than 0. Here initial_step = {initial_step}."
             )
-        if iteration_maximum <= 0:
+        if iteration_maximum <= 1:
             raise ValueError(
                 f"iteration_maximum must be greater than 0. "
                 f"Here iteration_maximum = {iteration_maximum}."
+            )
+        fractional_part, _ = math.modf(iteration_maximum)
+        if fractional_part != 0.0:
+            raise ValueError(
+                f"The maximum number of iterations must be an integer, "
+                f"but its fractional part is {fractional_part}"
             )
         if self.verbose:
             print(f"initial_step={initial_step:.3e}")
@@ -336,7 +343,7 @@ class SteplemanWinarskyInitialize:
     - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264
     """
 
-    def __init__(self, algorithm, relative_precision=1.0e-16, verbose=False):
+    def __init__(self, algorithm, relative_precision=1.0e-15, verbose=False):
         if relative_precision <= 0.0:
             raise ValueError(
                 f"The relative precision must be > 0. "
@@ -407,7 +414,7 @@ class SteplemanWinarskyInitialize:
         r"""
         Compute the initial step using bisection.
 
-        The initial step :math:`h_0` is chosen such that:
+        Search for an initial step :math:`h_0` such that:
 
         .. math::
 
@@ -419,11 +426,8 @@ class SteplemanWinarskyInitialize:
         This heuristic is based on the hypothesis that the absolute value of
         the third derivative is close to 1.
 
-        This algorithm can be effective compared to :meth:`find_step()`
-        in the cases where it is difficult to find an initial step.
-        In this case, the step returned by :meth:`find_initial_step()`
-        can be used as the initial step for find_step().
-        This can require several extra function evaluations.
+        The value returned by :meth:`find_initial_step()`
+        can be used as input of :meth:`~numericalderivative.SteplemanWinarsky.find_step()`.
 
         This algorithm can fail if the required finite difference step is
         so large that the points :math:`x \pm h` fall beyond the mathematical input
@@ -474,29 +478,36 @@ class SteplemanWinarskyInitialize:
                 f"The upper bound of the number of lost digits is {n_treshold} <= 0.0."
                 " Increase absolute precision."
             )
+        if self.verbose:
+            print(
+                "Searching for h such that "
+                f"0 < N(h) <= n_treshold = {n_treshold:.3f}"
+            )
+        # Compute N(h_min)
         n_min = self.number_of_lost_digits(h_min)
         if n_min < 0.0:
             raise ValueError(
                 f"The number of lost digits for h_min is {n_min} < 0." " Reduce h_min."
             )
         if n_min >= 0.0 and n_min <= n_treshold:
+            if self.verbose:
+                print(f"h_min is OK; n(h_min) = {n_min}. Stop.")
             initial_step = h_min
             number_of_iterations = 0
             return initial_step, number_of_iterations
 
+        # Compute N(h_max)
         n_max = self.number_of_lost_digits(h_max)
         if self.verbose:
-            print(
-                f"n_min = {n_min:.3f}, "
-                f"n_treshold = {n_treshold:.3f}, "
-                f"n_max = {n_max:.3f}"
-            )
+            print(f"n_min = {n_min:.3f}, " f"n_max = {n_max:.3f}")
         if n_max > n_treshold:
             raise ValueError(
                 f"The number of lost digits for h_max is {n_max} > {n_treshold}."
                 " Increase h_max or decrease relative_precision."
             )
         if n_max >= 0.0 and n_max <= n_treshold:
+            if self.verbose:
+                print(f"h_max is OK; n(h_max) = {n_max}. Stop.")
             initial_step = h_max
             number_of_iterations = 0
             return initial_step, number_of_iterations

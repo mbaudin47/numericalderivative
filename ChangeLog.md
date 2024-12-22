@@ -22,6 +22,8 @@
 - SteplemanWinarsky: Rename search_step_with_bisection into find_initial_step
 - GillMurraySaundersWright: Changed parametrization from relative precision
   of the function value into absolute precision to enable a zero function value.
+- Set relative_precision to 1.0e-15 in all algorithms
+- Set iteration_maximum to 53 in all algorithms
 
 ### Documentation
 - DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:

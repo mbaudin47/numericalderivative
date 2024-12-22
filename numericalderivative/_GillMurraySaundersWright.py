@@ -6,6 +6,7 @@ Class to define Gill, Murray, Saunders and Wright algorithm
 
 import numpy as np
 import numericalderivative as nd
+import math
 
 
 class GillMurraySaundersWright:
@@ -228,7 +229,7 @@ class GillMurraySaundersWright:
         return c
 
     def compute_step_for_second_derivative(
-        self, kmin, kmax, iteration_maximum=50, logscale=True
+        self, kmin, kmax, iteration_maximum=53, logscale=True
     ):
         r"""
         Compute the optimal step k suitable to approximate the second derivative.
@@ -277,6 +278,7 @@ class GillMurraySaundersWright:
             The number of iterations required to compute step_second_derivative.
 
         """
+        # Check kmin
         if kmin >= kmax:
             raise ValueError(f"kmin = {kmin} must be less than kmax = {kmax}.")
         # Check C(kmin)
@@ -302,6 +304,18 @@ class GillMurraySaundersWright:
             raise ValueError(
                 f"C(kmax) = {cmax} > c_threshold_max = {self.c_threshold_max}. "
                 "Please increase kmax. "
+            )
+        # Check iteration_maximum
+        if iteration_maximum <= 1:
+            raise ValueError(
+                f"iteration_maximum must be greater than 0. "
+                f"Here iteration_maximum = {iteration_maximum}."
+            )
+        fractional_part, _ = math.modf(iteration_maximum)
+        if fractional_part != 0.0:
+            raise ValueError(
+                f"The maximum number of iterations must be an integer, "
+                f"but its fractional part is {fractional_part}"
             )
         # Now c_threshold_min <= c(kmin) and c_threshold_max < c(kmin)
         # which implies: c_threshold_max < c(kmin)

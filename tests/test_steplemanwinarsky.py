@@ -100,8 +100,8 @@ class CheckStepleman(unittest.TestCase):
     def test_sin_at_zero(self):
         """
         Consider f(x) = sin(x). At x = 0, we have f(x) = 0 and f'(x) = cos(x) = cos(0) = 1.
-        We have f''(x) = -sin(x) = -sin(0) = 0.
-        Therefore, the algorithm must perform correctly.
+        We have f''(x) = -sin(x) = -sin(0) = 0 and f'''(x) = -cos(x) = -cos(0) = -1.
+        Since the third derivative is nonzero, the algorithm must perform correctly.
         """
         print("test_sin_at_zero")
         x = 0.0e0
