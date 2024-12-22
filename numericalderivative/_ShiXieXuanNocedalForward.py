@@ -29,7 +29,10 @@ class ShiXieXuanNocedalForward:
         h^\star = 2 \sqrt{\frac{\epsilon_f}{\left|f''(x)\right|}}
 
     where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
-    The goal of the method is to compute :math:`h^\star` using
+    If the order of magnitude of the second derivative can be guessed, 
+    then :meth:`~numericalderivative.FirstDerivativeForward.compute_step` can be used.
+    Alternatively, the goal of :class:`~numericalderivative.ShiXieXuanNocedalForward`
+    is to compute :math:`h^\star` using
     function evaluations only and without estimating :math:`f''(x)`.
 
     The algorithm considers the test ratio
@@ -97,6 +100,10 @@ class ShiXieXuanNocedalForward:
     References
     ----------
     - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
+
+    See also
+    --------
+    FirstDerivativeForward
 
     Examples
     --------

@@ -29,6 +29,7 @@ class SteplemanWinarsky:
     The goal of the method is to compute an approximately optimal
     :math:`h^\star` for the central F.D. formula using function evaluations
     only.
+    Alternatively, :class:`~numericalderivative.DumontetVignes` can be used.
 
     The method introduces the function :math:`g` defined by:
 
@@ -37,7 +38,7 @@ class SteplemanWinarsky:
         g(t) = f(x + t) - f(x - t)
 
     for any :math:`t \in \mathbb{R}`.
-    We introduce the monotic sequence of step sizes :math:`\{h_i\}_{i \geq 0}` defined
+    We introduce the monotonic sequence of step sizes :math:`\{h_i\}_{i \geq 0}` defined
     by the equation:
 
     .. math::
@@ -54,7 +55,7 @@ class SteplemanWinarsky:
         \leq \left|d(h_{i}) - d(h_{i - 1})\right|.
 
     The previous theorem states that the sequence
-    :math:`\left(\left|d(h_{i}) - d(h_{i - 1})\right|\right)_{i \geq 0}`
+    :math:`\left(\left|d(h_{i}) - d(h_{i - 1})\right|\right)_{i \geq N}`
     is monotonic in exact arithmetic.
 
     The method starts from an initial step :math:`h_0 > 0`.
@@ -89,6 +90,10 @@ class SteplemanWinarsky:
     ----------
     - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264
 
+    See also
+    --------
+    FirstDerivativeCentral, SteplemanWinarskyInitialize, DumontetVignes
+
     Examples
     --------
     Compute the step of a badly scaled function.
@@ -101,9 +106,7 @@ class SteplemanWinarsky:
     >>>
     >>> x = 1.0e-2
     >>> initial_step = 1.0e8
-    >>> algorithm = nd.SteplemanWinarsky(
-    >>>     scaled_exp, x,
-    >>> )
+    >>> algorithm = nd.SteplemanWinarsky(scaled_exp, x)
     >>> h_optimal, number_of_iterations = algorithm.find_step(initial_step)
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
@@ -135,6 +138,12 @@ class SteplemanWinarsky:
             The algorithm produces a sequence of decreasing steps.
             Hence, the initial step should be an upper bound of the true
             optimal step.
+            To find such a suitable initial step, the example below provides
+            an heuristic designed by the authors of the method.
+            If the order of magnitude of the third derivative can be guessed, then
+            :meth:`~numericalderivative.FirstDerivativeCentral.compute_step` can be used.
+            Moreover, :meth:`~numericalderivative.SteplemanWinarskyInitialize.find_initial_step` 
+            can help to find an appropriate initial step.
         iteration_maximum : int, optional
             The number of iterations.
 
@@ -147,8 +156,8 @@ class SteplemanWinarsky:
 
         Examples
         --------
-        # The following heuristic can be used to set the initial
-        # step (see (Stepleman and Winarsky, 1979) eq. 3.9 page 1261):
+        The following heuristic can be used to set the initial
+        step (see (Stepleman and Winarsky, 1979) eq. 3.9 page 1261):
 
         >>> beta = 4.0
         >>> relative_precision = 1.0e-16
@@ -266,7 +275,7 @@ class SteplemanWinarsky:
         -------
         step_history : list(float)
             The list of steps h during intermediate iterations of the search.
-            This is updated by :meth:`find_step`.
+            This is updated by :meth:`~numericalderivative.SteplemanWinarsky.find_step`.
 
         """
         return self.step_history
@@ -329,8 +338,8 @@ class SteplemanWinarskyInitialize:
 
     Parameters
     ----------
-    algorithm : SteplemanWinarsky
-        An SteplemanWinarsky algorithm to find a step
+    algorithm : :class:`~numericalderivative.SteplemanWinarsky`
+        The algorithm to find a step
     relative_precision : float, > 0, optional
         The relative precision of evaluation of f.
 
@@ -341,6 +350,30 @@ class SteplemanWinarskyInitialize:
     References
     ----------
     - Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264
+
+    Examples
+    --------
+    
+    The next example computes the step of a badly scaled function.
+    We first compute an appropriate initial step using :meth:`~numericalderivative.SteplemanWinarskyInitialize.find_initial_step`
+    and set it as the input of :meth:`~numericalderivative.SteplemanWinarsky.find_step`.
+
+    >>> import numericalderivative as nd
+    >>>
+    >>> def scaled_exp(x):
+    >>>     alpha = 1.e6
+    >>>     return np.exp(-x / alpha)
+    >>>
+    >>> x = 1.0e-2
+    >>> initial_step = 1.0e8
+    >>> algorithm = nd.SteplemanWinarsky(scaled_exp, x)
+    >>> initialize = nd.SteplemanWinarskyInitialize(algorithm)
+    >>> initial_step, number_of_iterations = initialize.find_initial_step(
+    >>>     1.0e-5,
+    >>>     1.0e7,
+    >>> )
+    >>> h_optimal, number_of_iterations = algorithm.find_step(initial_step)
+    >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
 
     def __init__(self, algorithm, relative_precision=1.0e-15, verbose=False):
@@ -585,7 +618,7 @@ class SteplemanWinarskyInitialize:
         -------
         step_history : list(float)
             The list of steps h during intermediate iterations of the search.
-            This is updated by :meth:`find_step`.
+            This is updated by :meth:`~numericalderivative.SteplemanWinarskyInitialize.find_initial_step`.
 
         """
         return self.step_history

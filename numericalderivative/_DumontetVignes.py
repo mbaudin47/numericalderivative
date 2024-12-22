@@ -39,7 +39,9 @@ class DumontetVignes:
     Notice that (Dumontet & Vignes, 1977) uses the non-classical constant
     1.67 instead of 3 in the previous equation, but this does not have
     a significant impact on the result.
-    The goal of the method is to compute :math:`h^\star` using 
+    If the order of magnitude of the third derivative can be guessed, 
+    then :meth:`~numericalderivative.FirstDerivativeCentral.compute_step` can be used.
+    Alternatively, the goal of :class:`~numericalderivative.DumontetVignes` is to compute :math:`h^\star` using 
     function evaluations only.
 
     The third derivative is approximated using the central finite difference formula 
@@ -154,6 +156,10 @@ class DumontetVignes:
     References
     ----------
     - Dumontet, J., & Vignes, J. (1977). Détermination du pas optimal dans le calcul des dérivées sur ordinateur. RAIRO. Analyse numérique, 11 (1), 13-25.
+
+    See also
+    --------
+    FirstDerivativeCentral
 
     Examples
     --------
