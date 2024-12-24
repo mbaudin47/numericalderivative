@@ -89,6 +89,33 @@ class CheckDumontetVignes(unittest.TestCase):
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, rtol=1.0e-7)
 
+    def test_ell_ratio(self):
+        problem = nd.SinProblem()
+        #
+        function = problem.get_function()
+        x = problem.get_x()
+        #
+        algorithm = nd.DumontetVignes(function, x)
+        step = 1.0e-3
+        ell_ratio, f3inf, f3sup = algorithm.compute_ell(step)
+        print(f"ell_ratio = {ell_ratio}, f3inf = {f3inf}, f3sup = {f3sup}")
+        third_derivative = problem.get_third_derivative()
+        third_derivative_value = third_derivative(x)
+        print(f"f'''(x) = {third_derivative_value}")
+
+        #
+        relative_error = abs(f3inf - third_derivative_value) / abs(
+            third_derivative_value
+        )
+        print(f"Relative difference on lower bound = {relative_error}")
+        relative_error = abs(f3sup - third_derivative_value) / abs(
+            third_derivative_value
+        )
+        print(f"Relative difference on lower bound = {relative_error}")
+        np.testing.assert_allclose(f3inf, third_derivative_value, rtol=1.0e-5)
+        np.testing.assert_allclose(f3sup, third_derivative_value, rtol=1.0e-5)
+        np.testing.assert_allclose(ell_ratio, f3sup / f3inf, rtol=1.0e-5)
+
 
 if __name__ == "__main__":
     unittest.main()
