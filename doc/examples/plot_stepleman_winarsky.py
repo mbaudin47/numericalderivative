@@ -27,7 +27,7 @@ from matplotlib.ticker import MaxNLocator
 # %%
 # In the next example, we use the algorithm on the exponential function.
 # We create the :class:`~numericalderivative.SteplemanWinarsky` algorithm using the function and the point x.
-# Then we use the :meth:`~numericalderivative.SteplemanWinarsky.compute_step()` method to compute the step,
+# Then we use the :meth:`~numericalderivative.SteplemanWinarsky.find_step()` method to compute the step,
 # using an upper bound of the step as an initial point of the algorithm.
 # Finally, use the :meth:`~numericalderivative.SteplemanWinarsky.compute_first_derivative()` method to compute
 # an approximate value of the first derivative using finite differences.
@@ -38,12 +38,12 @@ from matplotlib.ticker import MaxNLocator
 x = 1.0
 algorithm = nd.SteplemanWinarsky(np.exp, x, verbose=True)
 initial_step = 1.0e0
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.find_step(initial_step)
 f_prime_approx = algorithm.compute_first_derivative(step)
 feval = algorithm.get_number_of_function_evaluations()
 f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
 print(f"Computed step = {step:.3e}")
-print(f"Number of iterations = {number_of_iterations}")
+print(f"Number of number_of_iterations = {number_of_iterations}")
 print(f"f_prime_approx = {f_prime_approx}")
 print(f"f_prime_exact = {f_prime_exact}")
 absolute_error = abs(f_prime_approx - f_prime_exact)
@@ -110,10 +110,10 @@ first_derivative = problem.get_first_derivative()
 algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
 initial_step = 1.0e8
 x = problem.get_x()
-h_optimal, iterations = algorithm.compute_step(initial_step)
+h_optimal, number_of_iterations = algorithm.find_step(initial_step)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", h_optimal)
-print("iterations =", iterations)
+print("number_of_iterations =", number_of_iterations)
 print("Function evaluations =", number_of_function_evaluations)
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 absolute_error = abs(f_prime_approx - first_derivative(x))
@@ -218,35 +218,36 @@ pl.tight_layout()
 p = 1.0e-16
 beta = 4.0
 h_reference = beta * p ** (1 / 3) * x
-print("Suggested h0 = ", h_reference)
+print("Suggested initial_step = ", h_reference)
 
 # %%
 # Plot number of lost digits vs h
 # -------------------------------
 
 # %%
-# The :meth:`~numericalderivative.SteplemanWinarsky.number_of_lost_digits` method
+# The :meth:`~numericalderivative.SteplemanWinarskyInitialize.number_of_lost_digits` method
 # computes the number of lost digits in the approximated derivative
 # depending on the step.
 
 # %%
 h = 1.0e4
 print("Starting h = ", h)
-n_digits = algorithm.number_of_lost_digits(h)
+initialize = nd.SteplemanWinarskyInitialize(algorithm)
+n_digits = initialize.number_of_lost_digits(h)
 print("Number of lost digits = ", n_digits)
 threshold = np.log10(p ** (-1.0 / 3.0) / beta)
 print("Threshold = ", threshold)
 
-step_zero, iterations = algorithm.search_step_with_bisection(
+initial_step, number_of_iterations = initialize.find_initial_step(
     1.0e-5,
     1.0e7,
 )
-print("step_zero = ", step_zero)
-print("iterations = ", iterations)
+print("initial_step = ", initial_step)
+print("number_of_iterations = ", number_of_iterations)
 
-estim_step, iterations = algorithm.compute_step(step_zero, beta=1.5)
+estim_step, number_of_iterations = algorithm.find_step(initial_step)
 print("estim_step = ", estim_step)
-print("iterations = ", iterations)
+print("number_of_iterations = ", number_of_iterations)
 
 # %%
 number_of_points = 200
@@ -254,14 +255,14 @@ step_array = np.logspace(-7.0, 7.0, number_of_points)
 n_digits_array = np.zeros((number_of_points))
 for i in range(number_of_points):
     h = step_array[i]
-    n_digits_array[i] = algorithm.number_of_lost_digits(h)
+    n_digits_array[i] = initialize.number_of_lost_digits(h)
 
 # %%
-y_max = algorithm.number_of_lost_digits(h_reference)
+y_max = initialize.number_of_lost_digits(h_reference)
 pl.figure()
 pl.plot(step_array, n_digits_array, label="$N(h)$")
 pl.plot([h_reference] * 2, [0.0, y_max], "--", label=r"$h_{ref}$")
-pl.plot([step_zero] * 2, [0.0, y_max], "--", label=r"$h^{(0)}$")
+pl.plot([initial_step] * 2, [0.0, y_max], "--", label=r"$h^{(0)}$")
 pl.plot([estim_step] * 2, [0.0, y_max], "--", label=r"$h^\star$")
 pl.plot(
     step_array,
@@ -280,7 +281,7 @@ pl.tight_layout()
 # %%
 pl.figure()
 pl.plot(step_array, error_array)
-pl.plot([step_zero] * 2, [0.0, 1.0e-9], "--", label=r"$h^{(0)}$")
+pl.plot([initial_step] * 2, [0.0, 1.0e-9], "--", label=r"$h^{(0)}$")
 pl.plot([estim_step] * 2, [0.0, 1.0e-9], "--", label=r"$h^\star$")
 pl.title("Finite difference")
 pl.xlabel("h")
@@ -306,13 +307,13 @@ pl.tight_layout()
 # Test with single point and default parameters.
 
 # %%
-x = 1.0
-f_prime_approx, number_of_iterations = algorithm.search_step_with_bisection(
+initialize = nd.SteplemanWinarskyInitialize(algorithm, relative_precision=1.0e-10)
+initial_step, number_of_iterations = initialize.find_initial_step(
     1.0e-7,
     1.0e7,
 )
 feval = algorithm.get_number_of_function_evaluations()
-print("FD(x) = ", f_prime_approx)
+print("initial_step = ", initial_step)
 print("number_of_iterations = ", number_of_iterations)
 print("Func. eval = ", feval)
 
@@ -321,24 +322,32 @@ print("Func. eval = ", feval)
 # when searching for the optimal step (this can be slower).
 
 # %%
-x = 1.0
+initialize = nd.SteplemanWinarskyInitialize(
+    algorithm, relative_precision=1.0e-10, verbose=True
+)
 maximum_bisection = 53
 print("+ No log scale.")
-h0, iterations = algorithm.search_step_with_bisection(
+initial_step, number_of_iterations = initialize.find_initial_step(
     1.0e-7,
-    1.0e1,
-    maximum_bisection=53,
+    1.0e8,
+    maximum_bisection=maximum_bisection,
     log_scale=False,
 )
-print("Pas initial = ", h0, ", iterations = ", iterations)
+print(
+    f"Pas initial = {initial_step:.3e}, number_of_iterations = {number_of_iterations}"
+)
 print("+ Log scale.")
-h0, iterations = algorithm.search_step_with_bisection(
+
+# %%
+initial_step, number_of_iterations = initialize.find_initial_step(
     1.0e-7,
-    1.0e1,
-    maximum_bisection=53,
+    1.0e8,
+    maximum_bisection=maximum_bisection,
     log_scale=True,
 )
-print("Pas initial = ", h0, ", iterations = ", iterations)
+print(
+    f"Pas initial = {initial_step:.3e}, number_of_iterations = {number_of_iterations}"
+)
 
 # %%
 # In the next example, we search for an initial step using bisection,
@@ -352,12 +361,12 @@ function = problem.get_function()
 first_derivative = problem.get_first_derivative()
 x = 1.0
 algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
-initial_step, estim_relative_error = algorithm.search_step_with_bisection(
+initialize = nd.SteplemanWinarskyInitialize(algorithm)
+initial_step, estim_relative_error = initialize.find_initial_step(
     1.0e-6,
     100.0 * x,
-    beta=4.0,
 )
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.find_step(initial_step)
 f_prime_approx = algorithm.compute_first_derivative(step)
 absolute_error = abs(f_prime_approx - first_derivative(x))
 feval = algorithm.get_number_of_function_evaluations()
@@ -374,7 +383,7 @@ print(
 # %%
 # In Stepleman & Winarsky's method, the algorithm
 # produces a sequence of steps :math:`(h_i)_{1 \leq i \leq n_{iter}}`
-# where :math:`n_{iter} \in \mathbb{N}` is the number of iterations.
+# where :math:`n_{iter} \in \mathbb{N}` is the number of number_of_iterations.
 # These steps are meant to converge to an
 # approximately optimal step of for the central finite difference formula of the
 # first derivative.
@@ -400,16 +409,16 @@ name = problem.get_name()
 x = problem.get_x()
 algorithm = nd.SteplemanWinarsky(function, x, verbose=True)
 initial_step = 1.0e0
-step, number_of_iterations = algorithm.compute_step(initial_step)
+step, number_of_iterations = algorithm.find_step(initial_step)
 step_h_history = algorithm.get_step_history()
-print(f"Number of iterations = {number_of_iterations}")
+print(f"Number of number_of_iterations = {number_of_iterations}")
 print(f"History of steps h : {step_h_history}")
 # The last step is not the best one, sinces it breaks the monotony
 last_step_h = step_h_history[-2]
 print(f"Last step h : {last_step_h}")
 
 # %%
-# Then we compute the exact step, using :meth:`~numericalderivative.ThirdDerivativeCentral.compute_step`.
+# Then we compute the exact step, using :meth:`~numericalderivative.ThirdDerivativeCentral.find_step`.
 third_derivative = problem.get_third_derivative()
 third_derivative_value = third_derivative(x)
 print(f"f^(3)(x) = {third_derivative_value}")
@@ -437,8 +446,8 @@ pl.tight_layout()
 
 # %%
 # The previous figure shows that the algorithm gets closer to the optimal
-# value of the step k in the early iterations.
-# In the last iterations of the algorithm, the absolute error does not
+# value of the step k in the early number_of_iterations.
+# In the last number_of_iterations of the algorithm, the absolute error does not
 # continue to decrease monotically and produces a final absolute
 # error close to :math:`10^{-3}`.
 

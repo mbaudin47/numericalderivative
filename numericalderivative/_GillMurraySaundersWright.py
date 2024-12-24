@@ -6,6 +6,7 @@ Class to define Gill, Murray, Saunders and Wright algorithm
 
 import numpy as np
 import numericalderivative as nd
+import math
 
 
 class GillMurraySaundersWright:
@@ -77,9 +78,11 @@ class GillMurraySaundersWright:
     this algorithm only searches for the optimal step for the central
     formula for the second derivative.
 
-    The algorithm can fail in the case where the function is odd
-    or approximately linear.
-    For example, the function :math:`\sin` is linear at point :math:`x = \pm \pi`.
+    The algorithm can fail in the case where the function is
+    linear or approximately linear because the second derivative is zero or
+    close to zero.
+    For example, the function :math:`f(x) = \sin(x)` for any real number
+    :math:`x` is linear at the point :math:`x = \pm \pi`.
     In this case, the second derivative is zero, which produces a
     value of :math:`\Phi` zero or close to zero.
     This produces an infinite value of the condition error.
@@ -90,14 +93,25 @@ class GillMurraySaundersWright:
     Since the value of the second derivative is unknown, we can make the
     hypothesis that :math:`f''(x) \approx 1`.
 
+    The method can fail if the absolute precision of the function value
+    is set to zero.
+    This can happen if the user computes it depending on the relative precision
+    and the absolute value of the function: if the value of the function
+    at point :math:`x` is zero, then the absolute precision is zero.
+
     Parameters
     ----------
     function : function
         The function to differentiate.
     x : float
         The point where the derivative is approximated.
-    relative_precision : float, optional
-        The relative error of the function f at the point x.
+    absolute_precision : float, optional
+        The absolute error of the value of the function f at the point x.
+        If the absolute precision is unknown and if the function
+        value at point x is nonzero, then the absolute precision
+        can be computed from the relative precision using the equation :
+        :math:`\epsilon_f = \epsilon_r |f(x)|` where
+        :math:`\epsilon_r > 0` is the relative precision.
     c_threshold_min : float, optional, > 0
         The minimum value of the condition error.
     c_threshold_max : float, optional, > c_threshold_min
@@ -136,7 +150,7 @@ class GillMurraySaundersWright:
     >>> algorithm = nd.GillMurraySaundersWright(
     >>>     scaled_exp, x,
     >>> )
-    >>> h_optimal, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+    >>> h_optimal, number_of_iterations = algorithm.find_step(kmin=kmin, kmax=kmax)
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
     """
 
@@ -144,18 +158,18 @@ class GillMurraySaundersWright:
         self,
         function,
         x,
-        relative_precision=1.0e-16,
+        absolute_precision=1.0e-15,
         c_threshold_min=0.001,
         c_threshold_max=0.1,
         args=None,
         verbose=False,
     ):
-        if relative_precision <= 0.0:
+        if absolute_precision <= 0.0:
             raise ValueError(
                 f"The relative precision must be > 0. "
-                f"here relative precision = {relative_precision}"
+                f"here relative precision = {absolute_precision}"
             )
-        self.relative_precision = relative_precision
+        self.absolute_precision = absolute_precision
         if c_threshold_max <= c_threshold_min:
             raise ValueError(
                 f"c_threshold_max = {c_threshold_max} must be greater than "
@@ -168,7 +182,6 @@ class GillMurraySaundersWright:
         self.second_derivative_central = nd.SecondDerivativeCentral(function, x, args)
         self.function = nd.FunctionWithArguments(function, args)
         self.y = self.function(self.x)
-        self.absolute_precision = abs(relative_precision * self.y)
         self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
         self.step_history = []
 
@@ -223,7 +236,7 @@ class GillMurraySaundersWright:
         return c
 
     def compute_step_for_second_derivative(
-        self, kmin, kmax, iteration_maximum=50, logscale=True
+        self, kmin, kmax, iteration_maximum=53, logscale=True
     ):
         r"""
         Compute the optimal step k suitable to approximate the second derivative.
@@ -263,7 +276,6 @@ class GillMurraySaundersWright:
         logscale : bool, optional
             Set to True to use a logarithmic scale to update k.
             Set to False to use a linear scale.
-            The default is True.
 
         Returns
         -------
@@ -273,6 +285,7 @@ class GillMurraySaundersWright:
             The number of iterations required to compute step_second_derivative.
 
         """
+        # Check kmin
         if kmin >= kmax:
             raise ValueError(f"kmin = {kmin} must be less than kmax = {kmax}.")
         # Check C(kmin)
@@ -298,6 +311,18 @@ class GillMurraySaundersWright:
             raise ValueError(
                 f"C(kmax) = {cmax} > c_threshold_max = {self.c_threshold_max}. "
                 "Please increase kmax. "
+            )
+        # Check iteration_maximum
+        if iteration_maximum <= 1:
+            raise ValueError(
+                f"iteration_maximum must be greater than 0. "
+                f"Here iteration_maximum = {iteration_maximum}."
+            )
+        fractional_part, _ = math.modf(iteration_maximum)
+        if fractional_part != 0.0:
+            raise ValueError(
+                f"The maximum number of iterations must be an integer, "
+                f"but its fractional part is {fractional_part}"
             )
         # Now c_threshold_min <= c(kmin) and c_threshold_max < c(kmin)
         # which implies: c_threshold_max < c(kmin)
@@ -340,12 +365,12 @@ class GillMurraySaundersWright:
             raise ValueError(
                 f"Unable to find satisfactory step_second_derivative "
                 f"after {iteration_maximum} iterations. "
-                f"The function might be odd or approximately linear. "
+                f"The function might be linear or approximately linear. "
                 f"Please increase iteration_maximum = {iteration_maximum}."
             )
         return step_second_derivative, number_of_iterations
 
-    def compute_step(self, kmin, kmax, iteration_maximum=50, logscale=True):
+    def find_step(self, kmin, kmax, iteration_maximum=53, logscale=True):
         """
         Compute the optimal step suitable to approximate the fist derivative.
 
@@ -360,11 +385,10 @@ class GillMurraySaundersWright:
         kmax : float, > kmin
             The maximum step k for the second derivative.
         iteration_maximum : in, optional
-            The maximum number of iterations. The default is 50.
+            The maximum number of iterations.
         logscale : bool, optional
             Set to True to use a logarithmic scale to update k.
             Set to False to use a linear scale.
-            The default is True.
 
         Returns
         -------
@@ -447,14 +471,14 @@ class GillMurraySaundersWright:
         """
         return self.step_history
 
-    def get_relative_precision(self):
+    def get_absolute_precision(self):
         """
-        Return the relative precision of the function evaluation
+        Return the absolute precision of the function evaluation
 
         Returns
         -------
-        relative_precision : float
-            The relative precision of evaluation of f.
+        absolute_precision : float
+            The absolute precision of evaluation of f.
 
         """
-        return self.relative_precision
+        return self.absolute_precision

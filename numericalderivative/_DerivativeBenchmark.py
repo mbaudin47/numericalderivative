@@ -271,6 +271,9 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
     does not perform correctly for this problem because it is
     based on the hypothesis that the third derivative is zero.
 
+    The central finite difference for the first derivative
+    is exact for this problem for any value of the differentiation step.
+
     Parameters
     ----------
     x : float
@@ -287,34 +290,68 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
             return x**self.alpha
 
         def function_prime(x):
-            return self.alpha * x ** (self.alpha - 1)
+            if self.alpha == 0.0:
+                y = 0.0
+            else:
+                y = self.alpha * x ** (self.alpha - 1)
+            return y
 
         def function_2nd_derivative(x):
-            return self.alpha * (self.alpha - 1) * x ** (self.alpha - 2)
+            if self.alpha == 0.0 or self.alpha == 1.0:
+                y = 0.0
+            else:
+                y = self.alpha * (self.alpha - 1) * x ** (self.alpha - 2)
+            return y
 
         def function_3d_derivative(x):
-            return (
-                self.alpha * (self.alpha - 1) * (self.alpha - 2) * x ** (self.alpha - 3)
-            )
+            if self.alpha == 0.0 or self.alpha == 1.0 or self.alpha == 2.0:
+                y = 0.0
+            else:
+                y = (
+                    self.alpha
+                    * (self.alpha - 1)
+                    * (self.alpha - 2)
+                    * x ** (self.alpha - 3)
+                )
+            return y
 
         def function_4th_derivative(x):
-            return (
-                self.alpha
-                * (self.alpha - 1)
-                * (self.alpha - 2)
-                * (self.alpha - 3)
-                * x ** (self.alpha - 4)
-            )
+            if (
+                self.alpha == 0.0
+                or self.alpha == 1.0
+                or self.alpha == 2.0
+                or self.alpha == 3.0
+            ):
+                y = 0.0
+            else:
+                y = (
+                    self.alpha
+                    * (self.alpha - 1)
+                    * (self.alpha - 2)
+                    * (self.alpha - 3)
+                    * x ** (self.alpha - 4)
+                )
+            return y
 
         def function_5th_derivative(x):
-            return (
-                self.alpha
-                * (self.alpha - 1)
-                * (self.alpha - 2)
-                * (self.alpha - 3)
-                * (self.alpha - 4)
-                * x ** (self.alpha - 5)
-            )
+            if (
+                self.alpha == 0.0
+                or self.alpha == 1.0
+                or self.alpha == 2.0
+                or self.alpha == 3.0
+                or self.alpha == 4.0
+            ):
+                y = 0.0
+            else:
+                y = (
+                    self.alpha
+                    * (self.alpha - 1)
+                    * (self.alpha - 2)
+                    * (self.alpha - 3)
+                    * (self.alpha - 4)
+                    * x ** (self.alpha - 5)
+                )
+            return y
 
         if alpha == 0.0:
             raise ValueError(f"The parameter alpha = {alpha} must be nonzero.")
@@ -1388,7 +1425,7 @@ def benchmark_method(
     verbose=False,
 ):
     """
-    Compute the first derivative using Dumontet & Vignes's method.
+    Compute the first derivative on a set of test points
 
     Parameters
     ----------
@@ -1415,7 +1452,8 @@ def benchmark_method(
     average_feval : float
         The average number of function evaluations
     data : list(floats)
-        For each test point, a list of 3 floats: x, relative error, feval.
+        For each test point, a list of 3 floats: x, relative error, number of
+        function evaluations.
     """
     number_of_test_points = len(test_points)
     relative_error_array = np.zeros(number_of_test_points)

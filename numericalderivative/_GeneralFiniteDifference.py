@@ -26,7 +26,7 @@ class GeneralFiniteDifference:
         r"""
         Create a general finite difference formula
 
-        Let :math:`d \in \mathbb{N}` be the order of differentation with :math:`d \geq 1` and
+        Let :math:`d \in \mathbb{N}` be the order of differentiation with :math:`d \geq 1` and
         :math:`p \in \mathbb{N}` be the order of precision with :math:`p \geq 1`. 
         The indices are:
 
@@ -69,7 +69,7 @@ class GeneralFiniteDifference:
         
         when :math:`h \rightarrow 0`.
 
-        If direction is "central", if :math:`p` is odd,
+        If direction is "central" and if :math:`p` is odd,
         then the order of precision is actually :math:`p + 1`.
         This implies that any central F.D. formula has an even order of precision.
 
@@ -168,7 +168,6 @@ class GeneralFiniteDifference:
         direction : str, optional
             The direction of the formula.
             The direction can be "forward", "backward" or "central".
-            The default is "central".
         args : list
             A list of optional arguments that the function takes as inputs.
             By default, there is no extra argument and calling sequence of
@@ -348,7 +347,7 @@ class GeneralFiniteDifference:
                    + \frac{d!}{(d + p)!} \left|b_{d + p} f^{(d + p)}(x) \right| h^p
 
         where :math:`h > 0` is the step, :math:`d \in \mathbb{N}` is the
-        order of differentation, :math:`p \in \mathbb{N}` is the order
+        order of differentiation, :math:`p \in \mathbb{N}` is the order
         of precision, :math:`\boldsymbol{c} \in \mathbb{R}^{d + p}` is the vector of weights and
         :math:`\epsilon_f > 0` is the absolute precision of the
         function evaluation and :math:`b_{d + p}` is equal to:

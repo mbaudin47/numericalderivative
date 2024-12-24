@@ -60,20 +60,20 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         # Check approximate optimal h
         algorithm = nd.ShiXieXuanNocedalForward(my_exp, x, verbose=True)
         initial_step = 1.0e0
-        step_computed, iterations = algorithm.compute_step(initial_step)
+        computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
-        print("Optimum h =", step_computed)
+        print("Optimum h =", computed_step)
         second_derivative_value = exp_2nd_derivative(x)
         step_exact, absolute_error = nd.FirstDerivativeForward.compute_step(
             second_derivative_value
         )
         print("step_exact = ", step_exact)
-        print("iterations =", iterations)
-        np.testing.assert_allclose(step_computed, step_exact, rtol=1.0e1)
+        print("number_of_iterations =", number_of_iterations)
+        np.testing.assert_allclose(computed_step, step_exact, rtol=1.0e1)
         # Check approximate f'(x)
-        f_prime_approx = algorithm.compute_first_derivative(step_computed)
+        f_prime_approx = algorithm.compute_first_derivative(computed_step)
         print("f_prime_approx = ", f_prime_approx)
         f_prime_exact = exp_prime(x)
         print("f_prime_exact = ", f_prime_exact)
@@ -87,25 +87,83 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         # Check approximate optimal h
         algorithm = nd.ShiXieXuanNocedalForward(scaled_exp, x, verbose=True)
         initial_step = 1.0e0
-        step_computed, iterations = algorithm.compute_step(initial_step)
+        computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         print("Function evaluations =", number_of_function_evaluations)
         assert number_of_function_evaluations > 0
-        print("Optimum h =", step_computed)
+        print("Optimum h =", computed_step)
         second_derivative_value = scaled_exp_2nd_derivative(x)
         step_exact, absolute_error = nd.FirstDerivativeForward.compute_step(
             second_derivative_value
         )
         print("step_exact = ", step_exact)
-        print("iterations =", iterations)
-        np.testing.assert_allclose(step_computed, step_exact, atol=1.0e2)
+        print("number_of_iterations =", number_of_iterations)
+        np.testing.assert_allclose(computed_step, step_exact, atol=1.0e2)
         # Check approximate f'(x)
-        f_prime_approx = algorithm.compute_first_derivative(step_computed)
+        f_prime_approx = algorithm.compute_first_derivative(computed_step)
         print("f_prime_approx = ", f_prime_approx)
         f_prime_exact = scaled_exp_prime(x)
         absolute_error = abs(f_prime_approx - f_prime_exact)
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
+
+    def test_sin_at_zero(self):
+        """
+        Consider f(x) = sin(x). At x = 0, we have f(x) = 0 and f'(x) = cos(x) = cos(0) = 1.
+        We have f''(x) = -sin(x) = -sin(0) = 0.
+        Therefore, the algorithm must perform correctly.
+        """
+        print("test_sin_at_zero")
+        x = 0.0e0
+        # Check approximate optimal h
+        algorithm = nd.ShiXieXuanNocedalForward(np.sin, x, verbose=True)
+        initial_step = 1.0e0
+        computed_step, number_of_iterations = algorithm.find_step(initial_step)
+        number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+        print("Function evaluations =", number_of_function_evaluations)
+        assert number_of_function_evaluations > 0
+        print("Optimum h =", computed_step)
+        third_derivative_value = -np.cos(x)
+        exact_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+            third_derivative_value
+        )
+        print("exact_step = ", exact_step)
+        print("number_of_iterations =", number_of_iterations)
+        np.testing.assert_allclose(computed_step, exact_step, atol=1.0e2)
+        # Check approximate f'(x)
+        f_prime_approx = algorithm.compute_first_derivative(computed_step)
+        print("f_prime_approx = ", f_prime_approx)
+        f_prime_exact = np.cos(x)
+        print("f_prime_exact = ", f_prime_exact)
+        absolute_error = abs(f_prime_approx - f_prime_exact)
+        print("Absolute error = ", absolute_error)
+        np.testing.assert_allclose(f_prime_approx, f_prime_exact, rtol=1.0e-7)
+
+    def test_ratio(self):
+        problem = nd.SinProblem()
+        #
+        function = problem.get_function()
+        x = problem.get_x()
+        #
+        algorithm = nd.ShiXieXuanNocedalForward(function, x)
+        absolute_precision = algorithm.get_absolute_precision()
+        step = 1.0e-5
+        test_ratio = algorithm.compute_test_ratio(step)
+        print(f"test_ratio = {test_ratio}")
+        second_derivative = problem.get_second_derivative()
+        abs_second_derivative_value = abs(second_derivative(x))
+        print(f"abs(f''(x)) = {abs_second_derivative_value}")
+        #
+        scaled_ratio = 4 * absolute_precision * test_ratio / (3 * step**2)
+        print(f"scaled_ratio = {scaled_ratio}")
+        relative_error = (
+            abs(scaled_ratio - abs_second_derivative_value)
+            / abs_second_derivative_value
+        )
+        print(f"Relative difference on scaled test ratio = {relative_error}")
+        np.testing.assert_allclose(
+            scaled_ratio, abs_second_derivative_value, rtol=1.0e-4
+        )
 
 
 if __name__ == "__main__":
