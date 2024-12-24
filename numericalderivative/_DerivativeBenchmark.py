@@ -271,6 +271,9 @@ class PolynomialProblem(DerivativeBenchmarkProblem):
     does not perform correctly for this problem because it is
     based on the hypothesis that the third derivative is zero.
 
+    The central finite difference for the first derivative
+    is exact for this problem for any value of the differentiation step.
+
     Parameters
     ----------
     x : float

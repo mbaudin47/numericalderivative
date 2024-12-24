@@ -139,6 +139,26 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, rtol=1.0e-7)
 
+    def test_ratio(self):
+        problem = nd.SinProblem()
+        #
+        function = problem.get_function()
+        x = problem.get_x()
+        #
+        algorithm = nd.ShiXieXuanNocedalForward(function, x)
+        absolute_precision = algorithm.get_absolute_precision()
+        step = 1.0e-5
+        test_ratio = algorithm.compute_test_ratio(step)
+        print(f"test_ratio = {test_ratio}")
+        second_derivative = problem.get_second_derivative()
+        abs_second_derivative_value = abs(second_derivative(x))
+        print(f"abs(f''(x)) = {abs_second_derivative_value}")
+        #
+        scaled_ratio = 4 * absolute_precision * test_ratio / (3 * step ** 2)
+        print(f"scaled_ratio = {scaled_ratio}")
+        relative_error = abs(scaled_ratio - abs_second_derivative_value) / abs_second_derivative_value
+        print(f"Relative difference on scaled test ratio = {relative_error}")
+        np.testing.assert_allclose(scaled_ratio, abs_second_derivative_value, rtol=1.0e-4)
 
 if __name__ == "__main__":
     unittest.main()
