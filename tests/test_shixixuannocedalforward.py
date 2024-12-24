@@ -154,11 +154,17 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         abs_second_derivative_value = abs(second_derivative(x))
         print(f"abs(f''(x)) = {abs_second_derivative_value}")
         #
-        scaled_ratio = 4 * absolute_precision * test_ratio / (3 * step ** 2)
+        scaled_ratio = 4 * absolute_precision * test_ratio / (3 * step**2)
         print(f"scaled_ratio = {scaled_ratio}")
-        relative_error = abs(scaled_ratio - abs_second_derivative_value) / abs_second_derivative_value
+        relative_error = (
+            abs(scaled_ratio - abs_second_derivative_value)
+            / abs_second_derivative_value
+        )
         print(f"Relative difference on scaled test ratio = {relative_error}")
-        np.testing.assert_allclose(scaled_ratio, abs_second_derivative_value, rtol=1.0e-4)
+        np.testing.assert_allclose(
+            scaled_ratio, abs_second_derivative_value, rtol=1.0e-4
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

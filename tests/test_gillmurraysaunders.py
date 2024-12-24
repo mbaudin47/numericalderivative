@@ -173,6 +173,32 @@ class CheckGillMurraySaunders(unittest.TestCase):
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, rtol=1.0e-7)
 
+    def test_condition(self):
+        problem = nd.SinProblem()
+        function = problem.get_function()
+        x = problem.get_x()
+        #
+        algorithm = nd.GillMurraySaundersWright(function, x)
+        absolute_precision = algorithm.get_absolute_precision()
+        step = 1.0e-5
+        condition = algorithm.compute_condition(step)
+        print(f"condition = {condition}")
+        second_derivative = problem.get_second_derivative()
+        abs_second_derivative_value = abs(second_derivative(x))
+        print(f"abs(f''(x)) = {abs_second_derivative_value}")
+        #
+        scaled_condition = 4 * absolute_precision / (condition * step**2)
+        print(f"scaled_condition = {scaled_condition}")
+        #
+        relative_error = (
+            abs(scaled_condition - abs_second_derivative_value)
+            / abs_second_derivative_value
+        )
+        print(f"Relative difference on scaled condition = {relative_error}")
+        np.testing.assert_allclose(
+            scaled_condition, abs_second_derivative_value, rtol=1.0e-6
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
