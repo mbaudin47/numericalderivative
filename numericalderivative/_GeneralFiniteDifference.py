@@ -481,15 +481,13 @@ class GeneralFiniteDifference:
         absolute_coefficients = np.sum(np.abs(self.coefficients))
         # Compute b(d + p)
         q = self.differentiation_order + self.formula_accuracy
-        constant = 0.0
-        for i in range(self.imin, self.imax + 1):
-            constant += self.coefficients[i - self.imin] * i**q
+        b_constant = self.compute_b_constant()
         # Compute step
         factor = abs(
             self.differentiation_order
             * math.factorial(q)
             * absolute_coefficients
-            / (self.formula_accuracy * constant)
+            / (self.formula_accuracy * b_constant)
         )
         exponent_argument = abs(
             factor * absolute_precision / higher_order_derivative_value
@@ -501,6 +499,14 @@ class GeneralFiniteDifference:
             absolute_precision,
         )
         return step, absolute_error
+
+    def compute_b_constant(self):
+        # Compute b(d + p)
+        q = self.differentiation_order + self.formula_accuracy
+        constant = 0.0
+        for i in range(self.imin, self.imax + 1):
+            constant += self.coefficients[i - self.imin] * i**q
+        return constant
 
     def compute(self, step):
         r"""

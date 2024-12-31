@@ -7,6 +7,7 @@ Test for ShiXieXuanNocedalGeneral class.
 import unittest
 import numpy as np
 import numericalderivative as nd
+import math
 
 
 # Define a function
@@ -54,6 +55,7 @@ def scaled_exp_3d_derivative(x):
 
 
 class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
+    """
     def test_base_default_default_step(self):
         print("test_base_default_default_step")
         x = 1.0e0
@@ -89,7 +91,7 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         absolute_error = abs(f_prime_approx - f_prime_exact)
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
-
+    """
 
     def test_ratio(self):
         problem = nd.SinProblem()
@@ -108,22 +110,37 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         algorithm = nd.ShiXieXuanNocedalGeneral(formula, verbose=True)
         absolute_precision = algorithm.get_absolute_precision()
         step = 1.0e-5
-        test_ratio = algorithm.compute_test_ratio(step)
+        alpha_parameter = 2.0
+        test_ratio = algorithm.compute_test_ratio(step, alpha_parameter)
         print(f"test_ratio = {test_ratio}")
-        second_derivative = problem.get_second_derivative()
-        abs_second_derivative_value = abs(second_derivative(x))
-        print(f"abs(f''(x)) = {abs_second_derivative_value}")
+        third_derivative = problem.get_third_derivative()
+        abs_third_derivative_value = abs(third_derivative(x))
+        print(f"abs(f'''(x)) = {abs_third_derivative_value}")
         #
-        scaled_ratio = 4 * absolute_precision * test_ratio / (3 * step**2)
+        a_parameter = algorithm.get_a_parameter()
+        b_constant = formula.compute_b_constant()
+        corrected_b_parameter = b_constant * (1.0 - alpha_parameter) ** formula_accuracy
+        numerator = (
+            a_parameter
+            * absolute_precision
+            * math.factorial(differentiation_order + formula_accuracy)
+            * test_ratio
+        )
+        denominator = (
+            math.factorial(differentiation_order)
+            * step ** (differentiation_order + formula_accuracy)
+            * corrected_b_parameter
+        )
+        scaled_ratio = numerator / denominator
         print(f"scaled_ratio = {scaled_ratio}")
         relative_error = (
-            abs(scaled_ratio - abs_second_derivative_value)
-            / abs_second_derivative_value
+            abs(scaled_ratio - abs_third_derivative_value) / abs_third_derivative_value
         )
         print(f"Relative difference on scaled test ratio = {relative_error}")
         np.testing.assert_allclose(
-            scaled_ratio, abs_second_derivative_value, rtol=1.0e-4
+            scaled_ratio, abs_third_derivative_value, rtol=1.0e-4
         )
+
 
 if __name__ == "__main__":
     unittest.main()

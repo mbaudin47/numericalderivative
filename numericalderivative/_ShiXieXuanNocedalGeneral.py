@@ -19,11 +19,11 @@ class ShiXieXuanNocedalGeneral:
 
         f^{(d)}(x) \approx \frac{d!}{h^d} \sum_{i = i_{\min}}^{i_\max} c_i f(x + h i)
 
-    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point, 
-    :math:`h > 0` is the differentiation step, :math:`d \in \mathbb{N}` is the 
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point,
+    :math:`h > 0` is the differentiation step, :math:`d \in \mathbb{N}` is the
     differentiation order and :math:`(c_i)_{i_\min \leq i\leq i_\max}` are
     the weights.
-    The weights are computed so that the formula has order :math:`p\geq 1`: 
+    The weights are computed so that the formula has order :math:`p\geq 1`:
     see :class:`~numericalderivative.GeneralFiniteDifference` for details on this
     topic.
     If :math:`f^{(d + p)}(x) \neq 0`, then the step which minimizes the total error is
@@ -47,7 +47,7 @@ class ShiXieXuanNocedalGeneral:
 
     .. math::
 
-        r(h) = \frac{\left|\left(\widetilde{f}^{(d)}(x; h) - 
+        r(h) = \frac{\left|\left(\widetilde{f}^{(d)}(x; h) -
             \widetilde{f}^{(d)}(x; \alpha h) \right) h^d\right|}{A \epsilon_f}.
 
     where :math:`h > 0` is the step and :math:`\epsilon_f> 0` is the absolute precision of evaluation
@@ -68,7 +68,7 @@ class ShiXieXuanNocedalGeneral:
 
     .. math::
 
-        \widetilde{h} \in \left[(r_\ell - 1)^{\frac{1}{d + p}}, 
+        \widetilde{h} \in \left[(r_\ell - 1)^{\frac{1}{d + p}},
             (r_u + 1)^{\frac{1}{d + p}}\right] \left(\frac{\epsilon_f}{\left|c_r f^{(d + p)}(x)\right|}\right)^{\frac{1}{d + p}}.
 
     Parameters
@@ -82,7 +82,7 @@ class ShiXieXuanNocedalGeneral:
             For example differentiation_order = 1 is the first derivative.
     formula_accuracy : int
         The order of precision of the formula.
-        For the central F.D. formula, 
+        For the central F.D. formula,
         then the formula accuracy is necessarily even.
         If required, increase the formula accuracy by 1 unit.
     absolute_precision : float, > 0, optional
@@ -174,7 +174,13 @@ class ShiXieXuanNocedalGeneral:
             )
         self.minimum_test_ratio = minimum_test_ratio
         self.maximum_test_ratio = maximum_test_ratio
-        self.a_parameter = 1.0  # TODO : fix this
+        # Compute the A parameter
+        # This parameter is so that the scaled weights have a 1-norm
+        # equal to one.
+        differentiation_order = general_finite_difference.get_differentiation_order()
+        coefficients = general_finite_difference.get_coefficients()
+        coefficients_1_norm = np.linalg.norm(coefficients, 1)
+        self.a_parameter = math.factorial(differentiation_order) * coefficients_1_norm
         return
 
     def get_ratio_min_max(self):
@@ -207,9 +213,17 @@ class ShiXieXuanNocedalGeneral:
             The test ratio
         """
         derivative_approx = self.general_finite_difference.compute(step)
-        derivative_approx_alpha = self.general_finite_difference.compute(alpha_parameter * step)
-        differentiation_order = self.general_finite_difference.get_differentiation_order()
-        test_ratio = abs(derivative_approx - derivative_approx_alpha) * step**differentiation_order / (self.a_parameter * self.absolute_precision)
+        derivative_approx_alpha = self.general_finite_difference.compute(
+            alpha_parameter * step
+        )
+        differentiation_order = (
+            self.general_finite_difference.get_differentiation_order()
+        )
+        test_ratio = (
+            abs(derivative_approx - derivative_approx_alpha)
+            * step**differentiation_order
+            / (self.a_parameter * self.absolute_precision)
+        )
         return test_ratio
 
     def find_step(
@@ -418,3 +432,15 @@ class ShiXieXuanNocedalGeneral:
 
         """
         return self.absolute_precision
+
+    def get_a_parameter(self):
+        """
+        Return the A parameter
+
+        Returns
+        -------
+        a_parameter : float
+            The A parameter
+
+        """
+        return self.a_parameter

@@ -68,6 +68,6 @@ __all__ = [
     "SteplemanWinarskyInitialize",
     "ShiXieXuanNocedalForward",
     "GeneralFiniteDifference",
-    "ShiXieXuanNocedalGeneral"
+    "ShiXieXuanNocedalGeneral",
 ]
 __version__ = "1.0"
