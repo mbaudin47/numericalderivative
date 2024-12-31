@@ -25,7 +25,7 @@ from matplotlib.ticker import MaxNLocator
 # %%
 # In the next example, we use the algorithm on the exponential function.
 # We create the :class:`~numericalderivative.DumontetVignes` algorithm using the function and the point x.
-# Then we use the :meth:`~numericalderivative.DumontetVignes.compute_step()` method to compute the step,
+# Then we use the :meth:`~numericalderivative.DumontetVignes.find_step()` method to compute the step,
 # using an upper bound of the step as an initial point of the algorithm.
 # Finally, use the :meth:`~numericalderivative.DumontetVignes.compute_first_derivative()` method to compute
 # an approximate value of the first derivative using finite differences.
@@ -37,7 +37,7 @@ x = 1.0
 kmin = 1.0e-10
 kmax = 1.0e0
 algorithm = nd.DumontetVignes(np.exp, x, verbose=True)
-step, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+step, number_of_iterations = algorithm.find_step(kmin=kmin, kmax=kmax)
 f_prime_approx = algorithm.compute_first_derivative(step)
 feval = algorithm.get_number_of_function_evaluations()
 f_prime_exact = np.exp(x)  # Since the derivative of exp is exp.
@@ -131,9 +131,8 @@ def plot_step_sensitivity(
     # 2. Algorithm to detect h*
     algorithm = nd.DumontetVignes(function, x, relative_precision=relative_precision)
     print("Exact f'''(x) = %.3e" % (function_third_derivative(x)))
-    estim_step, _ = algorithm.compute_step(
+    estim_step, _ = algorithm.find_step(
         iteration_maximum=iteration_maximum,
-        markdown=False,
         kmin=kmin,
         kmax=kmax,
     )
@@ -187,7 +186,8 @@ def plot_ell_ratio(
     kmin=None,
     kmax=None,
     y_logscale=False,
-    plot_L_constants=False,
+    plot_L_constants=True,
+    epsilon_ell=1.0e-5,
 ):
     """Plot the ell ratio depending on the step size.
 
@@ -208,18 +208,32 @@ def plot_ell_ratio(
     for i in range(number_of_points):
         ell_array[i], _, _ = compute_ell(function, x, k_array[i], relative_precision)
 
-    pl.figure()
+    fig = pl.figure()
     pl.plot(k_array, ell_array, label="L")
     if plot_L_constants:
         indices = np.isfinite(ell_array)
         maximum_finite_ell = np.max(ell_array[indices])
-        print("Maximum L = %.3e" % (maximum_finite_ell))
-        if maximum_finite_ell < 1.0:
-            pl.plot(k_array, [ell_1] * number_of_points, "--", label="$L_1$")
-            pl.plot(k_array, [ell_2] * number_of_points, ":", label="$L_2$")
+        print(
+            f"maximum_finite_ell = {maximum_finite_ell}, "
+            f"maximum_finite_ell - 1 = {maximum_finite_ell - 1}"
+        )
+
+        if maximum_finite_ell <= 1.0 + epsilon_ell:
+            print("maximum L is lower or equal to 1")
+            pl.plot(
+                k_array, [ell_1] * number_of_points, "--", label=f"$L_1$ = {ell_1:.3f}"
+            )
+            pl.plot(
+                k_array, [ell_2] * number_of_points, ":", label=f"$L_2$ = {ell_2:.3f}"
+            )
         else:
-            pl.plot(k_array, [ell_3] * number_of_points, ":", label="$L_3$")
-            pl.plot(k_array, [ell_4] * number_of_points, "--", label="$L_4$")
+            print("maximum L is greater than 1")
+            pl.plot(
+                k_array, [ell_3] * number_of_points, ":", label=f"$L_3$ = {ell_3:.3f}"
+            )
+            pl.plot(
+                k_array, [ell_4] * number_of_points, "--", label=f"$L_4$ = {ell_4:.3f}"
+            )
         pl.legend(bbox_to_anchor=(1.0, 1.0))
     pl.title(f"{name}, x = {x:.2e}, p = {relative_precision:.2e}")
     pl.xlabel("k")
@@ -249,13 +263,13 @@ def plot_ell_ratio(
 # %%
 # 1. Consider the :class:`~numericalderivative.ExponentialProblem` function.
 
-number_of_points = 200
-relative_precision = 1.0e-15
-x = 1.0
 problem = nd.ExponentialProblem()
+x = problem.get_x()
 problem
 
 # %%
+number_of_points = 200
+relative_precision = 1.0e-15
 number_of_digits = 53
 plot_ell_ratio(
     problem.get_name(),
@@ -264,41 +278,18 @@ plot_ell_ratio(
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=1.55e-5,
-    kmax=1.0e-4,
+    kmin=1.0e-7,
+    kmax=1.0e-3,
     plot_L_constants=True,
 )
-
-# %%
-# Consider a larger interval of K.
-
-# %%
-relative_precision = 1.0e-10
-x = 1.0
-problem = nd.ExponentialProblem()
-number_of_digits = 53
-plot_ell_ratio(
-    problem.get_name(),
-    problem.get_function(),
-    x,
-    number_of_points,
-    number_of_digits,
-    relative_precision,
-    kmin=5.0e-5,
-    kmax=1.0e-2,
-    y_logscale=False,
-    plot_L_constants=True,
-)
-pl.ylim(-20.0, 20.0)
+_ = pl.ylim(-20.0, 20.0)
 
 # %%
 # See how the figure changes when the relative precision is
-# decreased: use 1.e-14 (instead of 1.e-10 in the previous example).
+# increased: use 1.e-14 (instead of 1.e-15 in the previous example).
 
 # %%
 relative_precision = 1.0e-14
-x = 1.0
-problem = nd.ExponentialProblem()
 number_of_digits = 53
 plot_ell_ratio(
     problem.get_name(),
@@ -307,17 +298,18 @@ plot_ell_ratio(
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=4.0e-5,
-    kmax=1.0e-2,
+    kmin=1.0e-7,
+    kmax=1.0e-3,
+    plot_L_constants=True,
 )
+_ = pl.ylim(-20.0, 20.0)
 
 # %%
-# See what happens at x = 4 (instead of x = 1 in the previous example).
+# See what happens when the relative precision is reduced:
+# here 1.e-16 instead of 1.e-14 in the previous example.
 
 # %%
 relative_precision = 1.0e-16
-x = 4.0  # A carefully chosen point
-problem = nd.ExponentialProblem()
 number_of_digits = 53
 plot_ell_ratio(
     problem.get_name(),
@@ -326,31 +318,16 @@ plot_ell_ratio(
     number_of_points,
     number_of_digits,
     relative_precision,
-    kmin=1.0e-5,
-    kmax=1.0e-2,
+    kmin=1.0e-7,
+    kmax=1.0e-3,
 )
+_ = pl.ylim(-20.0, 20.0)
+
 
 # %%
-# Consider a larger interval of k.
-
-# %%
-relative_precision = 1.0e-14
-x = 4.0  # A carefully chosen point
-problem = nd.ExponentialProblem()
-number_of_digits = 53
-plot_ell_ratio(
-    problem.get_name(),
-    problem.get_function(),
-    x,
-    number_of_points,
-    number_of_digits,
-    relative_precision,
-    kmin=3.2e-5,
-    kmax=1.0e-2,
-    y_logscale=False,
-    plot_L_constants=True,
-)
-pl.ylim(-20.0, 20.0)
+# We see that it is difficult to find a value of k such that
+# L(k) is in the required interval when the relative precision is too
+# close to zero.
 
 # %%
 # Plot the error depending on the step
@@ -392,7 +369,7 @@ plot_step_sensitivity(
 # In the previous figure, we see that the error reaches
 # a minimum, which is indicated by the green point labeled :math:`h^\star`.
 # The vertical dotted line represents the approximately optimal step :math:`\widetilde{h}`
-# returned by the :meth:`~numericalderivative.DumontetVignes.compute_step` method.
+# returned by the :meth:`~numericalderivative.DumontetVignes.find_step` method.
 # We see that the method correctly computes an approximation of the the optimal step.
 
 
@@ -438,25 +415,6 @@ plot_step_sensitivity(
 # :math:`10^1`, which may be larger than what we may typically expect
 # as a step size for a finite difference formula.
 
-# %%
-# Consider the :class:`~numericalderivative.SquareRootProblem`.
-
-# %%
-relative_precision = 1.0e-14
-problem = nd.SquareRootProblem()
-number_of_digits = 53
-plot_ell_ratio(
-    problem.get_name(),
-    problem.get_function(),
-    problem.get_x(),
-    number_of_points,
-    number_of_digits,
-    relative_precision,
-    kmin=4.3e-5,
-    kmax=1.0e-4,
-    plot_L_constants=True,
-)
-pl.ylim(-20.0, 20.0)
 
 # %%
 # Compute the lower and upper bounds of the third derivative
@@ -584,7 +542,7 @@ plot_ell_ratio(
     kmax=1.0e-5,
     plot_L_constants=True,
 )
-pl.ylim(-20.0, 20.0)
+_ = pl.ylim(-20.0, 20.0)
 
 # %%
 # The next example searches the optimal step for the square root function.
@@ -599,7 +557,7 @@ function = problem.get_function()
 algorithm = nd.DumontetVignes(
     function, x, relative_precision=relative_precision, verbose=verbose
 )
-h_optimal, _ = algorithm.compute_step(kmax=kmax)
+h_optimal, _ = algorithm.find_step(kmax=kmax)
 print("h optimal = %.3e" % (h_optimal))
 number_of_feval = algorithm.get_number_of_function_evaluations()
 print(f"number_of_feval = {number_of_feval}")
@@ -693,7 +651,7 @@ x = problem.get_x()
 algorithm = nd.DumontetVignes(function, x, verbose=True)
 kmin = 1.0e-10
 kmax = 1.0e0
-step, number_of_iterations = algorithm.compute_step(kmin=kmin, kmax=kmax)
+step, number_of_iterations = algorithm.find_step(kmin=kmin, kmax=kmax)
 step_k_history = algorithm.get_step_history()
 print(f"Number of iterations = {number_of_iterations}")
 print(f"History of steps k : {step_k_history}")

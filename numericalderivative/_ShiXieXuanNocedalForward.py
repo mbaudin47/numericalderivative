@@ -13,17 +13,39 @@ class ShiXieXuanNocedalForward:
     r"""
     Compute an approximately optimal step for the forward F.D. formula of the first derivative
 
-    Uses forward finite difference to compute an approximate value of f'(x).
-
-    The algorithm considers the test ratio:
+    Uses forward finite difference to compute an approximate value of f'(x):
 
     .. math::
 
-        r(h) = \frac{\left|f(x + 4h) - 4f(x + h) + 3f(x)\right|]}{8 \epsilon_f}
+        f'(x) \approx \frac{f(x + h) - f(x)}{h}
+
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point
+    and :math:`h > 0` is the differentiation step.
+    If :math:`f''(x) \neq 0`, then the step which minimizes the total error is
+    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.2 page 4):
+
+    .. math::
+
+        h^\star = 2 \sqrt{\frac{\epsilon_f}{\left|f''(x)\right|}}
+
+    where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
+    If the order of magnitude of the second derivative can be guessed,
+    then :meth:`~numericalderivative.FirstDerivativeForward.compute_step` can be used.
+    Alternatively, the goal of :class:`~numericalderivative.ShiXieXuanNocedalForward`
+    is to compute :math:`h^\star` using
+    function evaluations only and without estimating :math:`f''(x)`.
+
+    The algorithm considers the test ratio
+    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.3 page 4):
+
+    .. math::
+
+        r(h) = \frac{\left|f(x + 4h) - 4f(x + h) + 3f(x)\right|}{8 \epsilon_f}
 
     where :math:`h > 0` is the step and :math:`\epsilon_f> 0` is the absolute precision of evaluation
     of the function.
-    The goal of the algorithm is to find the step such that:
+    The goal of the algorithm is to find the step such that
+    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.4 page 4):
 
     .. math::
 
@@ -33,6 +55,35 @@ class ShiXieXuanNocedalForward:
     and :math:`r_u` is the upper bound.
     The algorithm is based on bisection.
 
+    If the algorithm succeeds, the method produces a step
+    :math:`\widetilde{h}` such that:
+
+    .. math::
+
+        \widetilde{h} \in \frac{1}{\sqrt{3}} \left[\sqrt{r_\ell - 1}, \sqrt{r_u + 1}\right] h^\star.
+
+    With :math:`r_\ell = 1.5` and :math:`r_u = 6`, the previous interval is:
+
+    .. math::
+
+        \widetilde{h} \in \left[0.41, 1.5\right] h^\star.
+
+    This method can fail if the value of the second derivative of the function
+    is equal to zero.
+    In this case, the test ratio is zero and there is no value of the
+    step :math:`h` which satisfies the required inequalities.
+    For example, the function :math:`f(x) = \sin(x)` for any
+    real number :math:`x` has a zero derivative at the point :math:`x = \pm \pi`.
+    This algorithm will fail to compute a suitable step in this case.
+
+    The method can fail if the absolute precision of the function value
+    is set to zero.
+    This can happen if the user computes it depending on the relative precision
+    and the absolute value of the function: if the value of the function
+    at point :math:`x` is zero, then the absolute precision is zero.
+    For example, the function :math:`f(x) = x^2` for any
+    real number :math:`x` has a zero value at the point :math:`x = 0`.
+
     Parameters
     ----------
     function : function
@@ -40,7 +91,7 @@ class ShiXieXuanNocedalForward:
     x : float
         The point where the derivative is to be evaluated.
     absolute_precision : float, > 0, optional
-        The absolute precision of evaluation of f. The default is 1.0e-16.
+        The absolute precision of evaluation of f.
         If the function value is close to zero (e.g. for the sin function
         at x = np.pi where f(x) is close to 1.0e-32), then the absolute
         precision cannot always be computed from the relative precision.
@@ -56,7 +107,7 @@ class ShiXieXuanNocedalForward:
         the function must be y = function(x, arg1, arg2, ...) where
         arg1, arg2, ..., are the items in the args list.
     verbose : bool, optional
-        Set to True to print intermediate messages. The default is False.
+        Set to True to print intermediate messages.
 
     Returns
     -------
@@ -65,6 +116,10 @@ class ShiXieXuanNocedalForward:
     References
     ----------
     - Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). Adaptive finite-difference interval estimation for noisy derivative-free optimization. SIAM Journal on Scientific Computing, 44 (4), A2302-A2321.
+
+    See also
+    --------
+    FirstDerivativeForward
 
     Examples
     --------
@@ -80,13 +135,13 @@ class ShiXieXuanNocedalForward:
     >>> algorithm = nd.ShiXieXuanNocedalForward(
     >>>     scaled_exp, x,
     >>> )
-    >>> h_optimal, number_of_iterations = algorithm.compute_step()
+    >>> h_optimal, number_of_iterations = algorithm.find_step()
     >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 
     Set the initial step.
 
     >>> initial_step = 1.0e8
-    >>> h_optimal, number_of_iterations = algorithm.compute_step(initial_step)
+    >>> h_optimal, number_of_iterations = algorithm.find_step(initial_step)
     """
 
     def __init__(
@@ -166,10 +221,10 @@ class ShiXieXuanNocedalForward:
         test_ratio = abs(f4 - 4 * f1 + 3 * f0) / (8 * self.absolute_precision)
         return test_ratio
 
-    def compute_step(
+    def find_step(
         self,
         initial_step=None,
-        iteration_maximum=50,
+        iteration_maximum=53,
         logscale=True,
     ):
         r"""
@@ -195,7 +250,7 @@ class ShiXieXuanNocedalForward:
         initial_step : float, > 0
             The initial step in the algorithm.
         iteration_maximum : int, optional
-            The number of number_of_iterations. The default is 53.
+            The number of number_of_iterations.
         logscale : bool, optional
             Set to True to use a logarithmic scale when updating the step k
             during the search. Set to False to use a linear scale when
@@ -356,7 +411,7 @@ class ShiXieXuanNocedalForward:
         -------
         step_history : list(float)
             The list of steps k during intermediate iterations of the bissection search.
-            This is updated by :meth:`compute_step`.
+            This is updated by :meth:`find_step`.
 
         """
         return self.step_history

@@ -61,7 +61,7 @@ def functionStrain(strain, r, c, gamma):
 h0 = 1.0e0
 args = [meanR, meanC, meanGamma]
 algorithm = nd.SteplemanWinarsky(functionStrain, meanStrain, args=args, verbose=True)
-h_optimal, iterations = algorithm.compute_step(h0)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", h_optimal)
 print("iterations =", iterations)
@@ -83,10 +83,8 @@ def functionR(r, strain, c, gamma):
 # Algorithm to detect h* for R
 h0 = 1.0e9
 args = [meanStrain, meanC, meanGamma]
-algorithm = nd.SteplemanWinarsky(
-    functionR, meanR, args=args, relative_precision=1.0e-14, verbose=True
-)
-h_optimal, iterations = algorithm.compute_step(h0)
+algorithm = nd.SteplemanWinarsky(functionR, meanR, args=args, verbose=True)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print(f"Optimum h = {h_optimal:e}")
 print("iterations =", iterations)
@@ -108,10 +106,8 @@ def functionR(c, strain, r, gamma):
 # Algorithm to detect h* for C
 h0 = 1.0e15
 args = [meanStrain, meanR, meanGamma]
-algorithm = nd.SteplemanWinarsky(
-    functionR, meanC, args=args, relative_precision=1.0e-14, verbose=True
-)
-h_optimal, iterations = algorithm.compute_step(h0)
+algorithm = nd.SteplemanWinarsky(functionR, meanC, args=args, verbose=True)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print(f"Optimum h = {h_optimal:e}")
 print("iterations =", iterations)
@@ -133,10 +129,8 @@ def functionGamma(gamma, strain, r, c):
 # Algorithm to detect h* for Gamma
 h0 = 1.0e0
 args = [meanStrain, meanR, meanC]
-algorithm = nd.SteplemanWinarsky(
-    functionGamma, meanGamma, args=args, relative_precision=1.0e-14, verbose=True
-)
-h_optimal, iterations = algorithm.compute_step(h0)
+algorithm = nd.SteplemanWinarsky(functionGamma, meanGamma, args=args, verbose=True)
+h_optimal, iterations = algorithm.find_step(h0)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print(f"Optimum h = {h_optimal:e}")
 print("iterations =", iterations)
@@ -177,10 +171,9 @@ for xIndex in range(inputDimension):
         genericFunction,
         inputMarginal,
         args=args,
-        relative_precision=1.0e-12,
         verbose=True,
     )
-    h_optimal, iterations = algorithm.compute_step(initialStep[xIndex])
+    h_optimal, iterations = algorithm.find_step(initialStep[xIndex])
     number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
     print(f"    Optimum h = {h_optimal:e}")
     print("    Iterations =", iterations)
@@ -228,7 +221,6 @@ def computeSteplemanWinarskyStep(
     model,
     initial_step,
     referenceInput,
-    relative_precision=1.0e-16,
     beta=4.0,
     verbose=False,
 ):
@@ -247,8 +239,6 @@ def computeSteplemanWinarskyStep(
         The initial step size.
     referenceInput : ot.Point(inputDimension)
         The point X where the derivative is to be computed.
-    relative_precision : float, > 0, optional
-        The absolute relative_precision of evaluation of f. The default is 1.0e-16.
     verbose : bool, optional
         Set to True to print intermediate messages. The default is False.
 
@@ -290,13 +280,12 @@ def computeSteplemanWinarskyStep(
         algorithm = nd.SteplemanWinarsky(
             genericFunction,
             inputMarginal,
+            beta=beta,
             args=args,
-            relative_precision=relative_precision,
             verbose=verbose,
         )
-        h_optimal, iterations = algorithm.compute_step(
+        h_optimal, iterations = algorithm.find_step(
             initial_step[xIndex],
-            beta=beta,
         )
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
         f_prime_approx = algorithm.compute_first_derivative(h_optimal)
@@ -429,8 +418,7 @@ optimalStep = computeSteplemanWinarskyStep(
     model,
     initialStep,
     inputMean,
-    verbose=True,
-    relative_precision=1.0e-16,
+    verbose=False,
 )
 print("The optimal step for central finite difference is")
 print(f"optimalStep = {optimalStep}")

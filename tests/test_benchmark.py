@@ -238,6 +238,31 @@ class CheckDerivativeBenchmark(unittest.TestCase):
     def test_polynomial_at_zero(self):
         problem = nd.PolynomialProblem(x=0.0)
         print(problem)
+        x = problem.get_x()
+        # Function value
+        function = problem.get_function()
+        function_value = function(x)
+        assert function_value == 0.0
+        # First derivative value
+        first_derivative = problem.get_first_derivative()
+        first_derivative_value = first_derivative(x)
+        assert first_derivative_value == 0.0
+        # Second derivative value
+        second_derivative = problem.get_second_derivative()
+        second_derivative_value = second_derivative(x)
+        assert second_derivative_value == 2.0
+        # Third derivative value
+        third_derivative = problem.get_third_derivative()
+        third_derivative_value = third_derivative(x)
+        assert third_derivative_value == 0.0
+        # Fourth derivative value
+        fourth_derivative = problem.get_fourth_derivative()
+        fourth_derivative_value = fourth_derivative(x)
+        assert fourth_derivative_value == 0.0
+        # Fifth derivative value
+        fifth_derivative = problem.get_fifth_derivative()
+        fifth_derivative_value = fifth_derivative(x)
+        assert fifth_derivative_value == 0.0
 
     def test_All(self):
         collection = nd.build_benchmark()
