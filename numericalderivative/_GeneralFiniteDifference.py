@@ -212,6 +212,28 @@ class GeneralFiniteDifference:
         # Compute the coefficients
         _ = self._compute_coefficients()
 
+    def get_differentiation_order(self):
+        r"""
+        Return the differentiation order
+
+        Returns
+        -------
+        differentiation_order : int
+            The differentiation order
+        """
+        return self.differentiation_order
+
+    def get_formula_accuracy(self):
+        r"""
+        Return the formula accuracy
+
+        Returns
+        -------
+        formula_accuracy : int
+            The accuracy of the formula
+        """
+        return self.formula_accuracy
+
     def _compute_indices(self):
         r"""
         Computes the min and max indices for a finite difference formula.

@@ -73,12 +73,18 @@ class ShiXieXuanNocedalGeneral:
 
     Parameters
     ----------
-    function : function
+    function : :class:`~numericalderivative.GeneralFiniteDifference`
         The function to differentiate.
     x : float
         The point where the derivative is to be evaluated.
     differentiation_order : int
         The order of differentiation.
+            For example differentiation_order = 1 is the first derivative.
+    formula_accuracy : int
+        The order of precision of the formula.
+        For the central F.D. formula, 
+        then the formula accuracy is necessarily even.
+        If required, increase the formula accuracy by 1 unit.
     absolute_precision : float, > 0, optional
         The absolute precision of evaluation of f.
         If the function value is close to zero (e.g. for the sin function
@@ -135,29 +141,25 @@ class ShiXieXuanNocedalGeneral:
 
     def __init__(
         self,
-        function,
-        x,
-        differentiation_order = 1,
+        general_finite_difference,
         absolute_precision=1.0e-15,
         minimum_test_ratio=1.5,
         maximum_test_ratio=6.0,
-        args=None,
         verbose=False,
     ):
+        if not isinstance(general_finite_difference, nd.GeneralFiniteDifference):
+            raise ValueError(
+                f"The general_finite_difference is not a GeneralFiniteDifference: "
+                f"type = {type(general_finite_difference)}"
+            )
+        self.general_finite_difference = general_finite_difference
         if absolute_precision <= 0.0:
             raise ValueError(
                 f"The absolute precision must be > 0. "
                 f"here absolute precision = {absolute_precision}"
             )
         self.absolute_precision = absolute_precision
-        if differentiation_order < 1:
-            raise ValueError(f"The differentiation order must be greater than 1, "
-                             f"but differentiation_order = {differentiation_order}")
-        self.differentiation_order = differentiation_order
         self.verbose = verbose
-        self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
-        self.function = nd.FunctionWithArguments(function, args)
-        self.x = x
         self.step_history = []
         if minimum_test_ratio <= 1.0:
             raise ValueError(
@@ -172,6 +174,7 @@ class ShiXieXuanNocedalGeneral:
             )
         self.minimum_test_ratio = minimum_test_ratio
         self.maximum_test_ratio = maximum_test_ratio
+        self.a_parameter = 1.0  # TODO : fix this
         return
 
     def get_ratio_min_max(self):
@@ -187,7 +190,7 @@ class ShiXieXuanNocedalGeneral:
         """
         return [self.minimum_test_ratio, self.maximum_test_ratio]
 
-    def compute_test_ratio(self, step, function_values=None):
+    def compute_test_ratio(self, step, alpha_parameter=1.0):
         r"""
         Compute the test ratio
 
@@ -195,24 +198,18 @@ class ShiXieXuanNocedalGeneral:
         ----------
         step : float, > 0
             The finite difference step
-        function_values : list(3 floats)
-            The function values f(x), f(x + h), f(x + 4h).
-            If function_values is None, then compute the funtion
-            values.
+        alpha_parameter : float
+            The alpha parameter
 
         Returns
         -------
         test_ratio : float, > 0
             The test ratio
         """
-        if function_values is None:
-            f0 = self.function(self.x)
-            f1 = self.function(self.x + step)
-            f4 = self.function(self.x + 4.0 * step)
-            function_values = [f0, f1, f4]
-
-        f0, f1, f4 = function_values
-        test_ratio = abs(f4 - 4 * f1 + 3 * f0) / (8 * self.absolute_precision)
+        derivative_approx = self.general_finite_difference.compute(step)
+        derivative_approx_alpha = self.general_finite_difference.compute(alpha_parameter * step)
+        differentiation_order = self.general_finite_difference.get_differentiation_order()
+        test_ratio = abs(derivative_approx - derivative_approx_alpha) * step**differentiation_order / (self.a_parameter * self.absolute_precision)
         return test_ratio
 
     def find_step(
@@ -364,7 +361,7 @@ class ShiXieXuanNocedalGeneral:
             )
         return estim_step, number_of_iterations
 
-    def compute_first_derivative(self, step):
+    def compute_derivative(self, step):
         """
         Compute an approximate value of f'(x) using central finite difference.
 
@@ -375,11 +372,11 @@ class ShiXieXuanNocedalGeneral:
 
         Returns
         -------
-        f_prime_approx : float
-            The approximation of f'(x).
+        derivative_approx : float
+            The approximation of the d-th derivative of f at point x.
         """
-        f_prime_approx = self.first_derivative_forward.compute(step)
-        return f_prime_approx
+        derivative_approx = self.general_finite_difference.compute(step)
+        return derivative_approx
 
     def get_number_of_function_evaluations(self):
         """

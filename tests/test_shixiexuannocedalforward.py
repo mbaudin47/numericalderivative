@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Test for ShiXieXuanNocedalGeneral class.
+Test for ShiXieXuanNocedalForward class.
 """
 import unittest
 import numpy as np
@@ -10,7 +10,7 @@ import numericalderivative as nd
 
 
 # Define a function
-def my_exp(x):
+def exp(x):
     return np.exp(x)
 
 
@@ -53,13 +53,12 @@ def scaled_exp_3d_derivative(x):
     return -np.exp(-x / alpha) / (alpha**3)
 
 
-class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
+class CheckShiXieXuanNocedalForward(unittest.TestCase):
     def test_base_default_default_step(self):
         print("test_base_default_default_step")
         x = 1.0e0
-        differentiation_order = 1
         # Check approximate optimal h
-        algorithm = nd.ShiXieXuanNocedalGeneral(my_exp, x, differentiation_order, verbose=True)
+        algorithm = nd.ShiXieXuanNocedalForward(exp, x, verbose=True)
         initial_step = 1.0e0
         computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
@@ -86,7 +85,7 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         print("test_scaled_exp")
         x = 1.0e0
         # Check approximate optimal h
-        algorithm = nd.ShiXieXuanNocedalGeneral(scaled_exp, x, verbose=True)
+        algorithm = nd.ShiXieXuanNocedalForward(scaled_exp, x, verbose=True)
         initial_step = 1.0e0
         computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
@@ -117,7 +116,7 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         print("test_sin_at_zero")
         x = 0.0e0
         # Check approximate optimal h
-        algorithm = nd.ShiXieXuanNocedalGeneral(np.sin, x, verbose=True)
+        algorithm = nd.ShiXieXuanNocedalForward(np.sin, x, verbose=True)
         initial_step = 1.0e0
         computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
@@ -146,7 +145,7 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         function = problem.get_function()
         x = problem.get_x()
         #
-        algorithm = nd.ShiXieXuanNocedalGeneral(function, x)
+        algorithm = nd.ShiXieXuanNocedalForward(function, x)
         absolute_precision = algorithm.get_absolute_precision()
         step = 1.0e-5
         test_ratio = algorithm.compute_test_ratio(step)
