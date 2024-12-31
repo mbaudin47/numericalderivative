@@ -26,6 +26,7 @@ from ._DumontetVignes import DumontetVignes
 from ._GillMurraySaundersWright import GillMurraySaundersWright
 from ._SteplemanWinarsky import SteplemanWinarsky, SteplemanWinarskyInitialize
 from ._ShiXieXuanNocedalForward import ShiXieXuanNocedalForward
+from ._ShiXieXuanNocedalGeneral import ShiXieXuanNocedalGeneral
 from ._FiniteDifferenceFormula import (
     FiniteDifferenceFormula,
     FirstDerivativeForward,
@@ -67,5 +68,6 @@ __all__ = [
     "SteplemanWinarskyInitialize",
     "ShiXieXuanNocedalForward",
     "GeneralFiniteDifference",
+    "ShiXieXuanNocedalGeneral"
 ]
 __version__ = "1.0"
