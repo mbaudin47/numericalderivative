@@ -55,19 +55,18 @@ def scaled_exp_3d_derivative(x):
 
 
 class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
-    """
     def test_base_default_default_step(self):
         print("test_base_default_default_step")
         x = 1.0e0
         differentiation_order = 1
         # Check approximate optimal h
-        formula_accuracy = 2
+        formula_accuracy = 1
         formula = nd.GeneralFiniteDifference(
             exp,
             x,
             differentiation_order,
             formula_accuracy,
-            direction="central",
+            direction="forward",
         )
         algorithm = nd.ShiXieXuanNocedalGeneral(formula, verbose=True)
         initial_step = 1.0e0
@@ -84,14 +83,13 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         print("number_of_iterations =", number_of_iterations)
         np.testing.assert_allclose(computed_step, step_exact, rtol=1.0e1)
         # Check approximate f'(x)
-        f_prime_approx = algorithm.compute_first_derivative(computed_step)
+        f_prime_approx = algorithm.compute_derivative(computed_step)
         print("f_prime_approx = ", f_prime_approx)
         f_prime_exact = exp_prime(x)
         print("f_prime_exact = ", f_prime_exact)
         absolute_error = abs(f_prime_approx - f_prime_exact)
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
-    """
 
     def test_ratio(self):
         problem = nd.SinProblem()
@@ -109,8 +107,7 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         )
         algorithm = nd.ShiXieXuanNocedalGeneral(formula, verbose=True)
         step = 1.0e-3
-        alpha_parameter = 2.0
-        test_ratio = algorithm.compute_test_ratio(step, alpha_parameter)
+        test_ratio = algorithm.compute_test_ratio(step)
         print(f"test_ratio = {test_ratio}")
         third_derivative = problem.get_third_derivative()
         abs_third_derivative_value = abs(third_derivative(x))
@@ -118,6 +115,7 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         #
         a_parameter = algorithm.get_a_parameter()
         b_constant = formula.compute_b_constant()
+        alpha_parameter = algorithm.get_alpha_parameter()
         scaled_b_parameter = (
             b_constant
             * math.factorial(differentiation_order)
@@ -129,7 +127,10 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
             a_parameter
             * absolute_precision
             * test_ratio
-            / (step ** (differentiation_order + formula_accuracy) * abs(scaled_b_parameter))
+            / (
+                step ** (differentiation_order + formula_accuracy)
+                * abs(scaled_b_parameter)
+            )
         )
         print(f"scaled_ratio = {scaled_ratio}")
         relative_error = (

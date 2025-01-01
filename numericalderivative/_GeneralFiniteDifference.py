@@ -606,3 +606,23 @@ class GeneralFiniteDifference:
         )
         z *= factor
         return z
+
+    def get_x(self):
+        """
+        Returns the point x where the derivative is to be approximated
+
+        Returns
+        x : float
+            The input point
+        """
+        return self.x
+
+    def get_function(self):
+        """
+        Returns the function which derivative is to be approximated
+
+        Returns
+        function : function
+            The function
+        """
+        return self.function

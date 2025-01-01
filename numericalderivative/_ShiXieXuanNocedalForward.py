@@ -233,15 +233,11 @@ class ShiXieXuanNocedalForward:
         This function computes an approximate optimal step h for the central
         finite difference.
 
-        The initial step suggested by (Shi, Xie, Xuan & Nocedal, 2022)
-        is based on the hypothesis that the second derivative is equal to 1:
-
-        .. math::
-
-            h_0 = \frac{2}{\sqrt{3}} \sqrt{\epsilon_f}
-
-        where :math:`\epsilon_f > 0` is the absolute precision of the
-        function evaluation.
+        If it is not provided by the user, the default initial step is based
+        on the hypothesis that the second derivative is equal to 1 and is
+        computed from :meth:`~numericalderivative.FirstDerivativeForward.compute_step`.
+        This is slightly different from the one suggested in (Shi, Xie, Xuan & Nocedal, 2022)
+        which involves a :math:`\sqrt{3}`.
         This initial guess is not always accurate and can lead to failure
         of the algorithm.
 
@@ -277,7 +273,10 @@ class ShiXieXuanNocedalForward:
             )
 
         if initial_step is None:
-            estim_step = 2.0 / np.sqrt(3.0) * np.sqrt(self.absolute_precision)
+            second_derivative_value = 1.0
+            estim_step = nd.FirstDerivativeForward.compute_step(
+                second_derivative_value, self.absolute_precision
+            )
         if initial_step < 0.0:
             raise ValueError(
                 f"The initial step must be > 0, "

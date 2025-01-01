@@ -114,7 +114,10 @@ for i in range(number_of_steps):
 
 # %%
 pl.figure()
-pl.title(f"Derivative of {name} at x={x}, " f"d={differentiation_order}, p={formula_accuracy}")
+pl.title(
+    f"Derivative of {name} at x={x}, "
+    f"d={differentiation_order}, p={formula_accuracy}"
+)
 pl.plot(step_array, abs_error_array, "o--", label="Abs. error")
 pl.plot(step_array, remainder_array, "^:", label="Abs. remainder")
 pl.xlabel("Step h")

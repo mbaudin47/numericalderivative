@@ -59,8 +59,8 @@ class ShiXieXuanNocedalGeneral:
 
         r_\ell \leq r(h) \leq r_u
 
-    where :math:`r_\ell > 0` is the lower bound of the test ratio
-    and :math:`r_u` is the upper bound.
+    where :math:`r_\ell > 1` is the lower bound of the test ratio
+    and :math:`r_u > r_\ell + 2` is the upper bound.
     The algorithm is based on bisection.
 
     If the algorithm succeeds, the method produces a step
@@ -69,7 +69,14 @@ class ShiXieXuanNocedalGeneral:
     .. math::
 
         \widetilde{h} \in \left[(r_\ell - 1)^{\frac{1}{d + p}},
-            (r_u + 1)^{\frac{1}{d + p}}\right] \left(\frac{\epsilon_f}{\left|c_r f^{(d + p)}(x)\right|}\right)^{\frac{1}{d + p}}.
+            (r_u + 1)^{\frac{1}{d + p}}\right]
+            \left(\frac{\epsilon_f}{\left|\overline{b}_{d + p} f^{(d + p)}(x)\right|}\right)^{\frac{1}{d + p}}
+
+    where:
+
+    .. math::
+
+        \overline{b}_{d + p} = \frac{d! (1 - \alpha^p)  b_{d + p}}{(d + p)!}.
 
     Parameters
     ----------
@@ -94,6 +101,11 @@ class ShiXieXuanNocedalGeneral:
         The minimum value of the test ratio.
     maximum_test_ratio : float, > minimum_test_ratio
         The maximum value of the test ratio.
+    alpha_parameter : float, > 0, != 1
+        The parameter alpha used in the test ratio
+    step_factor : float, > 1
+        The multiplier of the step
+        This is used to update the step in the search algorithm
     args : list
         A list of optional arguments that the function takes as inputs.
         By default, there is no extra argument and calling sequence of
@@ -145,6 +157,8 @@ class ShiXieXuanNocedalGeneral:
         absolute_precision=1.0e-15,
         minimum_test_ratio=1.5,
         maximum_test_ratio=6.0,
+        alpha_parameter=2.0,
+        step_factor=4.0,
         verbose=False,
     ):
         if not isinstance(general_finite_difference, nd.GeneralFiniteDifference):
@@ -174,6 +188,17 @@ class ShiXieXuanNocedalGeneral:
             )
         self.minimum_test_ratio = minimum_test_ratio
         self.maximum_test_ratio = maximum_test_ratio
+        if alpha_parameter <= 0.0 or alpha_parameter == 1.0:
+            raise ValueError(
+                f"alpha must be > 0 and different from 1, "
+                f"but alpha_parameter = {alpha_parameter}"
+            )
+        self.alpha_parameter = alpha_parameter
+        if step_factor < 1.0:
+            raise ValueError(
+                f"step factor must be > 1, " f"but step_factor = {step_factor}"
+            )
+        self.step_factor = step_factor
         # Compute the A parameter
         # This parameter is so that the scaled weights have a 1-norm
         # equal to one.
@@ -196,7 +221,7 @@ class ShiXieXuanNocedalGeneral:
         """
         return [self.minimum_test_ratio, self.maximum_test_ratio]
 
-    def compute_test_ratio(self, step, alpha_parameter=1.0):
+    def compute_test_ratio(self, step):
         r"""
         Compute the test ratio
 
@@ -214,7 +239,7 @@ class ShiXieXuanNocedalGeneral:
         """
         derivative_approx = self.general_finite_difference.compute(step)
         derivative_approx_alpha = self.general_finite_difference.compute(
-            alpha_parameter * step
+            self.alpha_parameter * step
         )
         differentiation_order = (
             self.general_finite_difference.get_differentiation_order()
@@ -238,15 +263,9 @@ class ShiXieXuanNocedalGeneral:
         This function computes an approximate optimal step h for the central
         finite difference.
 
-        The initial step suggested by (Shi, Xie, Xuan & Nocedal, 2022)
-        is based on the hypothesis that the second derivative is equal to 1:
-
-        .. math::
-
-            h_0 = \frac{2}{\sqrt{3}} \sqrt{\epsilon_f}
-
-        where :math:`\epsilon_f > 0` is the absolute precision of the
-        function evaluation.
+        If it is not provided by the user, the default initial step is based
+        on the hypothesis that the higher order derivative :math:`f^{(d + p)}(x)`
+        is equal to 1 and is computed from :meth:`~numericalderivative.GeneralFiniteDifference.compute_step`.
         This initial guess is not always accurate and can lead to failure
         of the algorithm.
 
@@ -282,22 +301,19 @@ class ShiXieXuanNocedalGeneral:
             )
 
         if initial_step is None:
-            estim_step = 2.0 / np.sqrt(3.0) * np.sqrt(self.absolute_precision)
+            higher_order_derivative_value = 1.0
+            estim_step = self.general_finite_difference.compute_step(
+                higher_order_derivative_value, self.absolute_precision
+            )
         if initial_step < 0.0:
             raise ValueError(
                 f"The initial step must be > 0, "
                 f"but initial_step = {initial_step:.3e}"
             )
         estim_step = initial_step
-        # Compute function value
-        f0 = self.function(self.x)
-        f1 = self.function(self.x + estim_step)
-        f4 = self.function(self.x + 4.0 * estim_step)
         if self.verbose:
-            print(f"x = {self.x}")
-            print(f"f(x) = {f0}")
-            print(f"f(x + h) = {f1}")
-            print(f"f(x + 4 * h) = {f4}")
+            x = self.general_finite_difference.get_x()
+            print(f"x = {x}")
             print(f"absolute_precision = {self.absolute_precision:.3e}")
             print(f"estim_step={estim_step:.3e}")
         lower_bound = 0.0
@@ -316,7 +332,7 @@ class ShiXieXuanNocedalGeneral:
             """
             # Update history
             self.step_history.append(estim_step)
-            test_ratio = self.compute_test_ratio(estim_step, [f0, f1, f4])
+            test_ratio = self.compute_test_ratio(estim_step)
             if self.verbose:
                 print(
                     f"+ Iter.={number_of_iterations}, "
@@ -347,15 +363,11 @@ class ShiXieXuanNocedalGeneral:
             if upper_bound == np.inf:
                 if self.verbose:
                     print("    - upper_bound == np.inf: increase h.")
-                estim_step *= 4.0
-                f1 = f4
-                f4 = self.function(self.x + 4.0 * estim_step)
+                estim_step *= self.step_factor
             elif lower_bound == 0.0:
                 if self.verbose:
                     print("    - lower_bound == 0: decrease h.")
-                estim_step /= 4.0
-                f4 = f1
-                f1 = self.function(self.x + estim_step)
+                estim_step /= self.step_factor
             else:
                 if logscale:
                     log_step = (np.log(lower_bound) + np.log(upper_bound)) / 2.0
@@ -364,8 +376,6 @@ class ShiXieXuanNocedalGeneral:
                     estim_step = (lower_bound + upper_bound) / 2.0
                 if self.verbose:
                     print(f"    - Bisection: estim_step = {estim_step:.3e}.")
-                f1 = self.function(self.x + estim_step)
-                f4 = self.function(self.x + 4 * estim_step)
 
         if not found:
             raise ValueError(
@@ -401,11 +411,9 @@ class ShiXieXuanNocedalGeneral:
         number_of_function_evaluations : int
             The number of function evaluations.
         """
-        finite_difference_feval = (
-            self.first_derivative_forward.get_function().get_number_of_evaluations()
+        total_feval = (
+            self.general_finite_difference.get_function().get_number_of_evaluations()
         )
-        function_eval = self.function.get_number_of_evaluations()
-        total_feval = finite_difference_feval + function_eval
         return total_feval
 
     def get_step_history(self):
@@ -444,3 +452,31 @@ class ShiXieXuanNocedalGeneral:
 
         """
         return self.a_parameter
+
+    def get_step_factor(self):
+        """
+        Return the step multiplier
+
+        This is used to update the step at each step of the search algorithm
+
+        Returns
+        -------
+        step_factor : float
+            The multiplier of the step
+
+        """
+        return self.step_factor
+
+    def get_alpha_parameter(self):
+        """
+        Return the step multiplier
+
+        This is used to update the step at each step of the search algorithm
+
+        Returns
+        -------
+        alpha_parameter : float
+            The parameter involved in the test ratio
+
+        """
+        return self.alpha_parameter
