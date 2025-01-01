@@ -10,7 +10,7 @@ import numericalderivative as nd
 
 
 # Define a function
-def my_exp(x):
+def exp(x):
     return np.exp(x)
 
 
@@ -58,7 +58,7 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         print("test_base_default_default_step")
         x = 1.0e0
         # Check approximate optimal h
-        algorithm = nd.ShiXieXuanNocedalForward(my_exp, x, verbose=True)
+        algorithm = nd.ShiXieXuanNocedalForward(exp, x, verbose=True)
         initial_step = 1.0e0
         computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()

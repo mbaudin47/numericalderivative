@@ -212,6 +212,28 @@ class GeneralFiniteDifference:
         # Compute the coefficients
         _ = self._compute_coefficients()
 
+    def get_differentiation_order(self):
+        r"""
+        Return the differentiation order
+
+        Returns
+        -------
+        differentiation_order : int
+            The differentiation order
+        """
+        return self.differentiation_order
+
+    def get_formula_accuracy(self):
+        r"""
+        Return the formula accuracy
+
+        Returns
+        -------
+        formula_accuracy : int
+            The accuracy of the formula
+        """
+        return self.formula_accuracy
+
     def _compute_indices(self):
         r"""
         Computes the min and max indices for a finite difference formula.
@@ -459,15 +481,13 @@ class GeneralFiniteDifference:
         absolute_coefficients = np.sum(np.abs(self.coefficients))
         # Compute b(d + p)
         q = self.differentiation_order + self.formula_accuracy
-        constant = 0.0
-        for i in range(self.imin, self.imax + 1):
-            constant += self.coefficients[i - self.imin] * i**q
+        b_constant = self.compute_b_constant()
         # Compute step
         factor = abs(
             self.differentiation_order
             * math.factorial(q)
             * absolute_coefficients
-            / (self.formula_accuracy * constant)
+            / (self.formula_accuracy * b_constant)
         )
         exponent_argument = abs(
             factor * absolute_precision / higher_order_derivative_value
@@ -479,6 +499,27 @@ class GeneralFiniteDifference:
             absolute_precision,
         )
         return step, absolute_error
+
+    def compute_b_constant(self):
+        r"""
+        Compute the constant b involved in the finite difference formula.
+
+        The coefficient :math:`b_{d + p}` is (see (Shi, Xie, Xuan & Nocedal, 2022) eq. page 7):
+
+        .. math::
+
+            b_{d + p} = \sum_{i = i_{\min}}^{i_\max} i^{d + p} c_i.
+
+        Returns
+        -------
+        b_constant : float
+            The b parameter
+        """
+        q = self.differentiation_order + self.formula_accuracy
+        b_constant = 0.0
+        for i in range(self.imin, self.imax + 1):
+            b_constant += self.coefficients[i - self.imin] * i**q
+        return b_constant
 
     def compute(self, step):
         r"""
@@ -565,3 +606,23 @@ class GeneralFiniteDifference:
         )
         z *= factor
         return z
+
+    def get_x(self):
+        """
+        Returns the point x where the derivative is to be approximated
+
+        Returns
+        x : float
+            The input point
+        """
+        return self.x
+
+    def get_function(self):
+        """
+        Returns the function which derivative is to be approximated
+
+        Returns
+        function : function
+            The function
+        """
+        return self.function
