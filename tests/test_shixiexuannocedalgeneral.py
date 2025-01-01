@@ -101,15 +101,14 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         formula_accuracy = 2
         differentiation_order = 1
         formula = nd.GeneralFiniteDifference(
-            exp,
+            function,
             x,
             differentiation_order,
             formula_accuracy,
             direction="central",
         )
         algorithm = nd.ShiXieXuanNocedalGeneral(formula, verbose=True)
-        absolute_precision = algorithm.get_absolute_precision()
-        step = 1.0e-5
+        step = 1.0e-3
         alpha_parameter = 2.0
         test_ratio = algorithm.compute_test_ratio(step, alpha_parameter)
         print(f"test_ratio = {test_ratio}")
@@ -119,19 +118,19 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         #
         a_parameter = algorithm.get_a_parameter()
         b_constant = formula.compute_b_constant()
-        corrected_b_parameter = b_constant * (1.0 - alpha_parameter) ** formula_accuracy
-        numerator = (
+        scaled_b_parameter = (
+            b_constant
+            * math.factorial(differentiation_order)
+            * (1.0 - alpha_parameter**formula_accuracy)
+            / math.factorial(differentiation_order + formula_accuracy)
+        )
+        absolute_precision = algorithm.get_absolute_precision()
+        scaled_ratio = (
             a_parameter
             * absolute_precision
-            * math.factorial(differentiation_order + formula_accuracy)
             * test_ratio
+            / (step ** (differentiation_order + formula_accuracy) * abs(scaled_b_parameter))
         )
-        denominator = (
-            math.factorial(differentiation_order)
-            * step ** (differentiation_order + formula_accuracy)
-            * corrected_b_parameter
-        )
-        scaled_ratio = numerator / denominator
         print(f"scaled_ratio = {scaled_ratio}")
         relative_error = (
             abs(scaled_ratio - abs_third_derivative_value) / abs_third_derivative_value
