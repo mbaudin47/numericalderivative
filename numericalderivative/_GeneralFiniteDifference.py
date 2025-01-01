@@ -501,12 +501,25 @@ class GeneralFiniteDifference:
         return step, absolute_error
 
     def compute_b_constant(self):
-        # Compute b(d + p)
+        r"""
+        Compute the constant b involved in the finite difference formula.
+
+        The coefficient :math:`b_{d + p}` is (see (Shi, Xie, Xuan & Nocedal, 2022) eq. page 7):
+
+        .. math::
+
+            b_{d + p} = \sum_{i = i_{\min}}^{i_\max} i^{d + p} c_i.
+
+        Returns
+        -------
+        b_constant : float
+            The b parameter
+        """
         q = self.differentiation_order + self.formula_accuracy
-        constant = 0.0
+        b_constant = 0.0
         for i in range(self.imin, self.imax + 1):
-            constant += self.coefficients[i - self.imin] * i**q
-        return constant
+            b_constant += self.coefficients[i - self.imin] * i**q
+        return b_constant
 
     def compute(self, step):
         r"""
