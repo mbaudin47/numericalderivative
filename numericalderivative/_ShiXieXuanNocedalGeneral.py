@@ -258,10 +258,7 @@ class ShiXieXuanNocedalGeneral:
         logscale=True,
     ):
         r"""
-        Compute an approximate optimum step for central derivative using monotony properties.
-
-        This function computes an approximate optimal step h for the central
-        finite difference.
+        Compute an approximate optimum step
 
         If it is not provided by the user, the default initial step is based
         on the hypothesis that the higher order derivative :math:`f^{(d + p)}(x)`
@@ -302,9 +299,11 @@ class ShiXieXuanNocedalGeneral:
 
         if initial_step is None:
             higher_order_derivative_value = 1.0
-            estim_step = self.general_finite_difference.compute_step(
+            initial_step, _ = self.general_finite_difference.compute_step(
                 higher_order_derivative_value, self.absolute_precision
             )
+            if self.verbose:
+                print(f"Compute default initial_step={initial_step:.3e}")
         if initial_step < 0.0:
             raise ValueError(
                 f"The initial step must be > 0, "

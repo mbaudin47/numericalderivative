@@ -228,10 +228,7 @@ class ShiXieXuanNocedalForward:
         logscale=True,
     ):
         r"""
-        Compute an approximate optimum step for central derivative using monotony properties.
-
-        This function computes an approximate optimal step h for the central
-        finite difference.
+        Compute an approximate optimum step for forward F.D. formula
 
         If it is not provided by the user, the default initial step is based
         on the hypothesis that the second derivative is equal to 1 and is

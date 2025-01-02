@@ -91,6 +91,42 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         print("Absolute error = ", absolute_error)
         np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
 
+    def test_base_default_order_2(self):
+        print("test_base_default_order_2")
+        x = 1.0e0
+        differentiation_order = 1
+        # Check approximate optimal h
+        formula_accuracy = 2
+        formula = nd.GeneralFiniteDifference(
+            exp,
+            x,
+            differentiation_order,
+            formula_accuracy,
+            direction="central",
+        )
+        algorithm = nd.ShiXieXuanNocedalGeneral(formula, verbose=True)
+        initial_step = 1.0e0
+        computed_step, number_of_iterations = algorithm.find_step(initial_step)
+        number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+        print("Function evaluations =", number_of_function_evaluations)
+        assert number_of_function_evaluations > 0
+        print("Optimum h =", computed_step)
+        third_derivative_value = exp_3d_derivative(x)
+        step_exact, absolute_error = nd.FirstDerivativeCentral.compute_step(
+            third_derivative_value
+        )
+        print("step_exact = ", step_exact)
+        print("number_of_iterations =", number_of_iterations)
+        np.testing.assert_allclose(computed_step, step_exact, rtol=1.0e1)
+        # Check approximate f'(x)
+        f_prime_approx = algorithm.compute_derivative(computed_step)
+        print("f_prime_approx = ", f_prime_approx)
+        f_prime_exact = exp_prime(x)
+        print("f_prime_exact = ", f_prime_exact)
+        absolute_error = abs(f_prime_approx - f_prime_exact)
+        print("Absolute error = ", absolute_error)
+        np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
+
     def test_ratio(self):
         problem = nd.SinProblem()
         #
@@ -140,7 +176,6 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
         np.testing.assert_allclose(
             scaled_ratio, abs_third_derivative_value, rtol=1.0e-4
         )
-
 
 if __name__ == "__main__":
     unittest.main()

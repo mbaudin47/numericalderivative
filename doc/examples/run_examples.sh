@@ -14,3 +14,4 @@ python3 plot_stepleman_winarsky_plots.py
 python3 plot_stepleman_winarsky.py
 python3 plot_shi_xie_xuan_nocedal_forward.py
 python3 plot_shi_xie_xuan_nocedal_forward_benchmark.py
+python3 plot_shi_xie_xuan_nocedal_general.py
