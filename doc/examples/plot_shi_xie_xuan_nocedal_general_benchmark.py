@@ -254,12 +254,18 @@ tabulate.tabulate(
 # %%
 # Notice that the method cannot perform correctly for the sin function
 # at the point :math:`x = \pm \pi`.
-# Indeed, this function is such that :math:`f''(x) = 0` if :math:`x = \pm \pi`.
-# In this case, the test ratio is zero and the method cannot work.
+# Indeed, this function is such that :math:`f(x) = 0`.
+# In this case, the absolute error is zero if it is computed
+# from the relative error.
 # Therefore, we make so that the points :math:`\pm \pi` are excluded from the benchmark.
 # The same problem appears at the point :math:`x = 0`.
 # This point is not included in the test set if the number of points is even
 # (e.g. with `number_of_test_points = 100`), but it might appear if the
 # number of test points is odd.
+
+# %%
+# Notice that the method cannot perform correctly for the polynomial
+# problem because the third derivative is zero.
+# This produces a zero test ratio which makes the method to fail.
 
 # %%

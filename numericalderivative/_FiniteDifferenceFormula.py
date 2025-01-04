@@ -325,7 +325,7 @@ class FirstDerivativeCentral(FiniteDifferenceFormula):
 
         .. math::
 
-            e(h^\star) = \frac{3^{\frac{2}{3}}}{2} \left( \epsilon_f^2 |f'''(x)| \right)^{1/3}
+            e(h^\star) = \frac{1}{2} 3^{\frac{2}{3}} \left( \epsilon_f^2 |f'''(x)| \right)^{1/3}
 
         Parameters
         ----------

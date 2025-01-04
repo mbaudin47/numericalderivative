@@ -177,5 +177,6 @@ class CheckShiXieXuanNocedalGeneral(unittest.TestCase):
             scaled_ratio, abs_third_derivative_value, rtol=1.0e-4
         )
 
+
 if __name__ == "__main__":
     unittest.main()
