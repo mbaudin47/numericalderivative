@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Benchmark Shi, Xie, Xuan & Nocedal's forward method
+Benchmark Shi, Xie, Xuan & Nocedal's general method
 ===================================================
 
-The goal of this example is to benchmark the :class:`~numericalderivative.ShiXieXuanNocedalForward`
+The goal of this example is to benchmark the :class:`~numericalderivative.ShiXieXuanNocedalGeneral`
 class on a collection of test problems.
 These problems are created by the :meth:`~numericalderivative.build_benchmark()` 
 static method, which returns a list of problems.
@@ -23,10 +23,17 @@ import numericalderivative as nd
 # ----------------------------
 
 
-class ShiXieXuanNocedalForwardMethod:
-    def __init__(self, relative_precision, initial_step):
+class ShiXieXuanNocedalGeneralMethod:
+    def __init__(
+        self,
+        relative_precision,
+        initial_step,
+        differentiation_order=1,
+        formula_accuracy=2,
+        direction="central",
+    ):
         """
-        Create a ShiXieXuanNocedalForward method to compute the approximate first derivative
+        Create a ShiXieXuanNocedalGeneral method to compute the approximate first derivative
 
         Parameters
         ----------
@@ -37,8 +44,11 @@ class ShiXieXuanNocedalForwardMethod:
         """
         self.relative_precision = relative_precision
         self.initial_step = initial_step
+        self.differentiation_order = differentiation_order
+        self.formula_accuracy = formula_accuracy
+        self.direction = direction
 
-    def compute_first_derivative(self, function, x):
+    def compute_derivative(self, function, x):
         """
         Compute the first derivative using ShiXieXuanNocedal
 
@@ -51,21 +61,27 @@ class ShiXieXuanNocedalForwardMethod:
 
         Returns
         -------
-        f_prime_approx : float
+        f_derivative_approx : float
             The approximate value of the first derivative of the function at point x
         number_of_function_evaluations : int
             The number of function evaluations.
         """
-        absolute_precision = abs(function(x)) * self.relative_precision
-        algorithm = nd.ShiXieXuanNocedalForward(
+        formula = nd.GeneralFiniteDifference(
             function,
             x,
+            self.differentiation_order,
+            self.formula_accuracy,
+            self.direction,
+        )
+        absolute_precision = abs(function(x)) * self.relative_precision
+        algorithm = nd.ShiXieXuanNocedalGeneral(
+            formula,
             absolute_precision,
         )
         step, _ = algorithm.find_step(self.initial_step)
-        f_prime_approx = algorithm.compute_first_derivative(step)
+        f_derivative_approx = algorithm.compute_derivative(step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
-        return f_prime_approx, number_of_function_evaluations
+        return f_derivative_approx, number_of_function_evaluations
 
 
 # %%
@@ -78,15 +94,23 @@ problem = nd.ExponentialProblem()
 print(problem)
 function = problem.get_function()
 x = problem.get_x()
-algorithm = nd.ShiXieXuanNocedalForward(
+differentiation_order = 1  # First derivative
+formula_accuracy = 2  # Order 2
+formula = nd.GeneralFiniteDifference(
     function,
     x,
+    differentiation_order,
+    formula_accuracy,
+    direction="central",  # Central formula
+)
+algorithm = nd.ShiXieXuanNocedalGeneral(
+    formula,
     verbose=True,
 )
-second_derivative = problem.get_second_derivative()
-second_derivative_value = second_derivative(x)
-optimal_step, absolute_error = nd.FirstDerivativeForward.compute_step(
-    second_derivative_value
+third_derivative = problem.get_third_derivative()
+third_derivative_value = third_derivative(x)
+optimal_step, absolute_error = nd.FirstDerivativeCentral.compute_step(
+    third_derivative_value
 )
 print("Exact h* = %.3e" % (optimal_step))
 function = problem.get_function()
@@ -94,11 +118,11 @@ first_derivative = problem.get_first_derivative()
 x = 1.0
 relative_precision = 1.0e-15
 absolute_precision = abs(function(x)) * relative_precision
-method = ShiXieXuanNocedalForwardMethod(absolute_precision, initial_step)
+method = ShiXieXuanNocedalGeneralMethod(absolute_precision, initial_step)
 (
     f_prime_approx,
     number_of_function_evaluations,
-) = method.compute_first_derivative(function, x)
+) = method.compute_derivative(function, x)
 first_derivative_value = first_derivative(x)
 absolute_error = abs(f_prime_approx - first_derivative_value)
 print(
@@ -114,7 +138,7 @@ print(
 # %%
 print("+ Benchmark on several points")
 number_of_test_points = 21  # This number of test points is odd
-problem = nd.PolynomialProblem()
+problem = nd.SinProblem()
 print(problem)
 interval = problem.get_interval()
 function = problem.get_function()
@@ -123,12 +147,12 @@ initial_step = 1.0e2
 test_points = np.linspace(interval[0], interval[1], number_of_test_points)
 relative_precision = 1.0e-15
 absolute_precision = abs(function(x)) * relative_precision
-method = ShiXieXuanNocedalForwardMethod(absolute_precision, initial_step)
+method = ShiXieXuanNocedalGeneralMethod(absolute_precision, initial_step)
 average_relative_error, average_feval, data = nd.benchmark_method(
     function,
     first_derivative,
     test_points,
-    method.compute_first_derivative,
+    method.compute_derivative,
     verbose=True,
 )
 print("Average relative error =", average_relative_error)
@@ -175,7 +199,7 @@ initial_step_map = {
 
 # %%
 # The next script evaluates a collection of benchmark problems
-# using the :class:`~numericalderivative.ShiXieXuanNocedalForward` class.
+# using the :class:`~numericalderivative.ShiXieXuanNocedalGeneral` class.
 
 # %%
 number_of_test_points = 100  # This value can significantly change the results
@@ -201,9 +225,9 @@ for i in range(number_of_functions):
         lower_x_bound += delta_x
         upper_x_bound -= delta_x
     test_points = np.linspace(lower_x_bound, upper_x_bound, number_of_test_points)
-    method = ShiXieXuanNocedalForwardMethod(relative_precision, initial_step)
+    method = ShiXieXuanNocedalGeneralMethod(relative_precision, initial_step)
     average_relative_error, average_feval, _ = nd.benchmark_method(
-        function, first_derivative, test_points, method.compute_first_derivative
+        function, first_derivative, test_points, method.compute_derivative
     )
     average_absolute_error_list.append(average_relative_error)
     average_feval_list.append(average_feval)
@@ -237,3 +261,5 @@ tabulate.tabulate(
 # This point is not included in the test set if the number of points is even
 # (e.g. with `number_of_test_points = 100`), but it might appear if the
 # number of test points is odd.
+
+# %%
