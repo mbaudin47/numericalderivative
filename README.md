@@ -28,7 +28,7 @@ def scaled_exp(x):
 h0 = 1.0e5  # This is the initial step size
 x = 1.0e0
 algorithm = nd.SteplemanWinarsky(scaled_exp, x)
-h_optimal, iterations = algorithm.compute_step(h0)
+h_optimal, iterations = algorithm.find_step(h0)
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 ```
 

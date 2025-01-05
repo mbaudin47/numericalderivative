@@ -40,12 +40,6 @@ def scaled_exp_prime(x):
     return -np.exp(-x / alpha) / alpha
 
 
-# %%
-# Define its exact second derivative (for testing purposes only).
-def scaled_exp_second(x):
-    alpha = 1.0e6
-    return np.exp(-x / alpha) / alpha**2
-
 
 # %%
 # We evaluate the function, its first and second derivatives at the point x.
@@ -56,8 +50,6 @@ exact_f_value = scaled_exp(x)
 print("f(x) = ", exact_f_value)
 exact_f_prime_value = scaled_exp_prime(x)
 print("f'(x) = ", exact_f_prime_value)
-exact_f_second_value = scaled_exp_second(x)
-print("f''(x) = ", exact_f_second_value)
 
 # %%
 # SteplemanWinarsky
@@ -76,15 +68,15 @@ print("f''(x) = ", exact_f_second_value)
 # algorithms).
 
 # %%
-h0 = 1.0e5  # An upper bound of the truly optimal step
+step_initial = 1.0e5  # An upper bound of the truly optimal step
 x = 1.0e0
 algorithm = nd.SteplemanWinarsky(scaled_exp, x)
-h_optimal, iterations = algorithm.find_step(h0)
+step_optimal, iterations = algorithm.find_step(step_initial)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
-print("Optimum h =", h_optimal)
+print("Optimum h =", step_optimal)
 print("iterations =", iterations)
 print("Function evaluations =", number_of_function_evaluations)
-f_prime_approx = algorithm.compute_first_derivative(h_optimal)
+f_prime_approx = algorithm.compute_first_derivative(step_optimal)
 print("f_prime_approx = ", f_prime_approx)
 exact_f_prime_value = scaled_exp_prime(x)
 print("exact_f_prime_value = ", exact_f_prime_value)
@@ -98,7 +90,7 @@ print(f"Relative error = {relative_error:.3e}")
 # --------------
 
 # %%
-# In the next example, we use :class:`DumontetVignes` to compute an approximately
+# In the next example, we use :class:`~numericalderivative.DumontetVignes` to compute an approximately
 # optimal step.
 # For this algorithm, we must provide an interval which contains the
 # optimal step for the approximation of the third derivative.
@@ -106,15 +98,15 @@ print(f"Relative error = {relative_error:.3e}")
 # %%
 x = 1.0e0
 algorithm = nd.DumontetVignes(scaled_exp, x)
-h_optimal, _ = algorithm.find_step(
+step_optimal, _ = algorithm.find_step(
     kmin=1.0e-2,
     kmax=1.0e2,
 )
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
-print("Optimum h =", h_optimal)
+print("Optimum h =", step_optimal)
 print("iterations =", iterations)
 print("Function evaluations =", number_of_function_evaluations)
-f_prime_approx = algorithm.compute_first_derivative(h_optimal)
+f_prime_approx = algorithm.compute_first_derivative(step_optimal)
 print("f_prime_approx = ", f_prime_approx)
 exact_f_prime_value = scaled_exp_prime(x)
 print("exact_f_prime_value = ", exact_f_prime_value)
@@ -128,7 +120,7 @@ print(f"Relative error = {relative_error:.3e}")
 # ------------------------
 
 # %%
-# In the next example, we use :class:`GillMurraySaundersWright` to compute an approximately
+# In the next example, we use :class:`~numericalderivative.GillMurraySaundersWright` to compute an approximately
 # optimal step.
 # For this algorithm, we must provide an interval which contains the
 # optimal step for the approximation of the second derivative.
@@ -161,25 +153,27 @@ print(f"Relative error = {relative_error:.3e}")
 # Some function use extra arguments, such as parameters for examples.
 # For such a function, the `args` optionnal argument can be used
 # to pass extra parameters to the function.
+# The goal of the :class:`~numericalderivative.FunctionWithArguments` class
+# is to evaluate such a function.
 
 
 # %%
 # Define a function with arguments.
 def my_exp_with_args(x, scaling):
-    return np.exp(-x / scaling)
+    return np.exp(-x * scaling)
 
 
 # %%
 # Compute the derivative of a function with extra input arguments.
 
 # %%
-h0 = 1.0e5
+step_initial = 1.0e5
 x = 1.0e0
-scaling = 1.0e6
+scaling = 1.0e-6
 algorithm = nd.SteplemanWinarsky(my_exp_with_args, x, args=[scaling])
-h_optimal, iterations = algorithm.find_step(h0)
+step_optimal, iterations = algorithm.find_step(step_initial)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
-print("Optimum h for f''=", h_optimal)
+print("Optimum h for f''=", step_optimal)
 print("iterations =", iterations)
 print("Function evaluations =", number_of_function_evaluations)
 
