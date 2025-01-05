@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2024 - Michaël Baudin.
 """
-Class to define Shi, Xie, Xuan & Nocedal algorithm for the forward formula
+Class to define Shi, Xie, Xuan & Nocedal algorithm for the general finite difference formula
 """
 
 import numpy as np
@@ -9,38 +9,46 @@ import numericalderivative as nd
 import math
 
 
-class ShiXieXuanNocedalForward:
+class ShiXieXuanNocedalGeneral:
     r"""
-    Compute an approximately optimal step for the forward F.D. formula of the first derivative
+    Compute an approximately optimal step for the forward F.D. formula of any derivative
 
-    Uses forward finite difference to compute an approximate value of f'(x):
-
-    .. math::
-
-        f'(x) \approx \frac{f(x + h) - f(x)}{h}
-
-    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point
-    and :math:`h > 0` is the differentiation step.
-    If :math:`f''(x) \neq 0`, then the step which minimizes the total error is
-    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.2 page 4):
+    Uses general finite difference formula to compute an approximate value of :math:`f^{(d)}(x)`:
 
     .. math::
 
-        h^\star = 2 \sqrt{\frac{\epsilon_f}{\left|f''(x)\right|}}
+        f^{(d)}(x) \approx \frac{d!}{h^d} \sum_{i = i_{\min}}^{i_\max} c_i f(x + h i)
 
-    where :math:`\epsilon_f > 0` is the absolute error of the function evaluation.
-    If the order of magnitude of the second derivative can be guessed,
-    then :meth:`~numericalderivative.FirstDerivativeForward.compute_step` can be used.
-    Alternatively, the goal of :class:`~numericalderivative.ShiXieXuanNocedalForward`
+    where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point,
+    :math:`h > 0` is the differentiation step, :math:`d \in \mathbb{N}` is the
+    differentiation order and :math:`(c_i)_{i_\min \leq i\leq i_\max}` are
+    the weights.
+    The weights are computed so that the formula has order :math:`p\geq 1`:
+    see :class:`~numericalderivative.GeneralFiniteDifference` for details on this
+    topic.
+    If :math:`f^{(d + p)}(x) \neq 0`, then the step which minimizes the total error is
+    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 3.3 page 9):
+
+    .. math::
+
+        h^\star = \left(\frac{d}{p} (d + p)! \frac{\|\boldsymbol{c}\|_1}{|b_{d + p}|}
+        \frac{\epsilon_f}{\left|f^{(d + p)}(x)\right|}\right)^{\frac{1}{d + p}}
+
+    where :math:`\epsilon_f > 0` is the absolute error of the function evaluation
+    and :math:`p \in \mathbb{N}` is the order of precision of the formula.
+    If the order of magnitude of the order :math:`d + p` derivative can be guessed,
+    then :meth:`~numericalderivative.GeneralFiniteDifference.compute_step` can be used.
+    Alternatively, the goal of :class:`~numericalderivative.ShiXieXuanNocedalGeneral`
     is to compute :math:`h^\star` using
-    function evaluations only and without estimating :math:`f''(x)`.
+    function evaluations only and without estimating :math:`f^{(d + p)}(x)`.
 
     The algorithm considers the test ratio
-    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 2.3 page 4):
+    (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 3.14 page 7, with correction):
 
     .. math::
 
-        r(h) = \frac{\left|f(x + 4h) - 4f(x + h) + 3f(x)\right|}{8 \epsilon_f}
+        r(h) = \frac{\left|\left(\widetilde{f}^{(d)}(x; h) -
+            \widetilde{f}^{(d)}(x; \alpha h) \right) h^d\right|}{A \epsilon_f}.
 
     where :math:`h > 0` is the step and :math:`\epsilon_f> 0` is the absolute precision of evaluation
     of the function.
@@ -51,8 +59,8 @@ class ShiXieXuanNocedalForward:
 
         r_\ell \leq r(h) \leq r_u
 
-    where :math:`r_\ell > 0` is the lower bound of the test ratio
-    and :math:`r_u` is the upper bound.
+    where :math:`r_\ell > 1` is the lower bound of the test ratio
+    and :math:`r_u > r_\ell + 2` is the upper bound.
     The algorithm is based on bisection.
 
     If the algorithm succeeds, the method produces a step
@@ -60,36 +68,30 @@ class ShiXieXuanNocedalForward:
 
     .. math::
 
-        \widetilde{h} \in \frac{1}{\sqrt{3}} \left[\sqrt{r_\ell - 1}, \sqrt{r_u + 1}\right] h^\star.
+        \widetilde{h} \in \left[(r_\ell - 1)^{\frac{1}{d + p}},
+            (r_u + 1)^{\frac{1}{d + p}}\right]
+            \left(\frac{\epsilon_f}{\left|\overline{b}_{d + p} f^{(d + p)}(x)\right|}\right)^{\frac{1}{d + p}}
 
-    With :math:`r_\ell = 1.5` and :math:`r_u = 6`, the previous interval is:
+    where:
 
     .. math::
 
-        \widetilde{h} \in \left[0.41, 1.5\right] h^\star.
-
-    This method can fail if the value of the second derivative of the function
-    is equal to zero.
-    In this case, the test ratio is zero and there is no value of the
-    step :math:`h` which satisfies the required inequalities.
-    For example, the function :math:`f(x) = \sin(x)` for any
-    real number :math:`x` has a zero derivative at the point :math:`x = \pm \pi`.
-    This algorithm will fail to compute a suitable step in this case.
-
-    The method can fail if the absolute precision of the function value
-    is set to zero.
-    This can happen if the user computes it depending on the relative precision
-    and the absolute value of the function: if the value of the function
-    at point :math:`x` is zero, then the absolute precision is zero.
-    For example, the function :math:`f(x) = x^2` for any
-    real number :math:`x` has a zero value at the point :math:`x = 0`.
+        \overline{b}_{d + p} = \frac{d! (1 - \alpha^p)  b_{d + p}}{(d + p)!}.
 
     Parameters
     ----------
-    function : function
+    function : :class:`~numericalderivative.GeneralFiniteDifference`
         The function to differentiate.
     x : float
         The point where the derivative is to be evaluated.
+    differentiation_order : int
+        The order of differentiation.
+            For example differentiation_order = 1 is the first derivative.
+    formula_accuracy : int
+        The order of precision of the formula.
+        For the central F.D. formula,
+        then the formula accuracy is necessarily even.
+        If required, increase the formula accuracy by 1 unit.
     absolute_precision : float, > 0, optional
         The absolute precision of evaluation of f.
         If the function value is close to zero (e.g. for the sin function
@@ -99,6 +101,11 @@ class ShiXieXuanNocedalForward:
         The minimum value of the test ratio.
     maximum_test_ratio : float, > minimum_test_ratio
         The maximum value of the test ratio.
+    alpha_parameter : float, > 0, != 1
+        The parameter alpha used in the test ratio
+    step_factor : float, > 1
+        The multiplier of the step
+        This is used to update the step in the search algorithm
     args : list
         A list of optional arguments that the function takes as inputs.
         By default, there is no extra argument and calling sequence of
@@ -119,7 +126,7 @@ class ShiXieXuanNocedalForward:
 
     See also
     --------
-    FirstDerivativeForward
+    FirstDerivativeForward, GeneralFiniteDifference
 
     Examples
     --------
@@ -132,7 +139,7 @@ class ShiXieXuanNocedalForward:
     >>>     return np.exp(-x / alpha)
     >>>
     >>> x = 1.0e-2
-    >>> algorithm = nd.ShiXieXuanNocedalForward(
+    >>> algorithm = nd.ShiXieXuanNocedalGeneral(
     >>>     scaled_exp, x,
     >>> )
     >>> h_optimal, number_of_iterations = algorithm.find_step()
@@ -146,14 +153,20 @@ class ShiXieXuanNocedalForward:
 
     def __init__(
         self,
-        function,
-        x,
+        general_finite_difference,
         absolute_precision=1.0e-15,
         minimum_test_ratio=1.5,
         maximum_test_ratio=6.0,
-        args=None,
+        alpha_parameter=2.0,
+        step_factor=4.0,
         verbose=False,
     ):
+        if not isinstance(general_finite_difference, nd.GeneralFiniteDifference):
+            raise ValueError(
+                f"The general_finite_difference is not a GeneralFiniteDifference: "
+                f"type = {type(general_finite_difference)}"
+            )
+        self.general_finite_difference = general_finite_difference
         if absolute_precision <= 0.0:
             raise ValueError(
                 f"The absolute precision must be > 0. "
@@ -161,9 +174,6 @@ class ShiXieXuanNocedalForward:
             )
         self.absolute_precision = absolute_precision
         self.verbose = verbose
-        self.first_derivative_forward = nd.FirstDerivativeForward(function, x, args)
-        self.function = nd.FunctionWithArguments(function, args)
-        self.x = x
         self.step_history = []
         if minimum_test_ratio <= 1.0:
             raise ValueError(
@@ -178,6 +188,24 @@ class ShiXieXuanNocedalForward:
             )
         self.minimum_test_ratio = minimum_test_ratio
         self.maximum_test_ratio = maximum_test_ratio
+        if alpha_parameter <= 0.0 or alpha_parameter == 1.0:
+            raise ValueError(
+                f"alpha must be > 0 and different from 1, "
+                f"but alpha_parameter = {alpha_parameter}"
+            )
+        self.alpha_parameter = alpha_parameter
+        if step_factor < 1.0:
+            raise ValueError(
+                f"step factor must be > 1, " f"but step_factor = {step_factor}"
+            )
+        self.step_factor = step_factor
+        # Compute the A parameter
+        # This parameter is so that the scaled weights have a 1-norm
+        # equal to one.
+        differentiation_order = general_finite_difference.get_differentiation_order()
+        coefficients = general_finite_difference.get_coefficients()
+        coefficients_1_norm = np.linalg.norm(coefficients, 1)
+        self.a_parameter = math.factorial(differentiation_order) * coefficients_1_norm
         return
 
     def get_ratio_min_max(self):
@@ -193,7 +221,7 @@ class ShiXieXuanNocedalForward:
         """
         return [self.minimum_test_ratio, self.maximum_test_ratio]
 
-    def compute_test_ratio(self, step, function_values=None):
+    def compute_test_ratio(self, step):
         r"""
         Compute the test ratio
 
@@ -201,24 +229,26 @@ class ShiXieXuanNocedalForward:
         ----------
         step : float, > 0
             The finite difference step
-        function_values : list(3 floats)
-            The function values f(x), f(x + h), f(x + 4h).
-            If function_values is None, then compute the funtion
-            values.
+        alpha_parameter : float
+            The alpha parameter
 
         Returns
         -------
         test_ratio : float, > 0
             The test ratio
         """
-        if function_values is None:
-            f0 = self.function(self.x)
-            f1 = self.function(self.x + step)
-            f4 = self.function(self.x + 4.0 * step)
-            function_values = [f0, f1, f4]
-
-        f0, f1, f4 = function_values
-        test_ratio = abs(f4 - 4 * f1 + 3 * f0) / (8 * self.absolute_precision)
+        derivative_approx = self.general_finite_difference.compute(step)
+        derivative_approx_alpha = self.general_finite_difference.compute(
+            self.alpha_parameter * step
+        )
+        differentiation_order = (
+            self.general_finite_difference.get_differentiation_order()
+        )
+        test_ratio = (
+            abs(derivative_approx - derivative_approx_alpha)
+            * step**differentiation_order
+            / (self.a_parameter * self.absolute_precision)
+        )
         return test_ratio
 
     def find_step(
@@ -228,13 +258,11 @@ class ShiXieXuanNocedalForward:
         logscale=True,
     ):
         r"""
-        Compute an approximate optimum step for forward F.D. formula
+        Compute an approximate optimum step
 
         If it is not provided by the user, the default initial step is based
-        on the hypothesis that the second derivative is equal to 1 and is
-        computed from :meth:`~numericalderivative.FirstDerivativeForward.compute_step`.
-        This is slightly different from the one suggested in (Shi, Xie, Xuan & Nocedal, 2022)
-        which involves a :math:`\sqrt{3}`.
+        on the hypothesis that the higher order derivative :math:`f^{(d + p)}(x)`
+        is equal to 1 and is computed from :meth:`~numericalderivative.GeneralFiniteDifference.compute_step`.
         This initial guess is not always accurate and can lead to failure
         of the algorithm.
 
@@ -270,25 +298,21 @@ class ShiXieXuanNocedalForward:
             )
 
         if initial_step is None:
-            second_derivative_value = 1.0
-            estim_step = nd.FirstDerivativeForward.compute_step(
-                second_derivative_value, self.absolute_precision
+            higher_order_derivative_value = 1.0
+            initial_step, _ = self.general_finite_difference.compute_step(
+                higher_order_derivative_value, self.absolute_precision
             )
+            if self.verbose:
+                print(f"Compute default initial_step={initial_step:.3e}")
         if initial_step < 0.0:
             raise ValueError(
                 f"The initial step must be > 0, "
                 f"but initial_step = {initial_step:.3e}"
             )
         estim_step = initial_step
-        # Compute function value
-        f0 = self.function(self.x)
-        f1 = self.function(self.x + estim_step)
-        f4 = self.function(self.x + 4.0 * estim_step)
         if self.verbose:
-            print(f"x = {self.x}")
-            print(f"f(x) = {f0}")
-            print(f"f(x + h) = {f1}")
-            print(f"f(x + 4 * h) = {f4}")
+            x = self.general_finite_difference.get_x()
+            print(f"x = {x}")
             print(f"absolute_precision = {self.absolute_precision:.3e}")
             print(f"estim_step={estim_step:.3e}")
         lower_bound = 0.0
@@ -307,7 +331,7 @@ class ShiXieXuanNocedalForward:
             """
             # Update history
             self.step_history.append(estim_step)
-            test_ratio = self.compute_test_ratio(estim_step, [f0, f1, f4])
+            test_ratio = self.compute_test_ratio(estim_step)
             if self.verbose:
                 print(
                     f"+ Iter.={number_of_iterations}, "
@@ -338,15 +362,11 @@ class ShiXieXuanNocedalForward:
             if upper_bound == np.inf:
                 if self.verbose:
                     print("    - upper_bound == np.inf: increase h.")
-                estim_step *= 4.0
-                f1 = f4
-                f4 = self.function(self.x + 4.0 * estim_step)
+                estim_step *= self.step_factor
             elif lower_bound == 0.0:
                 if self.verbose:
                     print("    - lower_bound == 0: decrease h.")
-                estim_step /= 4.0
-                f4 = f1
-                f1 = self.function(self.x + estim_step)
+                estim_step /= self.step_factor
             else:
                 if logscale:
                     log_step = (np.log(lower_bound) + np.log(upper_bound)) / 2.0
@@ -355,8 +375,6 @@ class ShiXieXuanNocedalForward:
                     estim_step = (lower_bound + upper_bound) / 2.0
                 if self.verbose:
                     print(f"    - Bisection: estim_step = {estim_step:.3e}.")
-                f1 = self.function(self.x + estim_step)
-                f4 = self.function(self.x + 4 * estim_step)
 
         if not found:
             raise ValueError(
@@ -366,7 +384,7 @@ class ShiXieXuanNocedalForward:
             )
         return estim_step, number_of_iterations
 
-    def compute_first_derivative(self, step):
+    def compute_derivative(self, step):
         """
         Compute an approximate value of f'(x) using central finite difference.
 
@@ -377,11 +395,11 @@ class ShiXieXuanNocedalForward:
 
         Returns
         -------
-        f_prime_approx : float
-            The approximation of f'(x).
+        derivative_approx : float
+            The approximation of the d-th derivative of f at point x.
         """
-        f_prime_approx = self.first_derivative_forward.compute(step)
-        return f_prime_approx
+        derivative_approx = self.general_finite_difference.compute(step)
+        return derivative_approx
 
     def get_number_of_function_evaluations(self):
         """
@@ -392,11 +410,9 @@ class ShiXieXuanNocedalForward:
         number_of_function_evaluations : int
             The number of function evaluations.
         """
-        finite_difference_feval = (
-            self.first_derivative_forward.get_function().get_number_of_evaluations()
+        total_feval = (
+            self.general_finite_difference.get_function().get_number_of_evaluations()
         )
-        function_eval = self.function.get_number_of_evaluations()
-        total_feval = finite_difference_feval + function_eval
         return total_feval
 
     def get_step_history(self):
@@ -423,3 +439,43 @@ class ShiXieXuanNocedalForward:
 
         """
         return self.absolute_precision
+
+    def get_a_parameter(self):
+        """
+        Return the A parameter
+
+        Returns
+        -------
+        a_parameter : float
+            The A parameter
+
+        """
+        return self.a_parameter
+
+    def get_step_factor(self):
+        """
+        Return the step multiplier
+
+        This is used to update the step at each step of the search algorithm
+
+        Returns
+        -------
+        step_factor : float
+            The multiplier of the step
+
+        """
+        return self.step_factor
+
+    def get_alpha_parameter(self):
+        """
+        Return the step multiplier
+
+        This is used to update the step at each step of the search algorithm
+
+        Returns
+        -------
+        alpha_parameter : float
+            The parameter involved in the test ratio
+
+        """
+        return self.alpha_parameter

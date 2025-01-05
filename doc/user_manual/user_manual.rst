@@ -15,6 +15,7 @@ Algorithms for optimal step
        SteplemanWinarsky
        SteplemanWinarskyInitialize
        ShiXieXuanNocedalForward
+       ShiXieXuanNocedalGeneral
 
 Finite Differences
 ------------------

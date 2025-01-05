@@ -609,6 +609,10 @@ class SinProblem(DerivativeBenchmarkProblem):
     :math:`x = \pm \pi` because the second derivative is zero at these
     points.
 
+    Since :math:`sin(0)=\sin(\pm \pi) = 0`, computing the absolute error
+    depending on the function value is not possible for :math:`x = 0`
+    and :math:`x = \pm \pi`.
+
     See problem #5 in (Dumontet & Vignes, 1977) page 23.
     See (Stepleman & Wirnarsky, 1979) page 1263.
 
