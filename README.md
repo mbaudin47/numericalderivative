@@ -66,19 +66,12 @@ pip install numericalderivative
 - Dumontet, J., & Vignes, J. (1977). 
   Détermination du pas optimal dans le calcul des dérivées sur ordinateur. 
   RAIRO. Analyse numérique, 11 (1), 13-25.
+- Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). 
+  Adaptive finite-difference interval estimation for noisy 
+  derivative-free optimization. _SIAM Journal on Scientific Computing_, 
+  _44_(4), A2302-A2321.
 
 ## Roadmap
-- GillMurraySaundersWright: update to setup from absolute precision instead
-  of relative precision.
-  This is because the current computation based on the relative precision
-  cannot work if the function value at point x is zero.
-- Implement the method of:
-
-    Shi, H. J. M., Xie, Y., Xuan, M. Q., & Nocedal, J. (2022). 
-    Adaptive finite-difference interval estimation for noisy 
-    derivative-free optimization. _SIAM Journal on Scientific Computing_, 
-    _44_(4), A2302-A2321.
-
 - Implement a method to compute the absolute error of evaluation of the function f, 
   for example :
 
