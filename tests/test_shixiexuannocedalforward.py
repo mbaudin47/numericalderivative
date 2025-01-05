@@ -59,6 +59,32 @@ class CheckShiXieXuanNocedalForward(unittest.TestCase):
         x = 1.0e0
         # Check approximate optimal h
         algorithm = nd.ShiXieXuanNocedalForward(exp, x, verbose=True)
+        computed_step, number_of_iterations = algorithm.find_step()
+        number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+        print("Function evaluations =", number_of_function_evaluations)
+        assert number_of_function_evaluations > 0
+        print("Optimum h =", computed_step)
+        second_derivative_value = exp_2nd_derivative(x)
+        step_exact, absolute_error = nd.FirstDerivativeForward.compute_step(
+            second_derivative_value
+        )
+        print("step_exact = ", step_exact)
+        print("number_of_iterations =", number_of_iterations)
+        np.testing.assert_allclose(computed_step, step_exact, rtol=1.0e1)
+        # Check approximate f'(x)
+        f_prime_approx = algorithm.compute_first_derivative(computed_step)
+        print("f_prime_approx = ", f_prime_approx)
+        f_prime_exact = exp_prime(x)
+        print("f_prime_exact = ", f_prime_exact)
+        absolute_error = abs(f_prime_approx - f_prime_exact)
+        print("Absolute error = ", absolute_error)
+        np.testing.assert_allclose(f_prime_approx, f_prime_exact, atol=1.0e-15)
+
+    def test_base_default_set_step(self):
+        print("test_base_default_set_step")
+        x = 1.0e0
+        # Check approximate optimal h
+        algorithm = nd.ShiXieXuanNocedalForward(exp, x, verbose=True)
         initial_step = 1.0e0
         computed_step, number_of_iterations = algorithm.find_step(initial_step)
         number_of_function_evaluations = algorithm.get_number_of_function_evaluations()

@@ -6,7 +6,7 @@
 - TODO
 
 ### Changes
-- TODO
+- ShiXieXuanNocedalForward: Fixed default initial step.
 
 ### Documentation
 - TODO
