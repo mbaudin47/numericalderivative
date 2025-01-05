@@ -1,9 +1,10 @@
 # Change log
 
-## 0.3 release (in-progress)
+## 0.3 release (2025-01-05)
 
 ### Added
 - New ShiXieXuanNocedalForward.
+- New ShiXieXuanNocedalGeneral.
 - New benchmark_method.
 - DumontetVignes: new get_ell_min_max.
 - DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
@@ -11,6 +12,8 @@
 - New SteplemanWinarkyInitialize: compute initial step for SteplemanWinarsky.
 
 ### Changes
+- DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
+  Renamed compute_step into find_step to avoid confusion.
 - Removed SteplemanWinarsky.search_step_with_bisection: please use
   SteplemanWinarkyInitialize.find_initial_step().
 - DerivativeBenchmark: new print and pretty-print.
@@ -20,8 +23,6 @@
 - ScaledExponentialProblem: change parametrization.
 - DumontetVignes: parametrize depending on ell3 and ell4 instead
   of ell1 and ell2.
-- DumontetVignes, SteplemanWinarsky, GillMurraySaundersWright:
-  Renamed compute_step into find_step to avoid confusion.
 - GillMurraySaundersWright: Changed parametrization from relative precision
   of the function value into absolute precision to enable a zero function value.
 - Set relative_precision to 1.0e-15 in all algorithms
