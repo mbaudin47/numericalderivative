@@ -271,7 +271,7 @@ class ShiXieXuanNocedalForward:
 
         if initial_step is None:
             second_derivative_value = 1.0
-            estim_step = nd.FirstDerivativeForward.compute_step(
+            initial_step, _ = nd.FirstDerivativeForward.compute_step(
                 second_derivative_value, self.absolute_precision
             )
         if initial_step < 0.0:

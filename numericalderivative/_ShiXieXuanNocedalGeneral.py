@@ -21,10 +21,10 @@ class ShiXieXuanNocedalGeneral:
 
     where :math:`f` is the function, :math:`x \in \mathbb{R}` is the point,
     :math:`h > 0` is the differentiation step, :math:`d \in \mathbb{N}` is the
-    differentiation order and :math:`(c_i)_{i_\min \leq i\leq i_\max}` are
+    differentiation order and :math:`(c_i \in \mathbb{R})_{i_\min \leq i\leq i_\max}` are
     the weights.
     The weights are computed so that the formula has order :math:`p\geq 1`:
-    see :class:`~numericalderivative.GeneralFiniteDifference` for details on this
+    see :class:`~numericalderivative.GeneralFiniteDifference` for more details on this
     topic.
     If :math:`f^{(d + p)}(x) \neq 0`, then the step which minimizes the total error is
     (see (Shi, Xie, Xuan & Nocedal, 2022) eq. 3.3 page 9):
@@ -139,11 +139,18 @@ class ShiXieXuanNocedalGeneral:
     >>>     return np.exp(-x / alpha)
     >>>
     >>> x = 1.0e-2
-    >>> algorithm = nd.ShiXieXuanNocedalGeneral(
-    >>>     scaled_exp, x,
+    >>> differentiation_order = 1  # First derivative
+    >>> formula_accuracy = 2  # Order 2
+    >>> formula = nd.GeneralFiniteDifference(
+    >>>     scaled_exp,
+    >>>     x,
+    >>>     differentiation_order,
+    >>>     formula_accuracy,
+    >>>     direction="central",  # Central formula
     >>> )
+    >>> algorithm = nd.ShiXieXuanNocedalGeneral(formula)
     >>> h_optimal, number_of_iterations = algorithm.find_step()
-    >>> f_prime_approx = algorithm.compute_first_derivative(h_optimal)
+    >>> f_prime_approx = algorithm.compute_derivative(h_optimal)
 
     Set the initial step.
 

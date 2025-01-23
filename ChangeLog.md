@@ -1,5 +1,16 @@
 # Change log
 
+## 0.4 release (in-progress)
+
+### Added
+- TODO
+
+### Changes
+- ShiXieXuanNocedalForward: Fixed default initial step.
+
+### Documentation
+- TODO
+
 ## 0.3 release (2025-01-05)
 
 ### Added

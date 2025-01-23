@@ -5,12 +5,28 @@
 A simple demonstration of the methods
 =====================================
 
-Finds a step which is near to optimal for a central finite difference 
+In this example, we consider a function and we want to compute the value of the 
+first derivative at a given point x using a finite difference method.
+To do this, we need to find a step which is near to optimal for that finite difference
 formula.
+The goal of this example is to review several algorithms to do this.
 
-References
-----------
-- Adaptive numerical differentiation. R. S. Stepleman and N. D. Winarsky. Journal: Math. Comp. 33 (1979), 1257-1264 
++--------------------------------------------------------------------+-------------------------------+
+| **Method**                                                         | **Finite difference formula** |
++--------------------------------------------------------------------+-------------------------------+
+| Dumontet & Vignes (1977)                                           | central, order 2              |
++--------------------------------------------------------------------+-------------------------------+
+| Stepleman & Winarsky (1979)                                        | central, order 2              |
++--------------------------------------------------------------------+-------------------------------+
+| Gill, Murray, Saunders, & Wright (1983)                            | forward, order 1              |
++--------------------------------------------------------------------+-------------------------------+
+| Shi, Xie, Xuan & Nocedal (2022) for the forward finite diff.       | forward, order 1              |
++--------------------------------------------------------------------+-------------------------------+
+| Shi, Xie, Xuan & Nocedal (2022) for any finite diff. formula       | arbitrary                     |
++--------------------------------------------------------------------+-------------------------------+
+
+**Table 1.** Several algorithms to compute the optimal step of a finite difference formula.
+
 """
 # %%
 import numpy as np
@@ -40,7 +56,6 @@ def scaled_exp_prime(x):
     return -np.exp(-x / alpha) / alpha
 
 
-
 # %%
 # We evaluate the function, its first and second derivatives at the point x.
 
@@ -50,6 +65,33 @@ exact_f_value = scaled_exp(x)
 print("f(x) = ", exact_f_value)
 exact_f_prime_value = scaled_exp_prime(x)
 print("f'(x) = ", exact_f_prime_value)
+
+# %%
+# The next function prints the exact first derivative of the scaled exponential
+# function, the approximation from the finite difference formula and the
+# absolute and relative errors.
+
+
+# %%
+def print_results(f_prime_approx, x):
+    """
+    Prints the results of a finite difference formula
+
+    Parameters
+    ----------
+    f_prime_approx : float
+        The approximate value of the first derivative
+    x : float
+        The input point
+    """
+    exact_f_prime_value = scaled_exp_prime(x)
+    print(f"Exact f'(x)       = {exact_f_prime_value}")
+    print(f"Approximate f'(x) = {f_prime_approx}")
+    absolute_error = abs(f_prime_approx - exact_f_prime_value)
+    print(f"Absolute error = {absolute_error:.3e}")
+    relative_error = absolute_error / abs(exact_f_prime_value)
+    print(f"Relative error = {relative_error:.3e}")
+
 
 # %%
 # SteplemanWinarsky
@@ -68,22 +110,16 @@ print("f'(x) = ", exact_f_prime_value)
 # algorithms).
 
 # %%
-step_initial = 1.0e5  # An upper bound of the truly optimal step
+initial_step = 1.0e5  # An upper bound of the truly optimal step
 x = 1.0e0
 algorithm = nd.SteplemanWinarsky(scaled_exp, x)
-step_optimal, iterations = algorithm.find_step(step_initial)
+step_optimal, iterations = algorithm.find_step(initial_step)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h =", step_optimal)
 print("iterations =", iterations)
 print("Function evaluations =", number_of_function_evaluations)
 f_prime_approx = algorithm.compute_first_derivative(step_optimal)
-print("f_prime_approx = ", f_prime_approx)
-exact_f_prime_value = scaled_exp_prime(x)
-print("exact_f_prime_value = ", exact_f_prime_value)
-absolute_error = abs(f_prime_approx - exact_f_prime_value)
-print(f"Absolute error = {absolute_error:.3e}")
-relative_error = absolute_error / abs(exact_f_prime_value)
-print(f"Relative error = {relative_error:.3e}")
+print_results(f_prime_approx, x)
 
 # %%
 # DumontetVignes
@@ -107,13 +143,7 @@ print("Optimum h =", step_optimal)
 print("iterations =", iterations)
 print("Function evaluations =", number_of_function_evaluations)
 f_prime_approx = algorithm.compute_first_derivative(step_optimal)
-print("f_prime_approx = ", f_prime_approx)
-exact_f_prime_value = scaled_exp_prime(x)
-print("exact_f_prime_value = ", exact_f_prime_value)
-absolute_error = abs(f_prime_approx - exact_f_prime_value)
-print(f"Absolute error = {absolute_error:.3e}")
-relative_error = absolute_error / abs(exact_f_prime_value)
-print(f"Relative error = {relative_error:.3e}")
+print_results(f_prime_approx, x)
 
 # %%
 # GillMurraySaundersWright
@@ -136,14 +166,61 @@ number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h for f'=", step)
 print("Function evaluations =", number_of_function_evaluations)
 f_prime_approx = algorithm.compute_first_derivative(step)
-print("f_prime_approx = ", f_prime_approx)
-exact_f_prime_value = scaled_exp_prime(x)
-print("exact_f_prime_value = ", exact_f_prime_value)
-absolute_error = abs(f_prime_approx - exact_f_prime_value)
-print(f"Absolute error = {absolute_error:.3e}")
-relative_error = absolute_error / abs(exact_f_prime_value)
-print(f"Relative error = {relative_error:.3e}")
+print_results(f_prime_approx, x)
 
+# %%
+# ShiXieXuanNocedalForward
+# ------------------------
+
+# %%
+# In the next example, we use :class:`~numericalderivative.ShiXieXuanNocedalForward` to compute an approximately
+# optimal step.
+# This method uses the forward finite difference formula to approximate
+# the first derivative.
+
+# %%
+x = 1.0e0
+absolute_precision = 1.0e-15
+algorithm = nd.ShiXieXuanNocedalForward(scaled_exp, x, absolute_precision)
+initial_step = 1.0e5
+step, number_of_iterations = algorithm.find_step(initial_step)
+number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+print("Optimum h for f'=", step)
+print("Function evaluations =", number_of_function_evaluations)
+f_prime_approx = algorithm.compute_first_derivative(step)
+print_results(f_prime_approx, x)
+
+# %%
+# ShiXieXuanNocedalGeneral
+# ------------------------
+
+# %%
+# In the next example, we use :class:`~numericalderivative.ShiXieXuanNocedalGeneral` to compute an approximately
+# optimal step.
+# It uses :class:`~numericalderivative.GeneralFiniteDifference` to implement
+# a finite difference formula with arbitrary precision order to approximate
+# any derivative.
+
+# %%
+x = 1.0e0
+differentiation_order = 1  # First derivative
+formula_accuracy = 2  # Order 2
+formula = nd.GeneralFiniteDifference(
+    scaled_exp,
+    x,
+    differentiation_order,
+    formula_accuracy,
+    direction="central",  # Central formula
+)
+absolute_precision = 1.0e-15
+algorithm = nd.ShiXieXuanNocedalGeneral(formula, absolute_precision)
+initial_step = 1.0e5
+step, number_of_iterations = algorithm.find_step(initial_step)
+number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
+print("Optimum h for f'=", step)
+print("Function evaluations =", number_of_function_evaluations)
+f_prime_approx = algorithm.compute_derivative(step)
+print_results(f_prime_approx, x)
 
 # %%
 # Function with extra arguments
@@ -167,11 +244,11 @@ def my_exp_with_args(x, scaling):
 # Compute the derivative of a function with extra input arguments.
 
 # %%
-step_initial = 1.0e5
+initial_step = 1.0e5
 x = 1.0e0
 scaling = 1.0e-6
 algorithm = nd.SteplemanWinarsky(my_exp_with_args, x, args=[scaling])
-step_optimal, iterations = algorithm.find_step(step_initial)
+step_optimal, iterations = algorithm.find_step(initial_step)
 number_of_function_evaluations = algorithm.get_number_of_function_evaluations()
 print("Optimum h for f''=", step_optimal)
 print("iterations =", iterations)
