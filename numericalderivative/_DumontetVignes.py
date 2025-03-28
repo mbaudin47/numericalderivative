@@ -50,7 +50,7 @@ class DumontetVignes:
     .. math::
 
         f^{(3)}_k(x) 
-        = \frac{f(x + 2k) - f(x - 2k) - 2 (f(x + k) - f(x - k))}{2k^3}
+        \approx \frac{f(x + 2k) - f(x - 2k) - 2 (f(x + k) - f(x - k))}{2k^3}
 
     where :math:`k > 0` is the step used for the third derivative.
     The method introduces :math:`f^{(3)}_{inf}(x)` and :math:`f^{(3)}_{sup}(x)`
@@ -92,8 +92,8 @@ class DumontetVignes:
     
         L(k) = \frac{f^{(3)}_{sup}(x)}{f^{(3)}_{inf}(x)}.
 
-    If :math:`0 < f^{(3)}_{inf}(x) < f^{(3)}_{sup}(x)`, then :math:`L(k) > 1`.
-    If :math:`f^{(3)}_{inf}(x) < f^{(3)}_{sup}(x) < 0`, then :math:`L(k) < 1`.
+    If :math:`0 < f^{(3)}_{inf}(x) \leq f^{(3)}_{sup}(x)`, then :math:`L(k) > 1`.
+    If :math:`f^{(3)}_{inf}(x) \leq f^{(3)}_{sup}(x) < 0`, then :math:`L(k) < 1`.
     Moreover, if :math:`k \rightarrow 0`, then :math:`L(k) \rightarrow -1`.
 
     We search for :math:`k` such that the ratio :math:`L` is:
