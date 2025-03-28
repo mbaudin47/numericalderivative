@@ -32,6 +32,23 @@ h_optimal, iterations = algorithm.find_step(h0)
 f_prime_approx = algorithm.compute_first_derivative(h_optimal)
 ```
 
+## Why is it useful?
+
+Compared to other Python packages, this module has some advantages.
+- If the order of magnitude of some higher derivative is known,
+  the features provides methods to compute an approximately optimal
+  differentiation step.
+- If only function values are available, the package provides algorithms
+  to compute an approximately optimal step.
+  Indeed, other packages provides finite difference formulas, including
+  e.g. [numpy.gradient](https://numpy.org/doc/stable/reference/generated/numpy.gradient.html),
+  [GitHub - findiff](https://github.com/maroba/findiff),
+  [Scipy Docs - differentiate](http://scipy.github.io/devdocs/reference/generated/scipy.differentiate.derivative.html) and
+  [GitHub - numdifftools](https://github.com/pbrod/numdifftools).
+  But these tools require the user to provide the differentiation
+  step, which may be unknown.
+  The goal of the current package is to compute this step.
+
 ## Documentation & references
 
 - [Package documentation](https://mbaudin47.github.io/numericalderivative/main/index.html)
